@@ -1,0 +1,15 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "baristeuer",
+  "outputfilename": "baristeuer",
+  "assetdir": "./internal/ui/dist",
+  "frontend:dir": "./internal/ui",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm start",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "Codex",
+    "email": "codex@openai.com"
+  }
+}
