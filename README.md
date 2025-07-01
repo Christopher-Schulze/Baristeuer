@@ -13,6 +13,7 @@ Baristeuer is a proof-of-concept desktop application for managing **Vereinssteue
 - **Go** 1.20 or later
 - **Node.js** 18 or later
 - **Wails** (install via `go install github.com/wailsapp/wails/v2/cmd/wails@latest`)
+- **SQLite** development headers (required by `github.com/mattn/go-sqlite3`)
 
 Ensure these tools are available in your `PATH` before building the project.
 
