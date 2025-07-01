@@ -1,7 +1,17 @@
 package main
 
-import "fmt"
+import (
+	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+)
 
 func main() {
-	fmt.Println("Baristeuer CLI")
+	err := wails.Run(&options.App{
+		Title:       "Baristeuer",
+		AssetServer: &assetserver.Options{},
+	})
+	if err != nil {
+		println("Error:", err.Error())
+	}
 }

@@ -4,7 +4,7 @@ Baristeuer is a proof-of-concept desktop application for managing **Vereinssteue
 
 ## Features
 
-- Desktop client built with [Wails](https://wails.io/) (planned)
+- Desktop client built with [Wails](https://wails.io/)
 - React + Material UI interface located under `internal/ui`
 - Go back end located under `cmd`
 
@@ -22,16 +22,12 @@ Ensure these tools are available in your `PATH` before building the project.
    ```bash
    cd internal/ui && npm install
    ```
-2. Start the React dev server (placeholder):
+2. Run the application in development mode:
    ```bash
-   npm start
-   ```
-3. Build and run the Go back end:
-   ```bash
-   cd ../../cmd && go run .
+   wails dev
    ```
 
-Integration with Wails will later allow packaging everything as a desktop app.
+This launches the Wails runtime with hot reloading for the React front end and the Go back end.
 
 ## Future Plans
 
