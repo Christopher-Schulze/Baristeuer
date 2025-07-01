@@ -1,9 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-
-function App() {
-  return <div>Hello from Baristeuer UI</div>;
-}
+import StepperApp from './components/StepperApp';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+root.render(<StepperApp />);
