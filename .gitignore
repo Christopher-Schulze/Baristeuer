@@ -1,0 +1,23 @@
+# Binaries for Go programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Build directories and artifacts
+bin/
+build/
+dist/
+
+# Go coverage files
+*.cover
+
+# Node modules
+node_modules/
+
+# Editor directories and OS files
+.DS_Store
+.idea/
+.vscode/
