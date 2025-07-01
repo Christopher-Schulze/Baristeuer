@@ -39,4 +39,11 @@ Integration with Wails will later allow packaging everything as a desktop app.
 - Package the application via Wails for Windows, macOS and Linux
 - Add PDF export and optional cloud sync
 
+## Generating Reports
+
+The `internal/pdf` module contains a `GenerateReport(projectID)` function
+that fetches project data and creates a PDF using `gofpdf`. Generated
+files are stored under `data/reports/<projectID>/report.pdf`. A placeholder
+button in the React UI invokes this function through a Wails binding.
+
 Contributions and feedback are welcome!
