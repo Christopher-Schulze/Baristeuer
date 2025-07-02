@@ -22,3 +22,7 @@ sudo apt-get install golang-go
 The persistence layer relies on SQLite via the
 `github.com/mattn/go-sqlite3` driver. Ensure SQLite development headers are
 available (e.g. `libsqlite3-dev` on Debian/Ubuntu).
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
