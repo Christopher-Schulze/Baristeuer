@@ -7,7 +7,7 @@ import (
 
 	"github.com/jung-kurt/gofpdf"
 
-	taxrules "baristeuer/internal/taxrules"
+	"baristeuer/internal/taxlogic"
 )
 
 // Generator handles PDF creation.
@@ -15,40 +15,83 @@ type Generator struct {
 	BasePath string
 }
 
-// NewGenerator returns a new Generator storing reports under basePath.
+// NewGenerator returns a new Generator for storing reports.
 func NewGenerator(basePath string) *Generator {
 	if basePath == "" {
-		basePath = filepath.Join(".", "internal", "data")
+		basePath = filepath.Join(".", "internal", "data", "reports")
 	}
 	return &Generator{BasePath: basePath}
 }
 
-// GenerateReport fetches project data and creates a PDF report.
-func (g *Generator) GenerateReport(projectID string) (string, error) {
-	// placeholder project data
-	p := taxrules.Project{Revenue: 1000, Expenses: 500}
+// GenerateReport creates a tax report PDF using the provided revenue and expenses.
+func (g *Generator) GenerateReport(revenue, expenses float64) (string, error) {
+	taxResult := taxlogic.CalculateTaxes(revenue, expenses)
 
-	dir := filepath.Join(g.BasePath, projectID)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return "", fmt.Errorf("create project dir: %w", err)
+	// Ensure the directory exists
+	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
+		return "", fmt.Errorf("failed to create directory: %w", err)
 	}
-	file := filepath.Join(dir, "report.pdf")
+	fileName := fmt.Sprintf("tax_report_%d.pdf", taxResult.Timestamp)
+	filePath := filepath.Join(g.BasePath, fileName)
 
+	// PDF generation
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.AddPage()
 	pdf.SetFont("Arial", "B", 16)
-	pdf.Cell(40, 10, fmt.Sprintf("Report for project %s", projectID))
-	pdf.Ln(12)
-	pdf.SetFont("Arial", "", 12)
-	pdf.Cell(40, 10, fmt.Sprintf("Revenue: %.2f", p.Revenue))
-	pdf.Ln(8)
-	pdf.Cell(40, 10, fmt.Sprintf("Expenses: %.2f", p.Expenses))
-	pdf.Ln(8)
-	tax := taxrules.CalculateTax(p)
-	pdf.Cell(40, 10, fmt.Sprintf("Tax: %.2f", tax))
+	pdf.Cell(0, 10, "Steuerbericht 2025 (Gemeinnützige Organisation)")
+	pdf.Ln(20)
 
-	if err := pdf.OutputFileAndClose(file); err != nil {
-		return "", fmt.Errorf("write pdf: %w", err)
+	// Summary Section
+	pdf.SetFont("Arial", "B", 12)
+	pdf.Cell(0, 10, "1. Zusammenfassung der Finanzen")
+	pdf.Ln(10)
+	pdf.SetFont("Arial", "", 12)
+	pdf.Cell(60, 10, "Einnahmen:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.Revenue))
+	pdf.Ln(8)
+	pdf.Cell(60, 10, "Ausgaben:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.Expenses))
+	pdf.Ln(8)
+	pdf.Cell(60, 10, "Gewinn:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.Profit))
+	pdf.Ln(15)
+
+	// Tax Calculation Details
+	pdf.SetFont("Arial", "B", 12)
+	pdf.Cell(0, 10, "2. Steuerliche Prüfung und Berechnung")
+	pdf.Ln(10)
+	pdf.SetFont("Arial", "", 12)
+	pdf.Cell(60, 10, "Umsatzfreigrenze:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.RevenueExemptionLimit))
+	pdf.Ln(8)
+	pdf.Cell(60, 10, "Steuerpflicht aktiv:")
+	pdf.Cell(0, 10, fmt.Sprintf("%t", taxResult.IsTaxable))
+	pdf.Ln(8)
+	pdf.Cell(60, 10, "Gewinnfreibetrag:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.ProfitAllowance))
+	pdf.Ln(8)
+	pdf.Cell(60, 10, "Steuerpflichtiges Einkommen:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.TaxableIncome))
+	pdf.Ln(15)
+
+	// Final Tax Result
+	pdf.SetFont("Arial", "B", 12)
+	pdf.Cell(0, 10, "3. Finale Steuerlast")
+	pdf.Ln(10)
+	pdf.SetFont("Arial", "", 12)
+	pdf.Cell(60, 10, "Körperschaftsteuer (15%):")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.CorporateTax))
+	pdf.Ln(8)
+	pdf.Cell(60, 10, "Solidaritätszuschlag (5.5%):")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.SolidaritySurcharge))
+	pdf.Ln(8)
+	pdf.SetFont("Arial", "B", 12)
+	pdf.Cell(60, 10, "Gesamtsteuer:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.TotalTax))
+	pdf.Ln(10)
+
+	if err := pdf.OutputFileAndClose(filePath); err != nil {
+		return "", fmt.Errorf("failed to write PDF: %w", err)
 	}
-	return file, nil
+	return filePath, nil
 }
