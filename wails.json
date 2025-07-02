@@ -1,6 +1,7 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
   "name": "baristeuer",
+  "description": "Wails desktop client",
   "outputfilename": "baristeuer",
   "assetdir": "./internal/ui/dist",
   "frontend:dir": "./internal/ui",
