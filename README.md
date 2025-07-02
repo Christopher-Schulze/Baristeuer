@@ -10,9 +10,18 @@ Baristeuer is a proof-of-concept desktop application for managing **Vereinssteue
 
 ## Installation
 
-The project requires **Go**, **Node.js** and **Wails**. The following commands show a minimal setup on Debian/Ubuntu. Other platforms can use the official download pages.
-
-### Go
+The project requires [Go](https://go.dev/), [Node.js](https://nodejs.org/) and the [Wails](https://wails.io/) CLI:
 
 ```bash
-sudo apt-get install golang-go
+go install github.com/wailsapp/wails/v2/cmd/wails@latest
+```
+
+## Development
+
+Change into the `cmd` directory and start the application in development mode:
+
+```bash
+wails dev
+```
+
+This command watches both the backend and the frontend and reloads the application automatically.
