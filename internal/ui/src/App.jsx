@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GenerateReport } from '../wailsjs/go/pdf/Generator';
+import { GenerateReport } from './wailsjs/go/pdf/Generator';
 import './index.css';
 
 function App() {
