@@ -1,0 +1,11 @@
+{
+  "name": "Baristeuer",
+  "author": "",
+  "description": "Wails desktop client",
+  "frontend": {
+    "dir": "internal/ui",
+    "install": "npm install",
+    "build": "npm run build"
+  },
+  "assetdir": "internal/ui/dist"
+}
