@@ -1,0 +1,5 @@
+module baristeuer/internal/pdf
+
+go 1.20
+
+require github.com/jung-kurt/gofpdf v1.0.0
