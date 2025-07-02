@@ -2,50 +2,25 @@
 
 ## Wichtige Aufgaben
 
-### Frontend-Umstellung auf Svelte
-- **Problem:** Das aktuelle Frontend verwendet React, während Svelte gemäß den Benutzeranweisungen bevorzugt wird.
-- **Lösung:** Konvertiere die React-Komponenten zu Svelte-Komponenten.
-- **Priorität:** Hoch
-- **Status:** Erledigt
-
-### Anpassung des UI-Frameworks
-- **Problem:** Das aktuelle Frontend verwendet MUI für die Benutzeroberfläche. Tailwind und shadcn/ui sollten gemäß den Benutzeranweisungen verwendet werden.
-- **Lösung:** Entferne MUI vollständig und ersetze es durch Tailwind und shadcn/ui für die Benutzeroberfläche.
-- **Priorität:** Hoch
-- **Status:** Erledigt
-
-### Integration von Tailwind
-- **Problem:** Tailwind ist noch nicht vollständig in das Projekt integriert.
-- **Lösung:** Stelle sicher, dass Tailwind ordnungsgemäß integriert ist und in allen relevanten Dateien verwendet wird.
-- **Priorität:** Hoch
-- **Status:** Erledigt
-
-### Integration von Dexie.js für Zustandsverwaltung
-- **Problem:** Die Zustandsverwaltung im Frontend verwendet derzeit keine Dexie.js, obwohl dies in den Benutzeranweisungen bevorzugt wird.
-- **Lösung:** Integriere Dexie.js für die Zustandsverwaltung im Frontend.
+### React-Frontend verbessern
+- **Problem:** Das Frontend basiert auf React und verwendet Tailwind CSS. Eine Migration zu Svelte ist derzeit nicht vorgesehen.
+- **Lösung:** Komponenten pflegen und Layout optimieren.
 - **Priorität:** Mittel
-- **Status:** Erledigt
+- **Status:** offen
 
-### Überprüfung und Anpassung des Backends
-- **Problem:** Das Backend verwendet derzeit kein Gin für HTTP-Handling, obwohl dies in den Benutzeranweisungen bevorzugt wird.
-- **Lösung:** Überprüfe die Backend-Architektur und passe sie bei Bedarf an, um Gin für HTTP-Handling zu verwenden.
-- **Priorität:** Mittel
-- **Status:** Erledigt
+### gRPC-Web evaluieren
+- **Problem:** Der Datenaustausch erfolgt aktuell nur über die von Wails bereitgestellten Funktionen.
+- **Lösung:** Prüfen, ob eine Einbindung von gRPC-Web sinnvoll ist und gegebenenfalls umsetzen.
+- **Priorität:** Niedrig
+- **Status:** offen
 
-### Implementierung von gRPC-Web für Backend-Frontend-Kommunikation
-- **Problem:** Die Kommunikation zwischen Backend und Frontend verwendet derzeit kein gRPC-Web, obwohl dies in den Benutzeranweisungen bevorzugt wird.
-- **Lösung:** Implementiere gRPC-Web für die Kommunikation zwischen Backend und Frontend.
+### Tailwind einsetzen
+- **Problem:** Zu Beginn kam Material UI zum Einsatz.
+- **Lösung:** Tailwind wurde integriert und ersetzt die frühere UI-Bibliothek.
 - **Priorität:** Hoch
-- **Status:** Erledigt
-
-## Weitere Verbesserungen
+- **Status:** erledigt
 
 ### Dokumentation aktualisieren
-- **Aufgabe:** Aktualisiere die Dokumentation, um die Änderungen und neuen Technologien widerzuspiegeln.
+- **Aufgabe:** Dokumentation und Changelog aktuell halten.
 - **Priorität:** Niedrig
-- **Status:** Erledigt
-
-### Code-Qualität sicherstellen
-- **Aufgabe:** Stelle sicher, dass der Code den Benutzeranweisungen entspricht und keine Redundanzen enthält.
-- **Priorität:** Hoch
-- **Status:** Erledigt
+- **Status:** erledigt
