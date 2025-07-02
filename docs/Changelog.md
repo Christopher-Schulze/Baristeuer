@@ -4,12 +4,13 @@
 
 ### Added
 - **Unit Tests**: Added comprehensive unit tests for the tax calculation logic in `internal/taxlogic/` to ensure correctness and reliability.
-- **Final Documentation**: Updated `DOCUMENTATION.md` and `TODO123.md` to reflect the final state of the project.
+- **Tailwind Styling**: Replaced the old Material UI components with Tailwind CSS in the React frontend.
+- **Documentation Updates**: Updated `DOCUMENTATION.md` and `TODO123.md` to describe the React/Tailwind stack.
 
 ### Changed
 - **Code Refactoring**: Consolidated all tax logic into `tax_logic.go`, ensuring a single source of truth.
 - **PDF Enhancement**: Optimized PDF layout, fonts, and labels for improved readability and official compliance.
-- **Project Finalization**: Marked all tasks in `TODO123.md` as complete.
+
 
 ### Fixed
 - **Compilation Error**: Resolved a critical bug in the PDF generator by adding the missing `Timestamp` field to the `TaxResult` struct.
