@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { GenerateReport } from '../wailsjs/go/pdf/Generator';
-import { CreateProject, ListIncomes, AddExpense } from '../wailsjs/go/service/DataService';
+import { GenerateReport } from './wailsjs/go/pdf/Generator';
+import { CreateProject, ListIncomes, AddExpense } from './wailsjs/go/service/DataService';
 import './index.css';
 
 function App() {
