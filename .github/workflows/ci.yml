@@ -12,10 +12,12 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.20'
+      - name: Sync Go workspace
+        run: go work sync
       - name: Run go vet
-        run: go vet ./...
+        run: go vet ./cmd/... ./internal/... ./internal/pdf/...
       - name: Run go test
-        run: go test ./...
+        run: go test ./cmd/... ./internal/... ./internal/pdf/...
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
