@@ -16,3 +16,9 @@ The project requires **Go**, **Node.js** and **Wails**. The following commands s
 
 ```bash
 sudo apt-get install golang-go
+
+### Database
+
+The persistence layer relies on SQLite via the
+`github.com/mattn/go-sqlite3` driver. Ensure SQLite development headers are
+available (e.g. `libsqlite3-dev` on Debian/Ubuntu).
