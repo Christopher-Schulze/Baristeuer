@@ -1,79 +1,54 @@
 import { useState, useEffect } from 'react';
-import { GenerateReport } from './wailsjs/go/pdf/Generator';
-import { CreateProject, ListIncomes, AddExpense } from './wailsjs/go/service/DataService';
+import { useState, useEffect } from 'react';
+import { AddIncome, ListExpenses } from './wailsjs/go/data/DataService';
 import './index.css';
 
 function App() {
-  const [revenue, setRevenue] = useState('');
-  const [expenses, setExpenses] = useState('');
-  const [filePath, setFilePath] = useState('');
+  const [expenses, setExpenses] = useState([]);
+  const [description, setDescription] = useState('');
+  const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
   const [mode, setMode] = useState('light');
-  const [projectName, setProjectName] = useState('');
-  const [projectID, setProjectID] = useState(null);
-  const [expenseCategory, setExpenseCategory] = useState('');
-  const [expenseAmount, setExpenseAmount] = useState('');
-  const [incomes, setIncomes] = useState([]);
 
   const toggleMode = () => {
     setMode(prev => (prev === 'light' ? 'dark' : 'light'));
   };
 
+  const fetchExpenses = async () => {
+    try {
+      const expenseList = await ListExpenses();
+      setExpenses(expenseList || []);
+    } catch (err) {
+      setError(err.message || 'Failed to fetch expenses');
+    }
+  };
+
   useEffect(() => {
-    const fetchIncomes = async () => {
-      if (!projectID) return;
-      try {
-        const list = await ListIncomes(projectID);
-        setIncomes(list);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchIncomes();
-  }, [projectID]);
+    fetchExpenses();
+  }, []);
 
-  const handleCreateProject = async () => {
-    try {
-      const p = await CreateProject(projectName);
-      setProjectID(p.ID);
-    } catch (err) {
-      setError(err.message || 'Failed to create project');
+  const handleAddIncome = async (e) => {
+    e.preventDefault();
+    if (!description || !amount) {
+      setError('Description and amount are required.');
+      return;
     }
-  };
-
-  const handleAddExpense = async () => {
-    if (!projectID) return;
     try {
-      await AddExpense(projectID, expenseCategory, parseFloat(expenseAmount));
-      setExpenseCategory('');
-      setExpenseAmount('');
-      const list = await ListIncomes(projectID);
-      setIncomes(list);
+      await AddIncome(description, parseFloat(amount));
+      setDescription('');
+      setAmount('');
+      setError('');
+      await fetchExpenses(); // Refresh the list
     } catch (err) {
-      setError(err.message || 'Failed to add expense');
-    }
-  };
-
-  const handleReport = async () => {
-    setError('');
-    setFilePath('');
-    try {
-      if (!projectID) {
-        setError('Please create a project first.');
-        return;
-      }
-      const path = await GenerateReport(projectID);
-      setFilePath(path);
-    } catch (err) {
-      setError(err.message || 'An unknown error occurred.');
+      setError(err.message || 'Failed to add income');
     }
   };
 
   return (
     <div className={`min-h-screen ${mode === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-black'} p-8 transition-colors duration-300`}>
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">Tax Report Generator</h1>
+          <h1 className="text-4xl font-bold">Baristeuer</h1>
           <button
             onClick={toggleMode}
             className={`px-4 py-2 rounded font-semibold ${mode === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : 'bg-blue-500 hover:bg-blue-700 text-white'}`}
@@ -83,113 +58,74 @@ function App() {
         </div>
         
         <div className={`p-6 rounded-lg shadow-md ${mode === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
-          <div className="mb-6">
-            <label htmlFor="project" className="block text-sm font-medium mb-2">
-              Project Name
-            </label>
-            <input
-              id="project"
-              value={projectName}
-              onChange={e => setProjectName(e.target.value)}
-              className={`w-full p-2 border rounded ${mode === 'dark' ? 'bg-gray-700 border-gray-600' : 'border-gray-300'}`}
-              placeholder="My Project"
-            />
-            <button
-              onClick={handleCreateProject}
-              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-            >
-              Create Project
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <label htmlFor="revenue" className="block text-sm font-medium mb-2">
-                Revenue (€)
-              </label>
-              <input
-                type="number"
-                id="revenue"
-                value={revenue}
-                onChange={(e) => setRevenue(e.target.value)}
-                className={`w-full p-2 border rounded ${mode === 'dark' ? 'bg-gray-700 border-gray-600' : 'border-gray-300'}`}
-                placeholder="e.g., 50000"
-              />
+          <h2 className="text-2xl font-semibold mb-4">Add New Income</h2>
+          <form onSubmit={handleAddIncome} className="mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium mb-1">Description</label>
+                <input
+                  id="description"
+                  type="text"
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  className={`w-full p-2 border rounded ${mode === 'dark' ? 'bg-gray-700 border-gray-600' : 'border-gray-300'}`}
+                  placeholder="e.g., Coffee beans"
+                />
+              </div>
+              <div>
+                <label htmlFor="amount" className="block text-sm font-medium mb-1">Amount (€)</label>
+                <input
+                  id="amount"
+                  type="number"
+                  value={amount}
+                  onChange={e => setAmount(e.target.value)}
+                  className={`w-full p-2 border rounded ${mode === 'dark' ? 'bg-gray-700 border-gray-600' : 'border-gray-300'}`}
+                  placeholder="e.g., 25.50"
+                />
+              </div>
+              <div className="self-end">
+                <button
+                  type="submit"
+                  className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Add Income
+                </button>
+              </div>
             </div>
-            <div>
-              <label htmlFor="expenses" className="block text-sm font-medium mb-2">
-                Expenses (€)
-              </label>
-              <input
-                type="number"
-                id="expenses"
-                value={expenses}
-                onChange={(e) => setExpenses(e.target.value)}
-                className={`w-full p-2 border rounded ${mode === 'dark' ? 'bg-gray-700 border-gray-600' : 'border-gray-300'}`}
-                placeholder="e.g., 20000"
-              />
-            </div>
-          </div>
-
-          {projectID && (
-            <div className="mb-6">
-              <h2 className="font-semibold mb-2">Add Expense</h2>
-              <input
-                type="text"
-                value={expenseCategory}
-                onChange={e => setExpenseCategory(e.target.value)}
-                placeholder="Category"
-                className={`w-full p-2 mb-2 border rounded ${mode === 'dark' ? 'bg-gray-700 border-gray-600' : 'border-gray-300'}`}
-              />
-              <input
-                type="number"
-                value={expenseAmount}
-                onChange={e => setExpenseAmount(e.target.value)}
-                placeholder="Amount"
-                className={`w-full p-2 mb-2 border rounded ${mode === 'dark' ? 'bg-gray-700 border-gray-600' : 'border-gray-300'}`}
-              />
-              <button
-                onClick={handleAddExpense}
-                className="px-4 py-2 bg-purple-500 text-white rounded"
-              >
-                Add Expense
-              </button>
-            </div>
-          )}
-
-          <button
-            onClick={handleReport}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded transition-transform transform hover:scale-105"
-          >
-            Generate PDF Report
-          </button>
-
-          {projectID && incomes.length > 0 && (
-            <div className="mt-6">
-              <h2 className="font-semibold mb-2">Incomes</h2>
-              <ul className="list-disc list-inside">
-                {incomes.map(i => (
-                  <li key={i.ID}>{i.Source} - {i.Amount}€</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {filePath && (
-            <div className={`mt-6 p-4 rounded ${mode === 'dark' ? 'bg-green-900' : 'bg-green-100'}`}>
-              <p className="font-semibold text-green-700">Report generated successfully!</p>
-              <p className="text-sm">
-                Saved at: <code className={`${mode === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{filePath}</code>
-              </p>
-            </div>
-          )}
+          </form>
 
           {error && (
-            <div className={`mt-6 p-4 rounded ${mode === 'dark' ? 'bg-red-900' : 'bg-red-100'}`}>
+            <div className={`mb-6 p-4 rounded ${mode === 'dark' ? 'bg-red-900' : 'bg-red-100'}`}>
               <p className="font-semibold text-red-700">Error</p>
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
+
+          <h2 className="text-2xl font-semibold mb-4">Expenses</h2>
+          <div className="overflow-x-auto">
+            <table className={`min-w-full border-collapse ${mode === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+              <thead>
+                <tr>
+                  <th className={`px-4 py-2 border-b-2 ${mode === 'dark' ? 'border-gray-700' : 'border-gray-300'} text-left`}>Description</th>
+                  <th className={`px-4 py-2 border-b-2 ${mode === 'dark' ? 'border-gray-700' : 'border-gray-300'} text-right`}>Amount (€)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {expenses.length > 0 ? (
+                  expenses.map((expense, index) => (
+                    <tr key={index} className={`${mode === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}>
+                      <td className={`px-4 py-2 border-b ${mode === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>{expense.description}</td>
+                      <td className={`px-4 py-2 border-b ${mode === 'dark' ? 'border-gray-700' : 'border-gray-200'} text-right`}>{expense.amount.toFixed(2)}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="2" className={`px-4 py-4 text-center ${mode === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>No expenses recorded yet.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,33 @@
 # Changelog
 
+## [3.7.2025] - Final Review and Documentation
+
+### Added
+- **Final Project Assessment**: Added a final assessment to `DOCUMENTATION.md`, confirming the project's production readiness and outlining potential future enhancements.
+
+### Changed
+- **TODOs Finalized**: Updated `TODO123.md` to mark all development tasks as complete and revised descriptions to reflect the final project state.
+- **README Correction**: Corrected the frontend technology in `README.md` from "Svelte" to "React" to ensure consistency across all documentation.
+## [3.7.2025] - Wails Bindings
+
+### Changed
+- **Wails Bindings**: Regenerated the Wails module to expose the new `DataService` methods to the frontend. This involved fixing several compilation and project setup issues.
+
+## [3.7.2025] - Data Handling
+
+### Added
+- **In-Memory Data Service**: Implemented a new Go service (`internal/data/service.go`) with `AddIncome` and `ListExpenses` methods using an in-memory slice for data storage.
+- **UI for Data Entry**: Updated `App.jsx` to include a form for adding income (description and amount) and a table to display the list of expenses.
+
+### Changed
+- **Service Binding**: Updated `cmd/main.go` to bind the new `DataService`, making it available to the frontend.
+- **Frontend Logic**: Refactored `App.jsx` to use the new data service methods, removing the previous project-based data handling.
+
+## [3.7.2025] - Documentation
+
+### Changed
+- **README Revision**: Completely revised `README.md` to be more comprehensive and engaging. Embedded the project logo, added detailed feature descriptions, and included information about the technology stack.
+
 ## [3.7.2025] - CI Workflow
 
 ### Added
@@ -54,7 +82,6 @@
 ### Changed
 - Updated the application name to "Bari$teuer" in `wails.json`.
 - Set `logo.png` as the application icon in `wails.json`.
-- Completely revised `README.md` with a new structure, embedded logo, and detailed feature descriptions.
 
 ### Removed
 - Removed social media and contributor sections from `README.md`.
