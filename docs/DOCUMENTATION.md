@@ -27,6 +27,32 @@ Baristeuer is a desktop application for generating tax reports for non-profit or
   - `ui/`: React frontend source code.
 - `scripts/`: Helper scripts for development.
 
+## Workspace Setup and Running Tests
+
+The repository uses a Go **workspace** (`go.work`) to manage multiple modules.
+These modules are referenced by their paths:
+
+- `baristeuer` (located in `cmd/`)
+- `baristeuer/internal`
+- `baristeuer/internal/pdf`
+
+Before running any tests, make sure the workspace modules are synchronized so
+dependencies are resolved correctly:
+
+```bash
+go work sync
+```
+
+Once the workspace is synced, run the test suite from the repository root:
+
+```bash
+go test ./cmd/... ./internal/... ./internal/pdf/...
+```
+
+Running the command after `go work sync` ensures all workspace modules are
+included and prevents missing dependency errors. With Go 1.23 or newer you can
+also use `go test ./...`, which traverses all modules listed in `go.work`.
+
 ## Key Features
 
 - **React + Tailwind Interface**: UI built with React components styled using Tailwind.
