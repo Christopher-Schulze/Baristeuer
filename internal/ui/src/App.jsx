@@ -23,7 +23,12 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { AddExpense, ListExpenses } from "./wailsjs/go/service/DataService";
+import {
+  AddExpense,
+  ListExpenses,
+  AddIncome,
+  ListIncomes,
+} from "./wailsjs/go/service/DataService";
 import {
   GenerateReport,
   GenerateKSt1,
@@ -35,7 +40,9 @@ import {
 } from "./wailsjs/go/pdf/Generator";
 
 export default function App() {
+  const [incomes, setIncomes] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [source, setSource] = useState("");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
@@ -63,11 +70,21 @@ export default function App() {
     }
   };
 
+  const fetchIncomes = async () => {
+    try {
+      const list = await ListIncomes();
+      setIncomes(list || []);
+    } catch (err) {
+      setError(err.message || "Fehler beim Abrufen der Einnahmen");
+    }
+  };
+
   useEffect(() => {
     fetchExpenses();
+    fetchIncomes();
   }, []);
 
-  const handleAdd = async (e) => {
+  const handleAddExpense = async (e) => {
     e.preventDefault();
     const value = parseFloat(amount);
     if (!description || !amount) {
@@ -84,6 +101,28 @@ export default function App() {
       setAmount("");
       setError("");
       await fetchExpenses();
+    } catch (err) {
+      setError(err.message || "Fehler beim Hinzufügen");
+    }
+  };
+
+  const handleAddIncome = async (e) => {
+    e.preventDefault();
+    const value = parseFloat(amount);
+    if (!source || !amount) {
+      setError("Quelle und Betrag erforderlich");
+      return;
+    }
+    if (Number.isNaN(value) || value <= 0) {
+      setError("Betrag muss eine positive Zahl sein");
+      return;
+    }
+    try {
+      await AddIncome(source, value);
+      setSource("");
+      setAmount("");
+      setError("");
+      await fetchIncomes();
     } catch (err) {
       setError(err.message || "Fehler beim Hinzufügen");
     }
@@ -124,6 +163,7 @@ export default function App() {
           indicatorColor="secondary"
           centered
         >
+          <Tab label="Einnahmen" />
           <Tab label="Ausgaben" />
           <Tab label="Formulare" />
         </Tabs>
@@ -133,11 +173,76 @@ export default function App() {
           <>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" component="h2" gutterBottom>
+                Neue Einnahme
+              </Typography>
+              <Box
+                component="form"
+                onSubmit={handleAddIncome}
+                display="flex"
+                gap={2}
+                flexWrap="wrap"
+              >
+                <TextField
+                  label="Quelle"
+                  value={source}
+                  onChange={(e) => setSource(e.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label="Betrag (€)"
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+                <Button type="submit" variant="contained">
+                  Hinzufügen
+                </Button>
+              </Box>
+              {error && (
+                <Typography color="error" sx={{ mt: 2 }}>
+                  {error}
+                </Typography>
+              )}
+            </Paper>
+            <Paper>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Quelle</TableCell>
+                    <TableCell align="right">Betrag (€)</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {incomes.length > 0 ? (
+                    incomes.map((i, idx) => (
+                      <TableRow key={idx} hover>
+                        <TableCell>{i.source}</TableCell>
+                        <TableCell align="right">
+                          {i.amount.toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={2} align="center">
+                        Keine Einnahmen vorhanden
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </Paper>
+          </>
+        )}
+        {tab === 1 && (
+          <>
+            <Paper sx={{ p: 3, mb: 4 }}>
+              <Typography variant="h6" component="h2" gutterBottom>
                 Neue Ausgabe
               </Typography>
               <Box
                 component="form"
-                onSubmit={handleAdd}
+                onSubmit={handleAddExpense}
                 display="flex"
                 gap={2}
                 flexWrap="wrap"
@@ -194,7 +299,7 @@ export default function App() {
             </Paper>
           </>
         )}
-        {tab === 1 && (
+        {tab === 2 && (
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <Button

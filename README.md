@@ -28,7 +28,16 @@ Bari$teuer is built with the following technologies:
 
 ## Getting Started
 
-To use Bari$teuer, download the latest release for your operating system (macOS or Windows) and follow the installation instructions. Refer to the official documentation for further details.
+To build Bari$teuer locally, clone the repository and run:
+
+```bash
+go work sync
+npm install --prefix internal/ui
+npm run build --prefix internal/ui
+wails build -clean
+```
+
+The resulting binaries can be found in `build/bin`. Follow the official documentation for platform specific details.
 
 ## Testing
 
