@@ -2,10 +2,21 @@ package pdf
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"baristeuer/internal/data"
 )
+
+func assertContains(t *testing.T, path, substr string) {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read %s: %v", path, err)
+	}
+	if !strings.Contains(string(b), substr) {
+		t.Fatalf("%s does not contain %q", path, substr)
+	}
+}
 
 func TestGenerateReport(t *testing.T) {
 	dir := t.TempDir()
@@ -34,6 +45,7 @@ func TestGenerateReport(t *testing.T) {
 	if _, err := os.Stat(path); err != nil {
 		t.Fatalf("expected pdf at %s", path)
 	}
+	assertContains(t, path, "Steuerbericht 2025")
 }
 
 func TestFormGeneration(t *testing.T) {
@@ -68,6 +80,18 @@ func TestFormGeneration(t *testing.T) {
 		if _, err := os.Stat(path); err != nil {
 			t.Fatalf("expected file %s", path)
 		}
+		switch f.name {
+		case "kst1":
+			assertContains(t, path, "Finanzamt")
+		case "gem":
+			assertContains(t, path, "Gemeinn")
+		case "gk":
+			assertContains(t, path, "Gesch")
+		case "kst1f":
+			assertContains(t, path, "Feststellungszeitraum")
+		case "sport":
+			assertContains(t, path, "Sportliche")
+		}
 	}
 
 	// test GenerateAllForms
@@ -78,4 +102,5 @@ func TestFormGeneration(t *testing.T) {
 	if len(paths) != len(files)+1 { // +1 for report
 		t.Fatalf("expected %d files, got %d", len(files)+1, len(paths))
 	}
+	assertContains(t, paths[0], "Steuerbericht")
 }
