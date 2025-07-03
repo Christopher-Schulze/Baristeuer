@@ -39,6 +39,35 @@ func (ds *DataService) CreateProject(name string) (*data.Project, error) {
 	return p, nil
 }
 
+// ListProjects returns all projects.
+func (ds *DataService) ListProjects() ([]data.Project, error) {
+	projects, err := ds.store.ListProjects()
+	if err != nil {
+		return nil, err
+	}
+	ds.logger.Printf("Listed %d projects", len(projects))
+	return projects, nil
+}
+
+// UpdateProject renames an existing project.
+func (ds *DataService) UpdateProject(id int64, name string) error {
+	p := &data.Project{ID: id, Name: name}
+	if err := ds.store.UpdateProject(p); err != nil {
+		return err
+	}
+	ds.logger.Printf("Updated project %d", id)
+	return nil
+}
+
+// DeleteProject removes a project by ID.
+func (ds *DataService) DeleteProject(id int64) error {
+	if err := ds.store.DeleteProject(id); err != nil {
+		return err
+	}
+	ds.logger.Printf("Deleted project %d", id)
+	return nil
+}
+
 // ListIncomes returns all incomes for the given project.
 func (ds *DataService) ListIncomes(projectID int64) ([]data.Income, error) {
 	rows, err := ds.store.DB.Query(`SELECT id, project_id, source, amount FROM incomes WHERE project_id=?`, projectID)

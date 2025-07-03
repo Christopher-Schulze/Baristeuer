@@ -2,6 +2,42 @@ package service
 
 import "testing"
 
+func TestDataService_ProjectCRUD(t *testing.T) {
+	ds, err := NewDataService(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	p, err := ds.CreateProject("Proj1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p.ID == 0 {
+		t.Fatalf("expected ID set")
+	}
+
+	list, err := ds.ListProjects()
+	if err != nil || len(list) != 1 {
+		t.Fatalf("list projects: %v", list)
+	}
+
+	if err := ds.UpdateProject(p.ID, "Updated"); err != nil {
+		t.Fatal(err)
+	}
+	proj, _ := ds.store.GetProject(p.ID)
+	if proj.Name != "Updated" {
+		t.Fatalf("update failed")
+	}
+
+	if err := ds.DeleteProject(p.ID); err != nil {
+		t.Fatal(err)
+	}
+	list, _ = ds.ListProjects()
+	if len(list) != 0 {
+		t.Fatalf("expected empty list, got %v", list)
+	}
+}
 func TestDataService_AddIncome(t *testing.T) {
 	ds, err := NewDataService(":memory:")
 	if err != nil {

@@ -14,6 +14,11 @@ func TestProjectCRUD(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	list, err := s.ListProjects()
+	if err != nil || len(list) != 1 {
+		t.Fatalf("expected 1 project, got %v", list)
+	}
+
 	got, err := s.GetProject(p.ID)
 	if err != nil {
 		t.Fatal(err)

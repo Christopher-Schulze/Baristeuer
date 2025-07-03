@@ -89,6 +89,24 @@ func (s *Store) DeleteProject(id int64) error {
 	return err
 }
 
+// ListProjects returns all projects ordered by ID.
+func (s *Store) ListProjects() ([]Project, error) {
+	rows, err := s.DB.Query(`SELECT id, name FROM projects ORDER BY id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var projects []Project
+	for rows.Next() {
+		var p Project
+		if err := rows.Scan(&p.ID, &p.Name); err != nil {
+			return nil, err
+		}
+		projects = append(projects, p)
+	}
+	return projects, nil
+}
+
 // CRUD operations for Income
 func (s *Store) CreateIncome(i *Income) error {
 	res, err := s.DB.Exec(`INSERT INTO incomes(project_id, source, amount) VALUES(?,?,?)`, i.ProjectID, i.Source, i.Amount)

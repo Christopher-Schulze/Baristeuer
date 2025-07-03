@@ -32,6 +32,10 @@ import {
   DeleteIncome,
   UpdateExpense,
   DeleteExpense,
+  CreateProject,
+  ListProjects,
+  UpdateProject,
+  DeleteProject,
   CalculateProjectTaxes,
 } from "./wailsjs/go/service/DataService";
 import {
@@ -56,6 +60,10 @@ export default function App() {
   const [tab, setTab] = useState(0);
   const [editIncomeId, setEditIncomeId] = useState(null);
   const [editExpenseId, setEditExpenseId] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [projectID, setProjectID] = useState(0);
+  const [projectName, setProjectName] = useState("");
+  const [editProjectId, setEditProjectId] = useState(null);
 
   const theme = createTheme({
     palette: {
@@ -71,7 +79,7 @@ export default function App() {
 
   const fetchExpenses = async () => {
     try {
-      const list = await ListExpenses(1);
+      const list = await ListExpenses(projectID);
       setExpenses(list || []);
     } catch (err) {
       setError(err.message || "Fehler beim Abrufen der Ausgaben");
@@ -80,17 +88,35 @@ export default function App() {
 
   const fetchIncomes = async () => {
     try {
-      const list = await ListIncomes(1);
+      const list = await ListIncomes(projectID);
       setIncomes(list || []);
     } catch (err) {
       setError(err.message || "Fehler beim Abrufen der Einnahmen");
     }
   };
 
+  const fetchProjects = async () => {
+    try {
+      const list = await ListProjects();
+      setProjects(list || []);
+      if (list && list.length > 0 && projectID === 0) {
+        setProjectID(list[0].id);
+      }
+    } catch (err) {
+      setError(err.message || "Fehler beim Abrufen der Projekte");
+    }
+  };
+
   useEffect(() => {
-    fetchExpenses();
-    fetchIncomes();
+    fetchProjects();
   }, []);
+
+  useEffect(() => {
+    if (projectID !== 0) {
+      fetchExpenses();
+      fetchIncomes();
+    }
+  }, [projectID]);
 
   const handleAddExpense = async (e) => {
     e.preventDefault();
@@ -105,10 +131,10 @@ export default function App() {
     }
     try {
       if (editExpenseId !== null) {
-        await UpdateExpense(editExpenseId, 1, description, value);
+        await UpdateExpense(editExpenseId, projectID, description, value);
         setEditExpenseId(null);
       } else {
-        await AddExpense(1, description, value);
+        await AddExpense(projectID, description, value);
       }
       setDescription("");
       setAmount("");
@@ -132,10 +158,10 @@ export default function App() {
     }
     try {
       if (editIncomeId !== null) {
-        await UpdateIncome(editIncomeId, 1, source, value);
+        await UpdateIncome(editIncomeId, projectID, source, value);
         setEditIncomeId(null);
       } else {
-        await AddIncome(1, source, value);
+        await AddIncome(projectID, source, value);
       }
       setSource("");
       setAmount("");
@@ -146,9 +172,43 @@ export default function App() {
     }
   };
 
+  const handleAddProject = async (e) => {
+    e.preventDefault();
+    if (!projectName) {
+      setError("Projektname erforderlich");
+      return;
+    }
+    try {
+      if (editProjectId !== null) {
+        await UpdateProject(editProjectId, projectName);
+        setEditProjectId(null);
+      } else {
+        const p = await CreateProject(projectName);
+        setProjectID(p.id);
+      }
+      setProjectName("");
+      setError("");
+      await fetchProjects();
+    } catch (err) {
+      setError(err.message || "Fehler beim Speichern");
+    }
+  };
+
+  const handleDeleteProject = async (id) => {
+    try {
+      await DeleteProject(id);
+      if (id === projectID) {
+        setProjectID(0);
+      }
+      await fetchProjects();
+    } catch (err) {
+      setError(err.message || "Fehler beim Löschen");
+    }
+  };
+
   const handleGenerate = async (fn) => {
     try {
-      await fn(1);
+      await fn(projectID);
       setError("");
     } catch (err) {
       setError(err.message || "Fehler beim Erzeugen");
@@ -157,7 +217,7 @@ export default function App() {
 
   const handleCalculateTaxes = async () => {
     try {
-      const result = await CalculateProjectTaxes(1);
+      const result = await CalculateProjectTaxes(projectID);
       setTaxes(result);
       setError("");
     } catch (err) {
@@ -191,6 +251,7 @@ export default function App() {
           indicatorColor="secondary"
           centered
         >
+          <Tab label="Projekte" />
           <Tab label="Einnahmen" />
           <Tab label="Ausgaben" />
           <Tab label="Formulare" />
@@ -199,6 +260,82 @@ export default function App() {
       </AppBar>
       <Container maxWidth="md" sx={{ py: 4 }}>
         {tab === 0 && (
+          <>
+            <Paper sx={{ p: 3, mb: 4 }}>
+              <Typography variant="h6" component="h2" gutterBottom>
+                Projekt erstellen / bearbeiten
+              </Typography>
+              <Box
+                component="form"
+                onSubmit={handleAddProject}
+                display="flex"
+                gap={2}
+                flexWrap="wrap"
+              >
+                <TextField
+                  label="Projektname"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  fullWidth
+                />
+                <Button type="submit" variant="contained">
+                  Speichern
+                </Button>
+              </Box>
+              {error && (
+                <Typography color="error" sx={{ mt: 2 }}>
+                  {error}
+                </Typography>
+              )}
+            </Paper>
+            <Paper>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Aktionen</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {projects.length > 0 ? (
+                    projects.map((p) => (
+                      <TableRow key={p.id} hover selected={p.id === projectID}>
+                        <TableCell onClick={() => setProjectID(p.id)}>
+                          {p.name}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="small"
+                            onClick={() => {
+                              setProjectName(p.name);
+                              setEditProjectId(p.id);
+                            }}
+                          >
+                            Bearbeiten
+                          </Button>
+                          <Button
+                            size="small"
+                            color="error"
+                            onClick={() => handleDeleteProject(p.id)}
+                          >
+                            Löschen
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={2} align="center">
+                        Keine Projekte
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </Paper>
+          </>
+        )}
+        {tab === 1 && (
           <>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" component="h2" gutterBottom>
@@ -286,7 +423,7 @@ export default function App() {
             </Paper>
           </>
         )}
-        {tab === 1 && (
+        {tab === 2 && (
           <>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" component="h2" gutterBottom>
@@ -374,7 +511,7 @@ export default function App() {
             </Paper>
           </>
         )}
-        {tab === 2 && (
+        {tab === 3 && (
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <Button
@@ -453,7 +590,7 @@ export default function App() {
             </Grid>
           </Grid>
         )}
-        {tab === 3 && (
+        {tab === 4 && (
           <Paper sx={{ p: 3 }}>
             <Button
               variant="contained"

@@ -6,6 +6,22 @@ export function AddExpense(arg1, arg2, arg3) {
   return window.go.service.DataService.AddExpense(arg1, arg2, arg3);
 }
 
+export function CreateProject(arg1) {
+  return window.go.service.DataService.CreateProject(arg1);
+}
+
+export function ListProjects() {
+  return window.go.service.DataService.ListProjects();
+}
+
+export function UpdateProject(arg1, arg2) {
+  return window.go.service.DataService.UpdateProject(arg1, arg2);
+}
+
+export function DeleteProject(arg1) {
+  return window.go.service.DataService.DeleteProject(arg1);
+}
+
 export function UpdateExpense(arg1, arg2, arg3, arg4) {
   return window.go.service.DataService.UpdateExpense(arg1, arg2, arg3, arg4);
 }
