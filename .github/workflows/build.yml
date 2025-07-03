@@ -42,10 +42,8 @@ jobs:
     - name: Run Go Tests
       run: go test ./...
 
-    # We add this step to ensure the build continues even if there are no frontend tests
     - name: Run Frontend Tests
-      run: bun test --cwd internal/ui
-      continue-on-error: true
+      run: bun run test --cwd internal/ui
 
     - name: Build application
       run: wails build -ldflags="-s -w" -clean
