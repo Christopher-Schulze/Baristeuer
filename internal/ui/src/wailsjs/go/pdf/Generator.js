@@ -25,3 +25,7 @@ export function GenerateAnlageSport(projectID) {
 export function GenerateAllForms(projectID) {
   return window.go.pdf.Generator.GenerateAllForms(projectID);
 }
+
+export function GenerateFormsArchive(projectID) {
+  return window.go.pdf.Generator.GenerateFormsArchive(projectID);
+}

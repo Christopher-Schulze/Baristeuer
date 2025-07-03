@@ -39,7 +39,13 @@ npm run build --prefix internal/ui
 wails build -clean
 ```
 
-The resulting binaries can be found in `build/bin`. Follow the official documentation for platform specific details.
+The resulting binaries can be found in `build/bin`. Use `-db`, `-pdfdir`, `-year` and `-loglevel` flags to specify a custom SQLite file, PDF output directory, tax year and log verbosity, e.g.:
+
+```bash
+./baristeuer -db mydata.db -pdfdir ./reports -year 2025 -loglevel debug
+```
+
+Follow the official documentation for platform specific details.
 
 ## Testing
 
@@ -50,7 +56,7 @@ See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for more details.
 
 ## Packaging
 
-Run the packaging script to build binaries for macOS and Windows and place them
+Run the packaging script to build binaries for macOS, Windows and Linux and place them
 in versioned directories under `build/bin`:
 
 ```bash

@@ -14,6 +14,8 @@ vi.mock('./wailsjs/go/service/DataService', () => ({
   DeleteIncome: vi.fn(),
   ListIncomes: vi.fn(),
   CalculateProjectTaxes: vi.fn(),
+  AddMember: vi.fn(),
+  ListMembers: vi.fn(),
 }), { virtual: true });
 
 // import the mocked functions for easier access
@@ -27,10 +29,13 @@ import {
   DeleteIncome,
   ListIncomes,
   CalculateProjectTaxes,
+  AddMember,
+  ListMembers,
 } from './wailsjs/go/service/DataService';
 
 beforeEach(() => {
   vi.clearAllMocks();
+  ListMembers.mockResolvedValue([]);
 });
 
 test('renders app heading', async () => {
@@ -179,4 +184,22 @@ test('shows tax calculation result', async () => {
   expect(screen.getByText('Ausgaben: 20.00 \u20AC')).toBeInTheDocument();
   expect(screen.getByText('Steuerpflichtiges Einkommen: 80.00 \u20AC')).toBeInTheDocument();
   expect(screen.getByText('Gesamtsteuer: 10.00 \u20AC')).toBeInTheDocument();
+});
+
+test('adds a new member', async () => {
+  ListExpenses.mockResolvedValueOnce([]);
+  ListIncomes.mockResolvedValueOnce([]);
+  ListMembers.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 1, name: 'Bob', email: 'b@example.com', join_date: '2024-01-01' }]);
+  AddMember.mockResolvedValueOnce();
+  render(<App />);
+  await screen.findByRole('heading', { name: /Baristeuer/i });
+
+  fireEvent.click(screen.getByRole('tab', { name: /Mitglieder/i }));
+  fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: 'Bob' } });
+  fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'b@example.com' } });
+  fireEvent.change(screen.getByLabelText(/Beitrittsdatum/i), { target: { value: '2024-01-01' } });
+  fireEvent.click(screen.getByRole('button', { name: /Hinzufügen/i }));
+
+  await waitFor(() => expect(AddMember).toHaveBeenCalled());
+  expect(await screen.findByText('Bob')).toBeInTheDocument();
 });

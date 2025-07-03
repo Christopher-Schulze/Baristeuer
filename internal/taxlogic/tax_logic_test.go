@@ -5,6 +5,18 @@ import (
 	"testing"
 )
 
+func TestConfigForYear(t *testing.T) {
+	cfg2025 := ConfigForYear(2025)
+	def := DefaultConfig2025()
+	if cfg2025 != def {
+		t.Fatalf("2025 config mismatch")
+	}
+	cfgOther := ConfigForYear(2030)
+	if cfgOther != def {
+		t.Fatalf("default config expected for unknown year")
+	}
+}
+
 // Helper function to compare floats with a tolerance.
 func floatEquals(a, b float64) bool {
 	const tolerance = 1e-9
@@ -12,6 +24,7 @@ func floatEquals(a, b float64) bool {
 }
 
 func TestCalculateTaxes(t *testing.T) {
+	cfg := DefaultConfig2025()
 	testCases := []struct {
 		name     string
 		revenue  float64
@@ -31,8 +44,8 @@ func TestCalculateTaxes(t *testing.T) {
 				CorporateTax:          0,
 				SolidaritySurcharge:   0,
 				TotalTax:              0,
-				RevenueExemptionLimit: RevenueExemptionLimit,
-				ProfitAllowance:       ProfitAllowance,
+				RevenueExemptionLimit: cfg.RevenueExemptionLimit,
+				ProfitAllowance:       cfg.ProfitAllowance,
 			},
 		},
 		{
@@ -48,8 +61,8 @@ func TestCalculateTaxes(t *testing.T) {
 				CorporateTax:          3750.00,  // 25000 * 0.15
 				SolidaritySurcharge:   206.25,   // 3750 * 0.055
 				TotalTax:              3956.25,  // 3750 + 206.25
-				RevenueExemptionLimit: RevenueExemptionLimit,
-				ProfitAllowance:       ProfitAllowance,
+				RevenueExemptionLimit: cfg.RevenueExemptionLimit,
+				ProfitAllowance:       cfg.ProfitAllowance,
 			},
 		},
 		{
@@ -65,8 +78,8 @@ func TestCalculateTaxes(t *testing.T) {
 				CorporateTax:          0,
 				SolidaritySurcharge:   0,
 				TotalTax:              0,
-				RevenueExemptionLimit: RevenueExemptionLimit,
-				ProfitAllowance:       ProfitAllowance,
+				RevenueExemptionLimit: cfg.RevenueExemptionLimit,
+				ProfitAllowance:       cfg.ProfitAllowance,
 			},
 		},
 		{
@@ -82,8 +95,8 @@ func TestCalculateTaxes(t *testing.T) {
 				CorporateTax:          0,
 				SolidaritySurcharge:   0,
 				TotalTax:              0,
-				RevenueExemptionLimit: RevenueExemptionLimit,
-				ProfitAllowance:       ProfitAllowance,
+				RevenueExemptionLimit: cfg.RevenueExemptionLimit,
+				ProfitAllowance:       cfg.ProfitAllowance,
 			},
 		},
 		{
@@ -99,8 +112,8 @@ func TestCalculateTaxes(t *testing.T) {
 				CorporateTax:          0,
 				SolidaritySurcharge:   0,
 				TotalTax:              0,
-				RevenueExemptionLimit: RevenueExemptionLimit,
-				ProfitAllowance:       ProfitAllowance,
+				RevenueExemptionLimit: cfg.RevenueExemptionLimit,
+				ProfitAllowance:       cfg.ProfitAllowance,
 			},
 		},
 		{
@@ -116,8 +129,8 @@ func TestCalculateTaxes(t *testing.T) {
 				CorporateTax:          0,
 				SolidaritySurcharge:   0,
 				TotalTax:              0,
-				RevenueExemptionLimit: RevenueExemptionLimit,
-				ProfitAllowance:       ProfitAllowance,
+				RevenueExemptionLimit: cfg.RevenueExemptionLimit,
+				ProfitAllowance:       cfg.ProfitAllowance,
 			},
 		},
 	}

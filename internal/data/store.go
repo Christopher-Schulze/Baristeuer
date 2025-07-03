@@ -25,6 +25,9 @@ func NewStore(dsn string) (*Store, error) {
 }
 
 func (s *Store) init() error {
+	if _, err := s.DB.Exec(`PRAGMA foreign_keys = ON`); err != nil {
+		return err
+	}
 	schema := []string{
 		`CREATE TABLE IF NOT EXISTS projects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,13 +35,13 @@ func (s *Store) init() error {
         );`,
 		`CREATE TABLE IF NOT EXISTS incomes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            project_id INTEGER,
+            project_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
             source TEXT,
             amount REAL
         );`,
 		`CREATE TABLE IF NOT EXISTS expenses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            project_id INTEGER,
+            project_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
             category TEXT,
             amount REAL
         );`,
@@ -48,6 +51,8 @@ func (s *Store) init() error {
             email TEXT,
             join_date TEXT
         );`,
+		`CREATE INDEX IF NOT EXISTS idx_incomes_project_id ON incomes(project_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_expenses_project_id ON expenses(project_id);`,
 	}
 	for _, stmt := range schema {
 		if _, err := s.DB.Exec(stmt); err != nil {
@@ -89,6 +94,25 @@ func (s *Store) DeleteProject(id int64) error {
 	return err
 }
 
+// ListProjects returns all projects ordered by id.
+func (s *Store) ListProjects() ([]Project, error) {
+	rows, err := s.DB.Query(`SELECT id, name FROM projects ORDER BY id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var list []Project
+	for rows.Next() {
+		var p Project
+		if err := rows.Scan(&p.ID, &p.Name); err != nil {
+			return nil, err
+		}
+		list = append(list, p)
+	}
+	return list, nil
+}
+
 // CRUD operations for Income
 func (s *Store) CreateIncome(i *Income) error {
 	res, err := s.DB.Exec(`INSERT INTO incomes(project_id, source, amount) VALUES(?,?,?)`, i.ProjectID, i.Source, i.Amount)
@@ -118,6 +142,25 @@ func (s *Store) DeleteIncome(id int64) error {
 	return err
 }
 
+// ListIncomes returns all incomes for a project ordered by id.
+func (s *Store) ListIncomes(projectID int64) ([]Income, error) {
+	rows, err := s.DB.Query(`SELECT id, project_id, source, amount FROM incomes WHERE project_id=? ORDER BY id`, projectID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []Income
+	for rows.Next() {
+		var i Income
+		if err := rows.Scan(&i.ID, &i.ProjectID, &i.Source, &i.Amount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	return items, nil
+}
+
 // CRUD operations for Expense
 func (s *Store) CreateExpense(e *Expense) error {
 	res, err := s.DB.Exec(`INSERT INTO expenses(project_id, category, amount) VALUES(?,?,?)`, e.ProjectID, e.Category, e.Amount)
@@ -145,6 +188,25 @@ func (s *Store) UpdateExpense(e *Expense) error {
 func (s *Store) DeleteExpense(id int64) error {
 	_, err := s.DB.Exec(`DELETE FROM expenses WHERE id=?`, id)
 	return err
+}
+
+// ListExpenses returns all expenses for a project ordered by id.
+func (s *Store) ListExpenses(projectID int64) ([]Expense, error) {
+	rows, err := s.DB.Query(`SELECT id, project_id, category, amount FROM expenses WHERE project_id=? ORDER BY id`, projectID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []Expense
+	for rows.Next() {
+		var e Expense
+		if err := rows.Scan(&e.ID, &e.ProjectID, &e.Category, &e.Amount); err != nil {
+			return nil, err
+		}
+		items = append(items, e)
+	}
+	return items, nil
 }
 
 // SumIncomeByProject returns the total income amount for a project.

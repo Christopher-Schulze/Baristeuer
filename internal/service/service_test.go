@@ -2,7 +2,7 @@ package service
 
 import (
 	"bytes"
-	"log"
+	"log/slog"
 	"strings"
 	"testing"
 )
@@ -189,6 +189,29 @@ func TestDataService_MemberOperations(t *testing.T) {
 	}
 }
 
+func TestDataService_ListProjects(t *testing.T) {
+	ds, err := NewDataService(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	if _, err := ds.CreateProject("P1"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ds.CreateProject("P2"); err != nil {
+		t.Fatal(err)
+	}
+
+	list, err := ds.ListProjects()
+	if err != nil {
+		t.Fatalf("ListProjects returned error: %v", err)
+	}
+	if len(list) != 2 {
+		t.Fatalf("expected 2 projects, got %d", len(list))
+	}
+}
+
 func TestDataService_AddIncome_LogOutput(t *testing.T) {
 	ds, err := NewDataService(":memory:")
 	if err != nil {
@@ -197,13 +220,13 @@ func TestDataService_AddIncome_LogOutput(t *testing.T) {
 	defer ds.Close()
 
 	var buf bytes.Buffer
-	ds.logger = log.New(&buf, "", 0)
+	ds.logger = slog.New(slog.NewTextHandler(&buf, nil))
 
 	proj, _ := ds.CreateProject("Log Project")
 	if _, err := ds.AddIncome(proj.ID, "donation", 5); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !strings.Contains(buf.String(), "Added income") {
+	if !strings.Contains(buf.String(), "added income") {
 		t.Fatalf("log output missing: %s", buf.String())
 	}
 }

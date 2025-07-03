@@ -1,6 +1,7 @@
 package pdf
 
 import (
+	"archive/zip"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -16,14 +17,18 @@ import (
 type Generator struct {
 	BasePath string
 	store    *data.Store
+	Year     int
 }
 
 // NewGenerator returns a new Generator for storing reports.
-func NewGenerator(basePath string, store *data.Store) *Generator {
+func NewGenerator(basePath string, store *data.Store, year int) *Generator {
 	if basePath == "" {
 		basePath = filepath.Join(".", "internal", "data", "reports")
 	}
-	return &Generator{BasePath: basePath, store: store}
+	if year == 0 {
+		year = 2025
+	}
+	return &Generator{BasePath: basePath, store: store, Year: year}
 }
 
 // GenerateReport creates a tax report PDF for the given project.
@@ -50,7 +55,7 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 	pdf.SetCompression(false)
 	pdf.AddPage()
 	pdf.SetFont("Arial", "B", 16)
-	pdf.Cell(0, 10, "Steuerbericht 2025 (Gemeinnützige Organisation)")
+	pdf.Cell(0, 10, fmt.Sprintf("Steuerbericht %d (Gemeinnützige Organisation)", g.Year))
 	pdf.Ln(20)
 
 	// Summary Section
@@ -150,7 +155,7 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	pdf.Ln(8)
 
 	pdf.Cell(60, 8, "Veranlagungszeitraum:")
-	pdf.Cell(0, 8, "2025")
+	pdf.Cell(0, 8, fmt.Sprintf("%d", g.Year))
 	pdf.Ln(12)
 
 	pdf.SetFont("Arial", "B", 12)
@@ -292,6 +297,42 @@ func (g *Generator) GenerateAllForms(projectID int64) ([]string, error) {
 		paths = append(paths, p)
 	}
 	return paths, nil
+}
+
+// GenerateFormsArchive creates all forms and bundles them into a zip file.
+func (g *Generator) GenerateFormsArchive(projectID int64) (string, error) {
+	paths, err := g.GenerateAllForms(projectID)
+	if err != nil {
+		return "", err
+	}
+	archive := fmt.Sprintf("forms_%d.zip", projectID)
+	zipPath := filepath.Join(g.BasePath, archive)
+	file, err := os.Create(zipPath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+	zw := zip.NewWriter(file)
+	for _, p := range paths {
+		data, err := os.ReadFile(p)
+		if err != nil {
+			zw.Close()
+			return "", err
+		}
+		w, err := zw.Create(filepath.Base(p))
+		if err != nil {
+			zw.Close()
+			return "", err
+		}
+		if _, err := w.Write(data); err != nil {
+			zw.Close()
+			return "", err
+		}
+	}
+	if err := zw.Close(); err != nil {
+		return "", err
+	}
+	return zipPath, nil
 }
 
 // createSimpleForm writes a minimal PDF with the given title.
