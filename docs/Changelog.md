@@ -3,7 +3,7 @@
 ## [3.7.2025] - README Logo Path Fix
 
 ### Fixed
-- **README.md**: Corrected the image path for the logo to be a proper relative path (`./internal/ui/src/assets/logo.png`).
+- **README.md**: Corrected the image path for the logo to use the relative path (`./logo.png`).
 ## [3.7.2025] - Path Correction
 
 ### Fixed
