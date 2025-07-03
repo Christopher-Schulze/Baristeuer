@@ -2,17 +2,23 @@ package taxlogic
 
 import "time"
 
-// Tax constants for German non-profit organizations for the year 2025.
-const (
-	// Revenue threshold for economic business operations. If revenue is below this, profits are tax-exempt.
-	RevenueExemptionLimit = 45000.00
-	// Tax allowance for profits from economic business operations.
-	ProfitAllowance = 5000.00
-	// Corporate tax rate.
-	CorporateTaxRate = 0.15
-	// Solidarity surcharge rate (on top of corporate tax).
-	SolidaritySurchargeRate = 0.055
-)
+// TaxConfig holds the constants for a given tax year.
+type TaxConfig struct {
+	RevenueExemptionLimit   float64
+	ProfitAllowance         float64
+	CorporateTaxRate        float64
+	SolidaritySurchargeRate float64
+}
+
+// DefaultConfig2025 returns the tax configuration for the year 2025.
+func DefaultConfig2025() TaxConfig {
+	return TaxConfig{
+		RevenueExemptionLimit:   45000.00,
+		ProfitAllowance:         5000.00,
+		CorporateTaxRate:        0.15,
+		SolidaritySurchargeRate: 0.055,
+	}
+}
 
 // TaxResult holds the detailed results of a tax calculation.
 type TaxResult struct {
@@ -29,18 +35,17 @@ type TaxResult struct {
 	Timestamp             int64   // Unix timestamp of the calculation
 }
 
-// CalculateTaxes calculates the corporate tax and solidarity surcharge for a non-profit organization.
-// It considers the specific tax rules for Germany in 2025 for non-profits.
-func CalculateTaxes(revenue, expenses float64) TaxResult {
+// CalculateTaxesWithConfig calculates taxes using the provided configuration.
+func CalculateTaxesWithConfig(revenue, expenses float64, cfg TaxConfig) TaxResult {
 	profit := revenue - expenses
 
 	result := TaxResult{
 		Revenue:               revenue,
 		Expenses:              expenses,
 		Profit:                profit,
-		IsTaxable:             revenue > RevenueExemptionLimit,
-		RevenueExemptionLimit: RevenueExemptionLimit,
-		ProfitAllowance:       ProfitAllowance,
+		IsTaxable:             revenue > cfg.RevenueExemptionLimit,
+		RevenueExemptionLimit: cfg.RevenueExemptionLimit,
+		ProfitAllowance:       cfg.ProfitAllowance,
 		Timestamp:             time.Now().Unix(),
 	}
 
@@ -50,22 +55,27 @@ func CalculateTaxes(revenue, expenses float64) TaxResult {
 	}
 
 	// If the revenue limit is exceeded, the full profit (minus the allowance) is taxable.
-	taxableIncome := profit - ProfitAllowance
+	taxableIncome := profit - cfg.ProfitAllowance
 	if taxableIncome < 0 {
 		taxableIncome = 0
 	}
 	result.TaxableIncome = taxableIncome
 
 	// Calculate corporate tax (Körperschaftsteuer).
-	corporateTax := taxableIncome * CorporateTaxRate
+	corporateTax := taxableIncome * cfg.CorporateTaxRate
 	result.CorporateTax = corporateTax
 
 	// Calculate solidarity surcharge (Solidaritätszuschlag).
-	solidaritySurcharge := corporateTax * SolidaritySurchargeRate
+	solidaritySurcharge := corporateTax * cfg.SolidaritySurchargeRate
 	result.SolidaritySurcharge = solidaritySurcharge
 
 	// Calculate total tax liability.
 	result.TotalTax = corporateTax + solidaritySurcharge
 
 	return result
+}
+
+// CalculateTaxes calculates taxes using the default configuration for 2025.
+func CalculateTaxes(revenue, expenses float64) TaxResult {
+	return CalculateTaxesWithConfig(revenue, expenses, DefaultConfig2025())
 }

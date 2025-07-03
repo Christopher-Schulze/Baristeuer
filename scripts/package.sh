@@ -12,7 +12,7 @@ OUTPUT_DIR="$ROOT_DIR/build/bin/$VERSION"
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
-PLATFORMS=("darwin/universal" "windows/amd64")
+PLATFORMS=("darwin/universal" "windows/amd64" "linux/amd64" "linux/arm64")
 
 for PLATFORM in "${PLATFORMS[@]}"; do
     echo "==> Building for $PLATFORM"
@@ -21,6 +21,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
     case "$PLATFORM" in
         darwin/*)  TARGET="macos";;
         windows/*) TARGET="windows";;
+        linux/*)   TARGET="linux";;
         *)         TARGET="$PLATFORM";;
     esac
 

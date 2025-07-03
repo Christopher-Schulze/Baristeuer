@@ -2,7 +2,7 @@ package service
 
 import (
 	"bytes"
-	"log"
+	"log/slog"
 	"strings"
 	"testing"
 )
@@ -197,13 +197,13 @@ func TestDataService_AddIncome_LogOutput(t *testing.T) {
 	defer ds.Close()
 
 	var buf bytes.Buffer
-	ds.logger = log.New(&buf, "", 0)
+	ds.logger = slog.New(slog.NewTextHandler(&buf, nil))
 
 	proj, _ := ds.CreateProject("Log Project")
 	if _, err := ds.AddIncome(proj.ID, "donation", 5); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !strings.Contains(buf.String(), "Added income") {
+	if !strings.Contains(buf.String(), "added income") {
 		t.Fatalf("log output missing: %s", buf.String())
 	}
 }
