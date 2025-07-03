@@ -12,18 +12,31 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.23.x'
+          cache: true
+          cache-dependency-path: |
+            cmd/go.sum
+            internal/go.sum
+            internal/pdf/go.sum
       - name: Sync Go workspace
         run: go work sync
       - name: Run go vet
-        run: go vet ./cmd/... ./internal/... ./internal/pdf/...
+        run: |
+          go -C cmd vet ./...
+          go -C internal vet ./...
+          go -C internal/pdf vet ./...
       - name: Run go test
-        run: go test ./cmd/... ./internal/... ./internal/pdf/...
+        run: |
+          go -C cmd test ./...
+          go -C internal test ./...
+          go -C internal/pdf test ./...
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: internal/ui/package-lock.json
       - name: Install frontend dependencies
-        run: npm install
+        run: npm ci
         working-directory: internal/ui
       - name: Build frontend
         run: npm run build
