@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 import App from './App';
 
 // mock the DataService module used by App
-vi.mock('./wailsjs/go/service/DataService', () => ({
+vi.mock('./wailsjs/go/data/DataService', () => ({
   AddExpense: vi.fn(),
   ListExpenses: vi.fn(() => Promise.resolve([])),
 }), { virtual: true });

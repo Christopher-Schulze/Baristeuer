@@ -105,3 +105,71 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 	}
 	return filePath, nil
 }
+
+// GenerateKSt1 creates a placeholder "KSt 1" form for the given project.
+func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
+	return g.createSimpleForm(projectID, "KSt 1")
+}
+
+// GenerateAnlageGem creates a placeholder "Anlage Gem" form for the given project.
+func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
+	return g.createSimpleForm(projectID, "Anlage Gem")
+}
+
+// GenerateAnlageGK creates a placeholder "Anlage GK" form for the given project.
+func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
+	return g.createSimpleForm(projectID, "Anlage GK")
+}
+
+// GenerateKSt1F creates a placeholder "KSt 1F" form for the given project.
+func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
+	return g.createSimpleForm(projectID, "KSt 1F")
+}
+
+// GenerateAnlageSport creates a placeholder "Anlage Sport" form for the given project.
+func (g *Generator) GenerateAnlageSport(projectID int64) (string, error) {
+	return g.createSimpleForm(projectID, "Anlage Sport")
+}
+
+// GenerateAllForms creates all available forms for the given project and returns their paths.
+func (g *Generator) GenerateAllForms(projectID int64) ([]string, error) {
+	forms := []func(int64) (string, error){
+		g.GenerateReport,
+		g.GenerateKSt1,
+		g.GenerateAnlageGem,
+		g.GenerateAnlageGK,
+		g.GenerateKSt1F,
+		g.GenerateAnlageSport,
+	}
+	var paths []string
+	for _, f := range forms {
+		p, err := f(projectID)
+		if err != nil {
+			return nil, err
+		}
+		paths = append(paths, p)
+	}
+	return paths, nil
+}
+
+// createSimpleForm writes a minimal PDF with the given title.
+func (g *Generator) createSimpleForm(projectID int64, title string) (string, error) {
+	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
+		return "", fmt.Errorf("failed to create directory: %w", err)
+	}
+	fileName := fmt.Sprintf("%s_%d.pdf", title, projectID)
+	filePath := filepath.Join(g.BasePath, fileName)
+
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 16)
+	pdf.Cell(0, 10, title)
+	pdf.Ln(20)
+	pdf.SetFont("Arial", "", 12)
+	pdf.Cell(0, 10, "(Platzhalter)")
+
+	if err := pdf.OutputFileAndClose(filePath); err != nil {
+		return "", fmt.Errorf("failed to write PDF: %w", err)
+	}
+	return filePath, nil
+}

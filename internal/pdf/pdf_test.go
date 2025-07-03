@@ -35,3 +35,47 @@ func TestGenerateReport(t *testing.T) {
 		t.Fatalf("expected pdf at %s", path)
 	}
 }
+
+func TestFormGeneration(t *testing.T) {
+	dir := t.TempDir()
+	store, err := data.NewStore(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Close()
+
+	proj := &data.Project{Name: "Test"}
+	if err := store.CreateProject(proj); err != nil {
+		t.Fatal(err)
+	}
+
+	g := NewGenerator(dir, store)
+	files := []struct {
+		name string
+		fn   func(int64) (string, error)
+	}{
+		{"kst1", g.GenerateKSt1},
+		{"gem", g.GenerateAnlageGem},
+		{"gk", g.GenerateAnlageGK},
+		{"kst1f", g.GenerateKSt1F},
+		{"sport", g.GenerateAnlageSport},
+	}
+	for _, f := range files {
+		path, err := f.fn(proj.ID)
+		if err != nil {
+			t.Fatalf("%s failed: %v", f.name, err)
+		}
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("expected file %s", path)
+		}
+	}
+
+	// test GenerateAllForms
+	paths, err := g.GenerateAllForms(proj.ID)
+	if err != nil {
+		t.Fatalf("GenerateAllForms failed: %v", err)
+	}
+	if len(paths) != len(files)+1 { // +1 for report
+		t.Fatalf("expected %d files, got %d", len(files)+1, len(paths))
+	}
+}
