@@ -140,3 +140,23 @@ func (s *Store) DeleteExpense(id int64) error {
 	_, err := s.DB.Exec(`DELETE FROM expenses WHERE id=?`, id)
 	return err
 }
+
+// SumIncomeByProject returns the total income amount for a project.
+func (s *Store) SumIncomeByProject(projectID int64) (float64, error) {
+	row := s.DB.QueryRow(`SELECT COALESCE(SUM(amount),0) FROM incomes WHERE project_id=?`, projectID)
+	var total float64
+	if err := row.Scan(&total); err != nil {
+		return 0, err
+	}
+	return total, nil
+}
+
+// SumExpenseByProject returns the total expense amount for a project.
+func (s *Store) SumExpenseByProject(projectID int64) (float64, error) {
+	row := s.DB.QueryRow(`SELECT COALESCE(SUM(amount),0) FROM expenses WHERE project_id=?`, projectID)
+	var total float64
+	if err := row.Scan(&total); err != nil {
+		return 0, err
+	}
+	return total, nil
+}

@@ -7,24 +7,34 @@ import (
 
 	"github.com/jung-kurt/gofpdf"
 
+	"baristeuer/internal/data"
 	"baristeuer/internal/taxlogic"
 )
 
 // Generator handles PDF creation.
 type Generator struct {
 	BasePath string
+	store    *data.Store
 }
 
 // NewGenerator returns a new Generator for storing reports.
-func NewGenerator(basePath string) *Generator {
+func NewGenerator(basePath string, store *data.Store) *Generator {
 	if basePath == "" {
 		basePath = filepath.Join(".", "internal", "data", "reports")
 	}
-	return &Generator{BasePath: basePath}
+	return &Generator{BasePath: basePath, store: store}
 }
 
-// GenerateReport creates a tax report PDF using the provided revenue and expenses.
-func (g *Generator) GenerateReport(revenue, expenses float64) (string, error) {
+// GenerateReport creates a tax report PDF for the given project.
+func (g *Generator) GenerateReport(projectID int64) (string, error) {
+	revenue, err := g.store.SumIncomeByProject(projectID)
+	if err != nil {
+		return "", fmt.Errorf("fetch revenue: %w", err)
+	}
+	expenses, err := g.store.SumExpenseByProject(projectID)
+	if err != nil {
+		return "", fmt.Errorf("fetch expenses: %w", err)
+	}
 	taxResult := taxlogic.CalculateTaxes(revenue, expenses)
 
 	// Ensure the directory exists

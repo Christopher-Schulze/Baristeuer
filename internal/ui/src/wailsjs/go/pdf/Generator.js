@@ -1,3 +1,3 @@
-export function GenerateReport(revenue, expenses) {
-  return window.go.pdf.Generator.GenerateReport(revenue, expenses);
+export function GenerateReport(projectID) {
+  return window.go.pdf.Generator.GenerateReport(projectID);
 }

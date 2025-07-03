@@ -18,6 +18,11 @@ func NewDataService(dsn string) (*DataService, error) {
 	return &DataService{store: s}, nil
 }
 
+// NewDataServiceFromStore wraps an existing store.
+func NewDataServiceFromStore(store *data.Store) *DataService {
+	return &DataService{store: store}
+}
+
 // CreateProject creates a project by name.
 func (ds *DataService) CreateProject(name string) (*data.Project, error) {
 	p := &data.Project{Name: name}
