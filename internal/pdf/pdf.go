@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/jung-kurt/gofpdf"
 
@@ -46,6 +47,7 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 
 	// PDF generation
 	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.SetCompression(false)
 	pdf.AddPage()
 	pdf.SetFont("Arial", "B", 16)
 	pdf.Cell(0, 10, "Steuerbericht 2025 (Gemeinnützige Organisation)")
@@ -108,27 +110,53 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 
 // GenerateKSt1 creates a placeholder "KSt 1" form for the given project.
 func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
-	return g.createSimpleForm(projectID, "KSt 1")
+	lines := []string{
+		"K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung f\xC3\xBCr Vereine", // "Körperschaftsteuererklärung für Vereine"
+		"Name des Vereins:",
+		"Steuernummer:",
+		"Veranlagungszeitraum: 2025",
+	}
+	return g.createForm(projectID, "KSt 1", lines)
 }
 
 // GenerateAnlageGem creates a placeholder "Anlage Gem" form for the given project.
 func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
-	return g.createSimpleForm(projectID, "Anlage Gem")
+	lines := []string{
+		"Anlage Gem - Angaben zur Gemeinn\xC3\xBCtzigkeit", // "Anlage Gem - Angaben zur Gemeinnützigkeit"
+		"T\xC3\xA4tigkeit des Vereins:",
+		"Steuerbeg\xC3\xBCnstigte Zwecke:",
+	}
+	return g.createForm(projectID, "Anlage Gem", lines)
 }
 
 // GenerateAnlageGK creates a placeholder "Anlage GK" form for the given project.
 func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
-	return g.createSimpleForm(projectID, "Anlage GK")
+	lines := []string{
+		"Anlage GK - Angaben zu Gesch\xC3\xA4ftsbetrieben", // "Anlage GK - Angaben zu Geschäftsbetrieben"
+		"Bezeichnung des wirtschaftlichen Gesch\xC3\xA4ftsbetriebs:",
+		"Gewinne/Verluste:",
+	}
+	return g.createForm(projectID, "Anlage GK", lines)
 }
 
 // GenerateKSt1F creates a placeholder "KSt 1F" form for the given project.
 func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
-	return g.createSimpleForm(projectID, "KSt 1F")
+	lines := []string{
+		"KSt 1F - Erweiterte K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung", // "KSt 1F - Erweiterte Körperschaftsteuererklärung"
+		"Angaben zu Beteiligungen:",
+		"Erhaltene F\xC3\xB6rdermittel:",
+	}
+	return g.createForm(projectID, "KSt 1F", lines)
 }
 
 // GenerateAnlageSport creates a placeholder "Anlage Sport" form for the given project.
 func (g *Generator) GenerateAnlageSport(projectID int64) (string, error) {
-	return g.createSimpleForm(projectID, "Anlage Sport")
+	lines := []string{
+		"Anlage Sport - Sportvereine", // heading
+		"Mitgliederzahl:",
+		"Einnahmen aus Sportbetrieb:",
+	}
+	return g.createForm(projectID, "Anlage Sport", lines)
 }
 
 // GenerateAllForms creates all available forms for the given project and returns their paths.
@@ -154,19 +182,29 @@ func (g *Generator) GenerateAllForms(projectID int64) ([]string, error) {
 
 // createSimpleForm writes a minimal PDF with the given title.
 func (g *Generator) createSimpleForm(projectID int64, title string) (string, error) {
+	return g.createForm(projectID, title, []string{"(Platzhalter)"})
+}
+
+// createForm writes a PDF with the given title and content lines.
+func (g *Generator) createForm(projectID int64, title string, lines []string) (string, error) {
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
 		return "", fmt.Errorf("failed to create directory: %w", err)
 	}
-	fileName := fmt.Sprintf("%s_%d.pdf", title, projectID)
+	sanitized := strings.ReplaceAll(title, " ", "_")
+	fileName := fmt.Sprintf("%s_%d.pdf", sanitized, projectID)
 	filePath := filepath.Join(g.BasePath, fileName)
 
 	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.SetCompression(false)
 	pdf.AddPage()
 	pdf.SetFont("Arial", "B", 16)
 	pdf.Cell(0, 10, title)
-	pdf.Ln(20)
+	pdf.Ln(12)
 	pdf.SetFont("Arial", "", 12)
-	pdf.Cell(0, 10, "(Platzhalter)")
+	for _, l := range lines {
+		pdf.Cell(0, 8, l)
+		pdf.Ln(8)
+	}
 
 	if err := pdf.OutputFileAndClose(filePath); err != nil {
 		return "", fmt.Errorf("failed to write PDF: %w", err)
