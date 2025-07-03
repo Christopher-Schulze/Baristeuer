@@ -3,6 +3,7 @@ package service
 import (
 	"baristeuer/internal/data"
 	"baristeuer/internal/taxlogic"
+	"fmt"
 	"log"
 	"os"
 )
@@ -17,7 +18,7 @@ type DataService struct {
 func NewDataService(dsn string) (*DataService, error) {
 	s, err := data.NewStore(dsn)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("create store: %w", err)
 	}
 	l := log.New(os.Stdout, "DataService: ", log.LstdFlags)
 	return &DataService{store: s, logger: l}, nil
@@ -33,7 +34,7 @@ func NewDataServiceFromStore(store *data.Store) *DataService {
 func (ds *DataService) CreateProject(name string) (*data.Project, error) {
 	p := &data.Project{Name: name}
 	if err := ds.store.CreateProject(p); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("create project: %w", err)
 	}
 	ds.logger.Printf("Created project %d", p.ID)
 	return p, nil
@@ -43,7 +44,7 @@ func (ds *DataService) CreateProject(name string) (*data.Project, error) {
 func (ds *DataService) ListIncomes(projectID int64) ([]data.Income, error) {
 	rows, err := ds.store.DB.Query(`SELECT id, project_id, source, amount FROM incomes WHERE project_id=?`, projectID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("query incomes: %w", err)
 	}
 	defer rows.Close()
 
@@ -51,7 +52,7 @@ func (ds *DataService) ListIncomes(projectID int64) ([]data.Income, error) {
 	for rows.Next() {
 		var i data.Income
 		if err := rows.Scan(&i.ID, &i.ProjectID, &i.Source, &i.Amount); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("scan income: %w", err)
 		}
 		incomes = append(incomes, i)
 	}
@@ -63,7 +64,7 @@ func (ds *DataService) ListIncomes(projectID int64) ([]data.Income, error) {
 func (ds *DataService) AddIncome(projectID int64, source string, amount float64) (*data.Income, error) {
 	i := &data.Income{ProjectID: projectID, Source: source, Amount: amount}
 	if err := ds.store.CreateIncome(i); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("create income: %w", err)
 	}
 	ds.logger.Printf("Added income %.2f to project %d", amount, projectID)
 	return i, nil
@@ -73,7 +74,7 @@ func (ds *DataService) AddIncome(projectID int64, source string, amount float64)
 func (ds *DataService) UpdateIncome(id int64, projectID int64, source string, amount float64) error {
 	i := &data.Income{ID: id, ProjectID: projectID, Source: source, Amount: amount}
 	if err := ds.store.UpdateIncome(i); err != nil {
-		return err
+		return fmt.Errorf("update income: %w", err)
 	}
 	ds.logger.Printf("Updated income %d", id)
 	return nil
@@ -82,7 +83,7 @@ func (ds *DataService) UpdateIncome(id int64, projectID int64, source string, am
 // DeleteIncome removes an income entry by ID.
 func (ds *DataService) DeleteIncome(id int64) error {
 	if err := ds.store.DeleteIncome(id); err != nil {
-		return err
+		return fmt.Errorf("delete income: %w", err)
 	}
 	ds.logger.Printf("Deleted income %d", id)
 	return nil
@@ -92,7 +93,7 @@ func (ds *DataService) DeleteIncome(id int64) error {
 func (ds *DataService) AddExpense(projectID int64, category string, amount float64) (*data.Expense, error) {
 	e := &data.Expense{ProjectID: projectID, Category: category, Amount: amount}
 	if err := ds.store.CreateExpense(e); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("create expense: %w", err)
 	}
 	ds.logger.Printf("Added expense %.2f to project %d", amount, projectID)
 	return e, nil
@@ -102,7 +103,7 @@ func (ds *DataService) AddExpense(projectID int64, category string, amount float
 func (ds *DataService) UpdateExpense(id int64, projectID int64, category string, amount float64) error {
 	e := &data.Expense{ID: id, ProjectID: projectID, Category: category, Amount: amount}
 	if err := ds.store.UpdateExpense(e); err != nil {
-		return err
+		return fmt.Errorf("update expense: %w", err)
 	}
 	ds.logger.Printf("Updated expense %d", id)
 	return nil
@@ -111,7 +112,7 @@ func (ds *DataService) UpdateExpense(id int64, projectID int64, category string,
 // DeleteExpense removes an expense entry by ID.
 func (ds *DataService) DeleteExpense(id int64) error {
 	if err := ds.store.DeleteExpense(id); err != nil {
-		return err
+		return fmt.Errorf("delete expense: %w", err)
 	}
 	ds.logger.Printf("Deleted expense %d", id)
 	return nil
@@ -121,7 +122,7 @@ func (ds *DataService) DeleteExpense(id int64) error {
 func (ds *DataService) ListExpenses(projectID int64) ([]data.Expense, error) {
 	rows, err := ds.store.DB.Query(`SELECT id, project_id, category, amount FROM expenses WHERE project_id=?`, projectID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("query expenses: %w", err)
 	}
 	defer rows.Close()
 
@@ -129,7 +130,7 @@ func (ds *DataService) ListExpenses(projectID int64) ([]data.Expense, error) {
 	for rows.Next() {
 		var e data.Expense
 		if err := rows.Scan(&e.ID, &e.ProjectID, &e.Category, &e.Amount); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("scan expense: %w", err)
 		}
 		expenses = append(expenses, e)
 	}
@@ -141,7 +142,7 @@ func (ds *DataService) ListExpenses(projectID int64) ([]data.Expense, error) {
 func (ds *DataService) AddMember(name, email, joinDate string) (*data.Member, error) {
 	m := &data.Member{Name: name, Email: email, JoinDate: joinDate}
 	if err := ds.store.CreateMember(m); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("create member: %w", err)
 	}
 	ds.logger.Printf("Added member %s", name)
 	return m, nil
@@ -151,7 +152,7 @@ func (ds *DataService) AddMember(name, email, joinDate string) (*data.Member, er
 func (ds *DataService) ListMembers() ([]data.Member, error) {
 	members, err := ds.store.ListMembers()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("list members: %w", err)
 	}
 	ds.logger.Printf("Listed %d members", len(members))
 	return members, nil
@@ -161,11 +162,11 @@ func (ds *DataService) ListMembers() ([]data.Member, error) {
 func (ds *DataService) CalculateProjectTaxes(projectID int64) (taxlogic.TaxResult, error) {
 	revenue, err := ds.store.SumIncomeByProject(projectID)
 	if err != nil {
-		return taxlogic.TaxResult{}, err
+		return taxlogic.TaxResult{}, fmt.Errorf("sum income: %w", err)
 	}
 	expenses, err := ds.store.SumExpenseByProject(projectID)
 	if err != nil {
-		return taxlogic.TaxResult{}, err
+		return taxlogic.TaxResult{}, fmt.Errorf("sum expense: %w", err)
 	}
 	result := taxlogic.CalculateTaxes(revenue, expenses)
 	ds.logger.Printf("Calculated taxes for project %d: %.2f EUR", projectID, result.TotalTax)

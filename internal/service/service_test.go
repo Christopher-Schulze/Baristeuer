@@ -1,6 +1,11 @@
 package service
 
-import "testing"
+import (
+	"bytes"
+	"log"
+	"strings"
+	"testing"
+)
 
 func TestDataService_AddIncome(t *testing.T) {
 	ds, err := NewDataService(":memory:")
@@ -181,5 +186,37 @@ func TestDataService_MemberOperations(t *testing.T) {
 	}
 	if len(members) != 1 || members[0].Email != "bob@example.com" {
 		t.Fatalf("unexpected members: %+v", members)
+	}
+}
+
+func TestDataService_AddIncome_LogOutput(t *testing.T) {
+	ds, err := NewDataService(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	var buf bytes.Buffer
+	ds.logger = log.New(&buf, "", 0)
+
+	proj, _ := ds.CreateProject("Log Project")
+	if _, err := ds.AddIncome(proj.ID, "donation", 5); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(buf.String(), "Added income") {
+		t.Fatalf("log output missing: %s", buf.String())
+	}
+}
+
+func TestDataService_AddIncome_DatabaseClosed(t *testing.T) {
+	ds, err := NewDataService(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ds.Close()
+
+	_, err = ds.AddIncome(1, "donation", 5)
+	if err == nil || !strings.Contains(err.Error(), "create income") {
+		t.Fatalf("expected wrapped error, got %v", err)
 	}
 }
