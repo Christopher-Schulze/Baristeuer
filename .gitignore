@@ -22,3 +22,5 @@ node_modules/
 .idea/
 .vscode/
 *.db
+internal/ui/bun.lock
+
