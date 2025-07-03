@@ -28,6 +28,10 @@ import {
   ListExpenses,
   AddIncome,
   ListIncomes,
+  UpdateIncome,
+  DeleteIncome,
+  UpdateExpense,
+  DeleteExpense,
   CalculateProjectTaxes,
 } from "./wailsjs/go/service/DataService";
 import {
@@ -50,6 +54,8 @@ export default function App() {
   const [taxes, setTaxes] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [tab, setTab] = useState(0);
+  const [editIncomeId, setEditIncomeId] = useState(null);
+  const [editExpenseId, setEditExpenseId] = useState(null);
 
   const theme = createTheme({
     palette: {
@@ -65,7 +71,7 @@ export default function App() {
 
   const fetchExpenses = async () => {
     try {
-      const list = await ListExpenses();
+      const list = await ListExpenses(1);
       setExpenses(list || []);
     } catch (err) {
       setError(err.message || "Fehler beim Abrufen der Ausgaben");
@@ -74,7 +80,7 @@ export default function App() {
 
   const fetchIncomes = async () => {
     try {
-      const list = await ListIncomes();
+      const list = await ListIncomes(1);
       setIncomes(list || []);
     } catch (err) {
       setError(err.message || "Fehler beim Abrufen der Einnahmen");
@@ -98,7 +104,12 @@ export default function App() {
       return;
     }
     try {
-      await AddExpense(description, value);
+      if (editExpenseId !== null) {
+        await UpdateExpense(editExpenseId, 1, description, value);
+        setEditExpenseId(null);
+      } else {
+        await AddExpense(1, description, value);
+      }
       setDescription("");
       setAmount("");
       setError("");
@@ -120,7 +131,12 @@ export default function App() {
       return;
     }
     try {
-      await AddIncome(source, value);
+      if (editIncomeId !== null) {
+        await UpdateIncome(editIncomeId, 1, source, value);
+        setEditIncomeId(null);
+      } else {
+        await AddIncome(1, source, value);
+      }
       setSource("");
       setAmount("");
       setError("");
@@ -223,6 +239,7 @@ export default function App() {
                   <TableRow>
                     <TableCell>Quelle</TableCell>
                     <TableCell align="right">Betrag (€)</TableCell>
+                    <TableCell>Aktionen</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -233,11 +250,33 @@ export default function App() {
                         <TableCell align="right">
                           {i.amount.toFixed(2)}
                         </TableCell>
+                        <TableCell>
+                          <Button
+                            size="small"
+                            onClick={() => {
+                              setSource(i.source);
+                              setAmount(String(i.amount));
+                              setEditIncomeId(i.id);
+                            }}
+                          >
+                            Bearbeiten
+                          </Button>
+                          <Button
+                            size="small"
+                            color="error"
+                            onClick={async () => {
+                              await DeleteIncome(i.id);
+                              fetchIncomes();
+                            }}
+                          >
+                            Löschen
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={2} align="center">
+                      <TableCell colSpan={3} align="center">
                         Keine Einnahmen vorhanden
                       </TableCell>
                     </TableRow>
@@ -288,6 +327,7 @@ export default function App() {
                   <TableRow>
                     <TableCell>Beschreibung</TableCell>
                     <TableCell align="right">Betrag (€)</TableCell>
+                    <TableCell>Aktionen</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -298,11 +338,33 @@ export default function App() {
                         <TableCell align="right">
                           {e.amount.toFixed(2)}
                         </TableCell>
+                        <TableCell>
+                          <Button
+                            size="small"
+                            onClick={() => {
+                              setDescription(e.description);
+                              setAmount(String(e.amount));
+                              setEditExpenseId(e.id);
+                            }}
+                          >
+                            Bearbeiten
+                          </Button>
+                          <Button
+                            size="small"
+                            color="error"
+                            onClick={async () => {
+                              await DeleteExpense(e.id);
+                              fetchExpenses();
+                            }}
+                          >
+                            Löschen
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={2} align="center">
+                      <TableCell colSpan={3} align="center">
                         Keine Ausgaben vorhanden
                       </TableCell>
                     </TableRow>
