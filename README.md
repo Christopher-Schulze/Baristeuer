@@ -30,6 +30,13 @@ Bari$teuer is built with the following technologies:
 
 To use Bari$teuer, download the latest release for your operating system (macOS or Windows) and follow the installation instructions. Refer to the official documentation for further details.
 
+## Testing
+
+1. Run `go work sync`.
+2. Execute `go test ./cmd/... ./internal/... ./internal/pdf/...`.
+
+See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for more details.
+
 ---
 
 *This project is for internal use and is not open for contributions.*
