@@ -54,13 +54,13 @@ func TestFormGeneration(t *testing.T) {
 	files := []struct {
 		name     string
 		fn       func(int64) (string, error)
-		expected string
+		expected []string
 	}{
-		{"kst1", g.GenerateKSt1, "KSt 1"},
-		{"gem", g.GenerateAnlageGem, "Anlage Gem"},
-		{"gk", g.GenerateAnlageGK, "Anlage GK"},
-		{"kst1f", g.GenerateKSt1F, "KSt 1F"},
-		{"sport", g.GenerateAnlageSport, "Anlage Sport"},
+		{"kst1", g.GenerateKSt1, []string{"KSt 1 - K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung", "Finanzamt"}},
+		{"gem", g.GenerateAnlageGem, []string{"Anlage Gem", "Steuerbeg\xC3\xBCnstigte Zwecke"}},
+		{"gk", g.GenerateAnlageGK, []string{"Anlage GK"}},
+		{"kst1f", g.GenerateKSt1F, []string{"KSt 1F"}},
+		{"sport", g.GenerateAnlageSport, []string{"Anlage Sport"}},
 	}
 	for _, f := range files {
 		path, err := f.fn(proj.ID)
@@ -71,8 +71,10 @@ func TestFormGeneration(t *testing.T) {
 		if err != nil {
 			t.Fatalf("read %s failed: %v", path, err)
 		}
-		if !strings.Contains(string(data), f.expected) {
-			t.Fatalf("%s form missing expected text in %s", f.name, string(data))
+		for _, expect := range f.expected {
+			if !strings.Contains(string(data), expect) {
+				t.Fatalf("%s form missing %s in %s", f.name, expect, string(data))
+			}
 		}
 	}
 

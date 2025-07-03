@@ -108,37 +108,121 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 	return filePath, nil
 }
 
-// GenerateKSt1 creates a placeholder "KSt 1" form for the given project.
+// GenerateKSt1 creates a simplified "KSt 1" form for the given project with
+// layout similar to the official template. The content here is intentionally
+// generic but demonstrates how fields would be positioned in a real form.
 func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	p, _ := g.store.GetProject(projectID)
-	nameLine := "Name des Vereins: ____________________"
+
+	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
+		return "", fmt.Errorf("failed to create directory: %w", err)
+	}
+	fileName := fmt.Sprintf("KSt_1_%d.pdf", projectID)
+	filePath := filepath.Join(g.BasePath, fileName)
+
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.SetCompression(false)
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 14)
+	pdf.Cell(0, 10, "KSt 1 - K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung")
+	pdf.Ln(12)
+
+	name := "____________________"
 	if p != nil {
-		nameLine = fmt.Sprintf("Name des Vereins: %s", p.Name)
+		name = p.Name
 	}
-	lines := []string{
-		"K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung f\xC3\xBCr Vereine", // "Körperschaftsteuererklärung für Vereine"
-		nameLine,
-		"Steuernummer: ____________________",
-		"Veranlagungszeitraum: 2025",
-		"(Bitte Formular vollständig ausf\xC3\xBCllen)",
+
+	pdf.SetFont("Arial", "B", 12)
+	pdf.Cell(0, 8, "1. Angaben zur K\xC3\xB6rperschaft")
+	pdf.Ln(8)
+	pdf.SetFont("Arial", "", 12)
+
+	pdf.Cell(60, 8, "Name des Vereins:")
+	pdf.Cell(0, 8, name)
+	pdf.Ln(8)
+
+	pdf.Cell(60, 8, "Steuernummer:")
+	pdf.Cell(0, 8, "____________________")
+	pdf.Ln(8)
+
+	pdf.Cell(60, 8, "Finanzamt:")
+	pdf.Cell(0, 8, "____________________")
+	pdf.Ln(8)
+
+	pdf.Cell(60, 8, "Veranlagungszeitraum:")
+	pdf.Cell(0, 8, "2025")
+	pdf.Ln(12)
+
+	pdf.SetFont("Arial", "B", 12)
+	pdf.Cell(0, 8, "2. Weitere Angaben")
+	pdf.Ln(8)
+	pdf.SetFont("Arial", "", 12)
+	pdf.Cell(60, 8, "Beg\xC3\xBCnstigte Zwecke:")
+	pdf.Cell(0, 8, "____________________")
+	pdf.Ln(8)
+	pdf.Cell(60, 8, "T\xC3\xA4tigkeitsbereich:")
+	pdf.Cell(0, 8, "____________________")
+	pdf.Ln(10)
+
+	pdf.MultiCell(0, 6, "Alle Angaben sind gem\xC3\xA4\xC3\x9F den Vorgaben der Finanzverwaltung zu machen.", "", "L", false)
+
+	if err := pdf.OutputFileAndClose(filePath); err != nil {
+		return "", fmt.Errorf("failed to write PDF: %w", err)
 	}
-	return g.createForm(projectID, "KSt 1", lines)
+	return filePath, nil
 }
 
-// GenerateAnlageGem creates a placeholder "Anlage Gem" form for the given project.
+// GenerateAnlageGem creates a simplified "Anlage Gem" form. It mirrors the
+// structure of the official form but uses generic placeholder fields.
 func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	p, _ := g.store.GetProject(projectID)
-	prefix := "Anlage Gem - Angaben zur Gemeinn\xC3\xBCtzigkeit"
+
+	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
+		return "", fmt.Errorf("failed to create directory: %w", err)
+	}
+	fileName := fmt.Sprintf("Anlage_Gem_%d.pdf", projectID)
+	filePath := filepath.Join(g.BasePath, fileName)
+
+	title := "Anlage Gem - Angaben zur Gemeinn\xC3\xBCtzigkeit"
 	if p != nil {
-		prefix = fmt.Sprintf("Anlage Gem - %s", p.Name)
+		title = fmt.Sprintf("Anlage Gem - %s", p.Name)
 	}
-	lines := []string{
-		prefix,
-		"T\xC3\xA4tigkeit des Vereins: ____________________",
-		"Steuerbeg\xC3\xBCnstigte Zwecke: ____________________",
-		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",
+
+	name := "____________________"
+	if p != nil {
+		name = p.Name
 	}
-	return g.createForm(projectID, "Anlage Gem", lines)
+
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.SetCompression(false)
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 14)
+	pdf.Cell(0, 10, title)
+	pdf.Ln(12)
+
+	pdf.SetFont("Arial", "", 12)
+	pdf.Cell(60, 8, "Name des Vereins:")
+	pdf.Cell(0, 8, name)
+	pdf.Ln(8)
+
+	pdf.Cell(60, 8, "T\xC3\xA4tigkeit des Vereins:")
+	pdf.Cell(0, 8, "____________________")
+	pdf.Ln(8)
+
+	pdf.Cell(60, 8, "Steuerbeg\xC3\xBCnstigte Zwecke:")
+	pdf.Cell(0, 8, "____________________")
+	pdf.Ln(8)
+
+	pdf.Cell(60, 8, "Verwendung der Mittel:")
+	pdf.Cell(0, 8, "____________________")
+	pdf.Ln(10)
+
+	pdf.MultiCell(0, 6, "Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen und dem KSt 1 beif\xC3\xBCgen.", "", "L", false)
+
+	if err := pdf.OutputFileAndClose(filePath); err != nil {
+		return "", fmt.Errorf("failed to write PDF: %w", err)
+	}
+	return filePath, nil
 }
 
 // GenerateAnlageGK creates a placeholder "Anlage GK" form for the given project.
