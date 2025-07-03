@@ -2,6 +2,7 @@ package pdf
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"baristeuer/internal/data"
@@ -51,22 +52,27 @@ func TestFormGeneration(t *testing.T) {
 
 	g := NewGenerator(dir, store)
 	files := []struct {
-		name string
-		fn   func(int64) (string, error)
+		name     string
+		fn       func(int64) (string, error)
+		expected string
 	}{
-		{"kst1", g.GenerateKSt1},
-		{"gem", g.GenerateAnlageGem},
-		{"gk", g.GenerateAnlageGK},
-		{"kst1f", g.GenerateKSt1F},
-		{"sport", g.GenerateAnlageSport},
+		{"kst1", g.GenerateKSt1, "KSt 1"},
+		{"gem", g.GenerateAnlageGem, "Anlage Gem"},
+		{"gk", g.GenerateAnlageGK, "Anlage GK"},
+		{"kst1f", g.GenerateKSt1F, "KSt 1F"},
+		{"sport", g.GenerateAnlageSport, "Anlage Sport"},
 	}
 	for _, f := range files {
 		path, err := f.fn(proj.ID)
 		if err != nil {
 			t.Fatalf("%s failed: %v", f.name, err)
 		}
-		if _, err := os.Stat(path); err != nil {
-			t.Fatalf("expected file %s", path)
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("read %s failed: %v", path, err)
+		}
+		if !strings.Contains(string(data), f.expected) {
+			t.Fatalf("%s form missing expected text in %s", f.name, string(data))
 		}
 	}
 
