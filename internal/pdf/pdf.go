@@ -1,6 +1,7 @@
 package pdf
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -28,11 +29,12 @@ func NewGenerator(basePath string, store *data.Store) *Generator {
 
 // GenerateReport creates a tax report PDF for the given project.
 func (g *Generator) GenerateReport(projectID int64) (string, error) {
-	revenue, err := g.store.SumIncomeByProject(projectID)
+	ctx := context.Background()
+	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {
 		return "", fmt.Errorf("fetch revenue: %w", err)
 	}
-	expenses, err := g.store.SumExpenseByProject(projectID)
+	expenses, err := g.store.SumExpenseByProject(ctx, projectID)
 	if err != nil {
 		return "", fmt.Errorf("fetch expenses: %w", err)
 	}
@@ -110,7 +112,7 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 
 // GenerateKSt1 creates a placeholder "KSt 1" form for the given project.
 func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
-	p, _ := g.store.GetProject(projectID)
+	p, _ := g.store.GetProject(context.Background(), projectID)
 	nameLine := "Name des Vereins: ____________________"
 	if p != nil {
 		nameLine = fmt.Sprintf("Name des Vereins: %s", p.Name)
@@ -127,7 +129,7 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 
 // GenerateAnlageGem creates a placeholder "Anlage Gem" form for the given project.
 func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
-	p, _ := g.store.GetProject(projectID)
+	p, _ := g.store.GetProject(context.Background(), projectID)
 	prefix := "Anlage Gem - Angaben zur Gemeinn\xC3\xBCtzigkeit"
 	if p != nil {
 		prefix = fmt.Sprintf("Anlage Gem - %s", p.Name)
@@ -143,7 +145,7 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 
 // GenerateAnlageGK creates a placeholder "Anlage GK" form for the given project.
 func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
-	p, _ := g.store.GetProject(projectID)
+	p, _ := g.store.GetProject(context.Background(), projectID)
 	title := "Anlage GK - Angaben zu Gesch\xC3\xA4ftsbetrieben"
 	if p != nil {
 		title = fmt.Sprintf("Anlage GK - %s", p.Name)
@@ -159,7 +161,7 @@ func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
 
 // GenerateKSt1F creates a placeholder "KSt 1F" form for the given project.
 func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
-	p, _ := g.store.GetProject(projectID)
+	p, _ := g.store.GetProject(context.Background(), projectID)
 	title := "KSt 1F - Erweiterte K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung"
 	if p != nil {
 		title = fmt.Sprintf("KSt 1F - %s", p.Name)
@@ -175,7 +177,7 @@ func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
 
 // GenerateAnlageSport creates a placeholder "Anlage Sport" form for the given project.
 func (g *Generator) GenerateAnlageSport(projectID int64) (string, error) {
-	p, _ := g.store.GetProject(projectID)
+	p, _ := g.store.GetProject(context.Background(), projectID)
 	title := "Anlage Sport - Sportvereine"
 	if p != nil {
 		title = fmt.Sprintf("Anlage Sport - %s", p.Name)

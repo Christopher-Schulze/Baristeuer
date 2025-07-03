@@ -1,6 +1,10 @@
 package service
 
-import "testing"
+import (
+	"context"
+	"errors"
+	"testing"
+)
 
 func TestDataService_AddIncome(t *testing.T) {
 	ds, err := NewDataService(":memory:")
@@ -9,12 +13,13 @@ func TestDataService_AddIncome(t *testing.T) {
 	}
 	defer ds.Close()
 
-	proj, err := ds.CreateProject("Income Project")
+	ctx := context.Background()
+	proj, err := ds.CreateProject(ctx, "Income Project")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	inc, err := ds.AddIncome(proj.ID, "donation", 15)
+	inc, err := ds.AddIncome(ctx, proj.ID, "donation", 15)
 	if err != nil {
 		t.Fatalf("AddIncome returned error: %v", err)
 	}
@@ -22,7 +27,7 @@ func TestDataService_AddIncome(t *testing.T) {
 		t.Fatalf("expected income ID to be set")
 	}
 
-	list, err := ds.ListIncomes(proj.ID)
+	list, err := ds.ListIncomes(ctx, proj.ID)
 	if err != nil {
 		t.Fatalf("ListIncomes returned error: %v", err)
 	}
@@ -38,29 +43,30 @@ func TestDataService_UpdateDeleteIncome(t *testing.T) {
 	}
 	defer ds.Close()
 
-	proj, err := ds.CreateProject("Income UD")
+	ctx := context.Background()
+	proj, err := ds.CreateProject(ctx, "Income UD")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	inc, err := ds.AddIncome(proj.ID, "donation", 10)
+	inc, err := ds.AddIncome(ctx, proj.ID, "donation", 10)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := ds.UpdateIncome(inc.ID, proj.ID, "donation", 20); err != nil {
+	if err := ds.UpdateIncome(ctx, inc.ID, proj.ID, "donation", 20); err != nil {
 		t.Fatalf("UpdateIncome failed: %v", err)
 	}
 
-	list, _ := ds.ListIncomes(proj.ID)
+	list, _ := ds.ListIncomes(ctx, proj.ID)
 	if len(list) != 1 || list[0].Amount != 20 {
 		t.Fatalf("update failed: %+v", list)
 	}
 
-	if err := ds.DeleteIncome(inc.ID); err != nil {
+	if err := ds.DeleteIncome(ctx, inc.ID); err != nil {
 		t.Fatalf("DeleteIncome failed: %v", err)
 	}
-	list, _ = ds.ListIncomes(proj.ID)
+	list, _ = ds.ListIncomes(ctx, proj.ID)
 	if len(list) != 0 {
 		t.Fatalf("expected empty list, got %+v", list)
 	}
@@ -73,19 +79,20 @@ func TestDataService_ListExpenses(t *testing.T) {
 	}
 	defer ds.Close()
 
-	proj, err := ds.CreateProject("Expense Project")
+	ctx := context.Background()
+	proj, err := ds.CreateProject(ctx, "Expense Project")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if _, err := ds.AddExpense(proj.ID, "supplies", 5); err != nil {
+	if _, err := ds.AddExpense(ctx, proj.ID, "supplies", 5); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := ds.AddExpense(proj.ID, "food", 7); err != nil {
+	if _, err := ds.AddExpense(ctx, proj.ID, "food", 7); err != nil {
 		t.Fatal(err)
 	}
 
-	expenses, err := ds.ListExpenses(proj.ID)
+	expenses, err := ds.ListExpenses(ctx, proj.ID)
 	if err != nil {
 		t.Fatalf("ListExpenses returned error: %v", err)
 	}
@@ -101,29 +108,30 @@ func TestDataService_UpdateDeleteExpense(t *testing.T) {
 	}
 	defer ds.Close()
 
-	proj, err := ds.CreateProject("Expense UD")
+	ctx := context.Background()
+	proj, err := ds.CreateProject(ctx, "Expense UD")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	exp, err := ds.AddExpense(proj.ID, "supplies", 5)
+	exp, err := ds.AddExpense(ctx, proj.ID, "supplies", 5)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := ds.UpdateExpense(exp.ID, proj.ID, "supplies", 8); err != nil {
+	if err := ds.UpdateExpense(ctx, exp.ID, proj.ID, "supplies", 8); err != nil {
 		t.Fatalf("UpdateExpense failed: %v", err)
 	}
 
-	list, _ := ds.ListExpenses(proj.ID)
+	list, _ := ds.ListExpenses(ctx, proj.ID)
 	if len(list) != 1 || list[0].Amount != 8 {
 		t.Fatalf("update failed: %+v", list)
 	}
 
-	if err := ds.DeleteExpense(exp.ID); err != nil {
+	if err := ds.DeleteExpense(ctx, exp.ID); err != nil {
 		t.Fatalf("DeleteExpense failed: %v", err)
 	}
-	list, _ = ds.ListExpenses(proj.ID)
+	list, _ = ds.ListExpenses(ctx, proj.ID)
 	if len(list) != 0 {
 		t.Fatalf("expected empty list, got %+v", list)
 	}
@@ -136,19 +144,20 @@ func TestDataService_CalculateProjectTaxes(t *testing.T) {
 	}
 	defer ds.Close()
 
-	proj, err := ds.CreateProject("Tax Project")
+	ctx := context.Background()
+	proj, err := ds.CreateProject(ctx, "Tax Project")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if _, err := ds.AddIncome(proj.ID, "donation", 50000); err != nil {
+	if _, err := ds.AddIncome(ctx, proj.ID, "donation", 50000); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := ds.AddExpense(proj.ID, "rent", 2000); err != nil {
+	if _, err := ds.AddExpense(ctx, proj.ID, "rent", 2000); err != nil {
 		t.Fatal(err)
 	}
 
-	result, err := ds.CalculateProjectTaxes(proj.ID)
+	result, err := ds.CalculateProjectTaxes(ctx, proj.ID)
 	if err != nil {
 		t.Fatalf("CalculateProjectTaxes returned error: %v", err)
 	}
@@ -167,7 +176,8 @@ func TestDataService_MemberOperations(t *testing.T) {
 	}
 	defer ds.Close()
 
-	m, err := ds.AddMember("Bob", "bob@example.com", "2024-01-10")
+	ctx := context.Background()
+	m, err := ds.AddMember(ctx, "Bob", "bob@example.com", "2024-01-10")
 	if err != nil {
 		t.Fatalf("AddMember returned error: %v", err)
 	}
@@ -175,11 +185,32 @@ func TestDataService_MemberOperations(t *testing.T) {
 		t.Fatalf("expected member ID to be set")
 	}
 
-	members, err := ds.ListMembers()
+	members, err := ds.ListMembers(ctx)
 	if err != nil {
 		t.Fatalf("ListMembers returned error: %v", err)
 	}
 	if len(members) != 1 || members[0].Email != "bob@example.com" {
 		t.Fatalf("unexpected members: %+v", members)
+	}
+}
+
+func TestDataService_ContextCancellation(t *testing.T) {
+	ds, err := NewDataService(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	ctx := context.Background()
+	proj, err := ds.CreateProject(ctx, "ctx")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cctx, cancel := context.WithCancel(ctx)
+	cancel()
+	_, err = ds.AddIncome(cctx, proj.ID, "donation", 1)
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("expected context canceled, got %v", err)
 	}
 }

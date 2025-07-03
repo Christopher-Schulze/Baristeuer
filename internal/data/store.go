@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -61,8 +62,8 @@ func (s *Store) init() error {
 func (s *Store) Close() error { return s.DB.Close() }
 
 // CRUD operations for Project
-func (s *Store) CreateProject(p *Project) error {
-	res, err := s.DB.Exec(`INSERT INTO projects(name) VALUES(?)`, p.Name)
+func (s *Store) CreateProject(ctx context.Context, p *Project) error {
+	res, err := s.DB.ExecContext(ctx, `INSERT INTO projects(name) VALUES(?)`, p.Name)
 	if err != nil {
 		return err
 	}
@@ -70,8 +71,8 @@ func (s *Store) CreateProject(p *Project) error {
 	return err
 }
 
-func (s *Store) GetProject(id int64) (*Project, error) {
-	row := s.DB.QueryRow(`SELECT id, name FROM projects WHERE id=?`, id)
+func (s *Store) GetProject(ctx context.Context, id int64) (*Project, error) {
+	row := s.DB.QueryRowContext(ctx, `SELECT id, name FROM projects WHERE id=?`, id)
 	var p Project
 	if err := row.Scan(&p.ID, &p.Name); err != nil {
 		return nil, err
@@ -79,19 +80,19 @@ func (s *Store) GetProject(id int64) (*Project, error) {
 	return &p, nil
 }
 
-func (s *Store) UpdateProject(p *Project) error {
-	_, err := s.DB.Exec(`UPDATE projects SET name=? WHERE id=?`, p.Name, p.ID)
+func (s *Store) UpdateProject(ctx context.Context, p *Project) error {
+	_, err := s.DB.ExecContext(ctx, `UPDATE projects SET name=? WHERE id=?`, p.Name, p.ID)
 	return err
 }
 
-func (s *Store) DeleteProject(id int64) error {
-	_, err := s.DB.Exec(`DELETE FROM projects WHERE id=?`, id)
+func (s *Store) DeleteProject(ctx context.Context, id int64) error {
+	_, err := s.DB.ExecContext(ctx, `DELETE FROM projects WHERE id=?`, id)
 	return err
 }
 
 // CRUD operations for Income
-func (s *Store) CreateIncome(i *Income) error {
-	res, err := s.DB.Exec(`INSERT INTO incomes(project_id, source, amount) VALUES(?,?,?)`, i.ProjectID, i.Source, i.Amount)
+func (s *Store) CreateIncome(ctx context.Context, i *Income) error {
+	res, err := s.DB.ExecContext(ctx, `INSERT INTO incomes(project_id, source, amount) VALUES(?,?,?)`, i.ProjectID, i.Source, i.Amount)
 	if err != nil {
 		return err
 	}
@@ -99,8 +100,8 @@ func (s *Store) CreateIncome(i *Income) error {
 	return err
 }
 
-func (s *Store) GetIncome(id int64) (*Income, error) {
-	row := s.DB.QueryRow(`SELECT id, project_id, source, amount FROM incomes WHERE id=?`, id)
+func (s *Store) GetIncome(ctx context.Context, id int64) (*Income, error) {
+	row := s.DB.QueryRowContext(ctx, `SELECT id, project_id, source, amount FROM incomes WHERE id=?`, id)
 	var i Income
 	if err := row.Scan(&i.ID, &i.ProjectID, &i.Source, &i.Amount); err != nil {
 		return nil, err
@@ -108,19 +109,19 @@ func (s *Store) GetIncome(id int64) (*Income, error) {
 	return &i, nil
 }
 
-func (s *Store) UpdateIncome(i *Income) error {
-	_, err := s.DB.Exec(`UPDATE incomes SET project_id=?, source=?, amount=? WHERE id=?`, i.ProjectID, i.Source, i.Amount, i.ID)
+func (s *Store) UpdateIncome(ctx context.Context, i *Income) error {
+	_, err := s.DB.ExecContext(ctx, `UPDATE incomes SET project_id=?, source=?, amount=? WHERE id=?`, i.ProjectID, i.Source, i.Amount, i.ID)
 	return err
 }
 
-func (s *Store) DeleteIncome(id int64) error {
-	_, err := s.DB.Exec(`DELETE FROM incomes WHERE id=?`, id)
+func (s *Store) DeleteIncome(ctx context.Context, id int64) error {
+	_, err := s.DB.ExecContext(ctx, `DELETE FROM incomes WHERE id=?`, id)
 	return err
 }
 
 // CRUD operations for Expense
-func (s *Store) CreateExpense(e *Expense) error {
-	res, err := s.DB.Exec(`INSERT INTO expenses(project_id, category, amount) VALUES(?,?,?)`, e.ProjectID, e.Category, e.Amount)
+func (s *Store) CreateExpense(ctx context.Context, e *Expense) error {
+	res, err := s.DB.ExecContext(ctx, `INSERT INTO expenses(project_id, category, amount) VALUES(?,?,?)`, e.ProjectID, e.Category, e.Amount)
 	if err != nil {
 		return err
 	}
@@ -128,8 +129,8 @@ func (s *Store) CreateExpense(e *Expense) error {
 	return err
 }
 
-func (s *Store) GetExpense(id int64) (*Expense, error) {
-	row := s.DB.QueryRow(`SELECT id, project_id, category, amount FROM expenses WHERE id=?`, id)
+func (s *Store) GetExpense(ctx context.Context, id int64) (*Expense, error) {
+	row := s.DB.QueryRowContext(ctx, `SELECT id, project_id, category, amount FROM expenses WHERE id=?`, id)
 	var e Expense
 	if err := row.Scan(&e.ID, &e.ProjectID, &e.Category, &e.Amount); err != nil {
 		return nil, err
@@ -137,19 +138,19 @@ func (s *Store) GetExpense(id int64) (*Expense, error) {
 	return &e, nil
 }
 
-func (s *Store) UpdateExpense(e *Expense) error {
-	_, err := s.DB.Exec(`UPDATE expenses SET project_id=?, category=?, amount=? WHERE id=?`, e.ProjectID, e.Category, e.Amount, e.ID)
+func (s *Store) UpdateExpense(ctx context.Context, e *Expense) error {
+	_, err := s.DB.ExecContext(ctx, `UPDATE expenses SET project_id=?, category=?, amount=? WHERE id=?`, e.ProjectID, e.Category, e.Amount, e.ID)
 	return err
 }
 
-func (s *Store) DeleteExpense(id int64) error {
-	_, err := s.DB.Exec(`DELETE FROM expenses WHERE id=?`, id)
+func (s *Store) DeleteExpense(ctx context.Context, id int64) error {
+	_, err := s.DB.ExecContext(ctx, `DELETE FROM expenses WHERE id=?`, id)
 	return err
 }
 
 // SumIncomeByProject returns the total income amount for a project.
-func (s *Store) SumIncomeByProject(projectID int64) (float64, error) {
-	row := s.DB.QueryRow(`SELECT COALESCE(SUM(amount),0) FROM incomes WHERE project_id=?`, projectID)
+func (s *Store) SumIncomeByProject(ctx context.Context, projectID int64) (float64, error) {
+	row := s.DB.QueryRowContext(ctx, `SELECT COALESCE(SUM(amount),0) FROM incomes WHERE project_id=?`, projectID)
 	var total float64
 	if err := row.Scan(&total); err != nil {
 		return 0, err
@@ -158,8 +159,8 @@ func (s *Store) SumIncomeByProject(projectID int64) (float64, error) {
 }
 
 // SumExpenseByProject returns the total expense amount for a project.
-func (s *Store) SumExpenseByProject(projectID int64) (float64, error) {
-	row := s.DB.QueryRow(`SELECT COALESCE(SUM(amount),0) FROM expenses WHERE project_id=?`, projectID)
+func (s *Store) SumExpenseByProject(ctx context.Context, projectID int64) (float64, error) {
+	row := s.DB.QueryRowContext(ctx, `SELECT COALESCE(SUM(amount),0) FROM expenses WHERE project_id=?`, projectID)
 	var total float64
 	if err := row.Scan(&total); err != nil {
 		return 0, err
@@ -168,8 +169,8 @@ func (s *Store) SumExpenseByProject(projectID int64) (float64, error) {
 }
 
 // CRUD operations for Member
-func (s *Store) CreateMember(m *Member) error {
-	res, err := s.DB.Exec(`INSERT INTO members(name, email, join_date) VALUES(?,?,?)`, m.Name, m.Email, m.JoinDate)
+func (s *Store) CreateMember(ctx context.Context, m *Member) error {
+	res, err := s.DB.ExecContext(ctx, `INSERT INTO members(name, email, join_date) VALUES(?,?,?)`, m.Name, m.Email, m.JoinDate)
 	if err != nil {
 		return err
 	}
@@ -177,8 +178,8 @@ func (s *Store) CreateMember(m *Member) error {
 	return err
 }
 
-func (s *Store) GetMember(id int64) (*Member, error) {
-	row := s.DB.QueryRow(`SELECT id, name, email, join_date FROM members WHERE id=?`, id)
+func (s *Store) GetMember(ctx context.Context, id int64) (*Member, error) {
+	row := s.DB.QueryRowContext(ctx, `SELECT id, name, email, join_date FROM members WHERE id=?`, id)
 	var m Member
 	if err := row.Scan(&m.ID, &m.Name, &m.Email, &m.JoinDate); err != nil {
 		return nil, err
@@ -186,18 +187,18 @@ func (s *Store) GetMember(id int64) (*Member, error) {
 	return &m, nil
 }
 
-func (s *Store) UpdateMember(m *Member) error {
-	_, err := s.DB.Exec(`UPDATE members SET name=?, email=?, join_date=? WHERE id=?`, m.Name, m.Email, m.JoinDate, m.ID)
+func (s *Store) UpdateMember(ctx context.Context, m *Member) error {
+	_, err := s.DB.ExecContext(ctx, `UPDATE members SET name=?, email=?, join_date=? WHERE id=?`, m.Name, m.Email, m.JoinDate, m.ID)
 	return err
 }
 
-func (s *Store) DeleteMember(id int64) error {
-	_, err := s.DB.Exec(`DELETE FROM members WHERE id=?`, id)
+func (s *Store) DeleteMember(ctx context.Context, id int64) error {
+	_, err := s.DB.ExecContext(ctx, `DELETE FROM members WHERE id=?`, id)
 	return err
 }
 
-func (s *Store) ListMembers() ([]Member, error) {
-	rows, err := s.DB.Query(`SELECT id, name, email, join_date FROM members ORDER BY name`)
+func (s *Store) ListMembers(ctx context.Context) ([]Member, error) {
+	rows, err := s.DB.QueryContext(ctx, `SELECT id, name, email, join_date FROM members ORDER BY name`)
 	if err != nil {
 		return nil, err
 	}
