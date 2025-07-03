@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useState, useEffect } from 'react';
 import { AddExpense, ListExpenses } from './wailsjs/go/data/DataService';
 import './index.css';
 
