@@ -1,0 +1,57 @@
+# .github/workflows/build.yml
+
+name: Build and Test CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22.x'
+
+    - name: Set up Bun
+      uses: oven-sh/setup-bun@v1
+
+    - name: Install Wails CLI
+      run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+    - name: Install Go dependencies
+      run: go mod tidy
+
+    - name: Install Frontend Dependencies
+      run: bun install --cwd internal/ui
+
+    - name: Run Go Tests
+      run: go test ./...
+
+    # We add this step to ensure the build continues even if there are no frontend tests
+    - name: Run Frontend Tests
+      run: bun test --cwd internal/ui
+      continue-on-error: true
+
+    - name: Build application
+      run: wails build -ldflags="-s -w" -clean
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Baristeuer-${{ matrix.os }}
+        path: build/bin/

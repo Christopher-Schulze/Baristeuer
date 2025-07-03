@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.7.2025] - CI Workflow
+
+### Added
+- **CI Workflow**: Set up a GitHub Actions workflow (`.github/workflows/build.yml`) to automatically build and test the application on every push to the `main` branch. The workflow builds for macOS, Windows, and Linux, runs Go and Bun tests, and uploads the compiled binaries as build artifacts.
+
 ## [3.7.2025] - Release 1.0
 
 ### Added
@@ -14,6 +19,7 @@
 
 ### Fixed
 - **Compilation Error**: Resolved a critical bug in the PDF generator by adding the missing `Timestamp` field to the `TaxResult` struct.
+- **File Naming**: Corrected a typo in the logo filename, renaming `loco.png` to `logo.png`.
 
 ### Removed
 - **Redundant Logic**: Deleted the entire `internal/taxrules` directory, which contained faulty and unused tax calculation logic.
@@ -40,3 +46,15 @@
 - Initial project setup with basic structure and documentation files.
 - **Hot Reload Configuration**: Configured Vite for hot reload functionality on macOS.
 - **Frontend Build Fix**: Resolved a PostCSS configuration error that prevented the development server from starting.
+## [v1.1.0] - 2025-07-03
+
+### Added
+- Expanded `DOCUMENTATION.md` to include cross-platform compatibility requirements (macOS and Windows).
+
+### Changed
+- Updated the application name to "Bari$teuer" in `wails.json`.
+- Set `logo.png` as the application icon in `wails.json`.
+- Completely revised `README.md` with a new structure, embedded logo, and detailed feature descriptions.
+
+### Removed
+- Removed social media and contributor sections from `README.md`.

@@ -33,3 +33,6 @@ Baristeuer is a desktop application for generating tax reports for non-profit or
 - **PDF Generation**: Creates detailed tax reports in PDF format for submission to the German tax office.
 - **SQLite Storage**: Simple persistence layer to store project data.
 - **Unit Tests**: Tests covering the tax calculation logic.
+
+## Cross-Platform Compatibility
+The application is required to be fully functional on both **macOS** and **Windows** operating systems. All features must be tested and verified on both platforms to ensure a consistent user experience.
