@@ -3,7 +3,7 @@
 import {data} from '../models';
 import {context} from '../models';
 
-export function AddIncome(arg1:string,arg2:number):Promise<void>;
+export function AddExpense(arg1:string,arg2:number):Promise<void>;
 
 export function ListExpenses():Promise<Array<data.Expense>>;
 

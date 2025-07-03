@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AddIncome, ListExpenses } from './wailsjs/go/data/DataService';
+import { AddExpense, ListExpenses } from './wailsjs/go/data/DataService';
 import './index.css';
 
 function App() {
@@ -26,20 +26,20 @@ function App() {
     fetchExpenses();
   }, []);
 
-  const handleAddIncome = async (e) => {
+  const handleAddExpense = async (e) => {
     e.preventDefault();
     if (!description || !amount) {
       setError('Description and amount are required.');
       return;
     }
     try {
-      await AddIncome(description, parseFloat(amount));
+      await AddExpense(description, parseFloat(amount));
       setDescription('');
       setAmount('');
       setError('');
       await fetchExpenses(); // Refresh the list
     } catch (err) {
-      setError(err.message || 'Failed to add income');
+      setError(err.message || 'Failed to add expense');
     }
   };
 
@@ -57,8 +57,8 @@ function App() {
         </div>
         
         <div className={`p-6 rounded-lg shadow-md ${mode === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
-          <h2 className="text-2xl font-semibold mb-4">Add New Income</h2>
-          <form onSubmit={handleAddIncome} className="mb-6">
+          <h2 className="text-2xl font-semibold mb-4">Add New Expense</h2>
+          <form onSubmit={handleAddExpense} className="mb-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label htmlFor="description" className="block text-sm font-medium mb-1">Description</label>
@@ -87,7 +87,7 @@ function App() {
                   type="submit"
                   className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
-                  Add Income
+                  Add Expense
                 </button>
               </div>
             </div>

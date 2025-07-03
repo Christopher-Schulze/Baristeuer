@@ -20,9 +20,8 @@ func (s *DataService) Startup(ctx context.Context) {
 	s.ctx = ctx
 }
 
-// AddIncome adds a new expense to the in-memory store.
-// Note: The method is named AddIncome as requested, but it adds an Expense record.
-func (s *DataService) AddIncome(description string, amount float64) {
+// AddExpense adds a new expense to the in-memory store.
+func (s *DataService) AddExpense(description string, amount float64) {
 	expense := Expense{
 		Category: description,
 		Amount:   amount,

@@ -3,7 +3,7 @@
 ## [3.7.2025] - README Logo Path Fix
 
 ### Fixed
-- **README.md**: Corrected the image path for the logo to be a proper relative path (`./internal/ui/src/assets/logo.png`).
+- **README.md**: Corrected the image path for the logo to use the relative path (`./logo.png`).
 ## [3.7.2025] - Path Correction
 
 ### Fixed
@@ -28,7 +28,7 @@
 ## [3.7.2025] - Data Handling
 
 ### Added
-- **In-Memory Data Service**: Implemented a new Go service (`internal/data/service.go`) with `AddIncome` and `ListExpenses` methods using an in-memory slice for data storage.
+- **In-Memory Data Service**: Implemented a new Go service (`internal/data/service.go`) with `AddExpense` and `ListExpenses` methods using an in-memory slice for data storage.
 - **UI for Data Entry**: Updated `App.jsx` to include a form for adding income (description and amount) and a table to display the list of expenses.
 
 ### Changed
