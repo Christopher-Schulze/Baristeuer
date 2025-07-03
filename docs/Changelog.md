@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.7.2025] - README Refinement
+
+### Changed
+- **README Revision**: Revised `README.md` to adopt a more neutral and factual tone. Updated the title, embedded a smaller logo, and streamlined the feature descriptions to be more concise.
 ## [3.7.2025] - Final Review and Documentation
 
 ### Added
