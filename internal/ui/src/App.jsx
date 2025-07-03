@@ -28,6 +28,7 @@ import {
   ListExpenses,
   AddIncome,
   ListIncomes,
+  CalculateProjectTaxes,
 } from "./wailsjs/go/service/DataService";
 import {
   GenerateReport,
@@ -46,6 +47,7 @@ export default function App() {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
+  const [taxes, setTaxes] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [tab, setTab] = useState(0);
 
@@ -137,6 +139,16 @@ export default function App() {
     }
   };
 
+  const handleCalculateTaxes = async () => {
+    try {
+      const result = await CalculateProjectTaxes(1);
+      setTaxes(result);
+      setError("");
+    } catch (err) {
+      setError(err.message || "Fehler bei Berechnung");
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -166,6 +178,7 @@ export default function App() {
           <Tab label="Einnahmen" />
           <Tab label="Ausgaben" />
           <Tab label="Formulare" />
+          <Tab label="Steuern" />
         </Tabs>
       </AppBar>
       <Container maxWidth="md" sx={{ py: 4 }}>
@@ -377,6 +390,35 @@ export default function App() {
               </Card>
             </Grid>
           </Grid>
+        )}
+        {tab === 3 && (
+          <Paper sx={{ p: 3 }}>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleCalculateTaxes}
+            >
+              Steuern berechnen
+            </Button>
+            {taxes && (
+              <Box sx={{ mt: 2 }}>
+                <Typography>Einnahmen: {taxes.revenue.toFixed(2)} €</Typography>
+                <Typography>Ausgaben: {taxes.expenses.toFixed(2)} €</Typography>
+                <Typography>
+                  Steuerpflichtiges Einkommen: {taxes.taxableIncome.toFixed(2)}{" "}
+                  €
+                </Typography>
+                <Typography>
+                  Gesamtsteuer: {taxes.totalTax.toFixed(2)} €
+                </Typography>
+              </Box>
+            )}
+            {error && (
+              <Typography color="error" sx={{ mt: 2 }}>
+                {error}
+              </Typography>
+            )}
+          </Paper>
         )}
       </Container>
     </ThemeProvider>

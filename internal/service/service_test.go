@@ -58,3 +58,34 @@ func TestDataService_ListExpenses(t *testing.T) {
 		t.Fatalf("expected 2 expenses, got %d", len(expenses))
 	}
 }
+
+func TestDataService_CalculateProjectTaxes(t *testing.T) {
+	ds, err := NewDataService(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	proj, err := ds.CreateProject("Tax Project")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := ds.AddIncome(proj.ID, "donation", 50000); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ds.AddExpense(proj.ID, "rent", 2000); err != nil {
+		t.Fatal(err)
+	}
+
+	result, err := ds.CalculateProjectTaxes(proj.ID)
+	if err != nil {
+		t.Fatalf("CalculateProjectTaxes returned error: %v", err)
+	}
+	if !result.IsTaxable {
+		t.Fatalf("expected project to be taxable")
+	}
+	if result.TotalTax <= 0 {
+		t.Fatalf("expected positive tax, got %f", result.TotalTax)
+	}
+}

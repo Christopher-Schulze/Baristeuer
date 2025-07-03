@@ -2,6 +2,7 @@ package service
 
 import (
 	"baristeuer/internal/data"
+	"baristeuer/internal/taxlogic"
 	"log"
 	"os"
 )
@@ -96,6 +97,21 @@ func (ds *DataService) ListExpenses(projectID int64) ([]data.Expense, error) {
 	}
 	ds.logger.Printf("Listed %d expenses for project %d", len(expenses), projectID)
 	return expenses, nil
+}
+
+// CalculateProjectTaxes returns a detailed tax calculation for the given project.
+func (ds *DataService) CalculateProjectTaxes(projectID int64) (taxlogic.TaxResult, error) {
+	revenue, err := ds.store.SumIncomeByProject(projectID)
+	if err != nil {
+		return taxlogic.TaxResult{}, err
+	}
+	expenses, err := ds.store.SumExpenseByProject(projectID)
+	if err != nil {
+		return taxlogic.TaxResult{}, err
+	}
+	result := taxlogic.CalculateTaxes(revenue, expenses)
+	ds.logger.Printf("Calculated taxes for project %d: %.2f EUR", projectID, result.TotalTax)
+	return result, nil
 }
 
 // Close closes the underlying datastore.

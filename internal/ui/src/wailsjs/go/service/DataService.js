@@ -17,3 +17,7 @@ export function AddIncome(arg1, arg2) {
 export function ListIncomes() {
   return window.go.service.DataService.ListIncomes();
 }
+
+export function CalculateProjectTaxes(arg1) {
+  return window.go.service.DataService.CalculateProjectTaxes(arg1);
+}
