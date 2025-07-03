@@ -58,13 +58,11 @@ function App() {
     setError('');
     setFilePath('');
     try {
-      const rev = parseFloat(revenue);
-      const exp = parseFloat(expenses);
-      if (isNaN(rev) || isNaN(exp)) {
-        setError('Please enter valid numbers for revenue and expenses.');
+      if (!projectID) {
+        setError('Please create a project first.');
         return;
       }
-      const path = await GenerateReport(rev, exp);
+      const path = await GenerateReport(projectID);
       setFilePath(path);
     } catch (err) {
       setError(err.message || 'An unknown error occurred.');

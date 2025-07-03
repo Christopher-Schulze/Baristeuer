@@ -1,6 +1,7 @@
 package main
 
 import (
+	"baristeuer/internal/data"
 	"baristeuer/internal/pdf"
 	"baristeuer/internal/service"
 	"github.com/wailsapp/wails/v2"
@@ -9,13 +10,15 @@ import (
 )
 
 func main() {
-	generator := pdf.NewGenerator("")
-	datasvc, err := service.NewDataService("baristeuer.db")
+	store, err := data.NewStore("baristeuer.db")
 	if err != nil {
 		println("Error:", err.Error())
 		return
 	}
-	defer datasvc.Close()
+	defer store.Close()
+
+	generator := pdf.NewGenerator("", store)
+	datasvc := service.NewDataServiceFromStore(store)
 
 	err = wails.Run(&options.App{
 		Title:       "Baristeuer",
