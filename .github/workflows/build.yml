@@ -27,8 +27,12 @@ jobs:
       with:
         go-version: '1.22.x'
 
-    - name: Set up Bun
-      uses: oven-sh/setup-bun@v1
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: internal/ui/package-lock.json
 
     - name: Install Wails CLI
       run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
@@ -37,13 +41,15 @@ jobs:
       run: go mod tidy
 
     - name: Install Frontend Dependencies
-      run: bun install --cwd internal/ui
+      run: npm ci
+      working-directory: internal/ui
 
     - name: Run Go Tests
       run: go test ./...
 
     - name: Run Frontend Tests
-      run: bun run test --cwd internal/ui
+      run: npm test --if-present
+      working-directory: internal/ui
 
     - name: Build application
       run: wails build -ldflags="-s -w" -clean
