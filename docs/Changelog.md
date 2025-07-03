@@ -49,8 +49,8 @@
 
 ### Added
 - **Unit Tests**: Added comprehensive unit tests for the tax calculation logic in `internal/taxlogic/` to ensure correctness and reliability.
-- **Tailwind Styling**: Replaced the old Material UI components with Tailwind CSS in the React frontend.
-- **Documentation Updates**: Updated `DOCUMENTATION.md` and `TODO123.md` to describe the React/Tailwind stack.
+- **Material UI Reinstated**: After experimenting with Tailwind CSS, the React frontend returned to Material UI components, which are now in use.
+- **Documentation Updates**: Updated `DOCUMENTATION.md` and `TODO123.md` to describe the then-current React/Tailwind stack (the project now uses Material UI).
 
 ### Changed
 - **Code Refactoring**: Consolidated all tax logic into `tax_logic.go`, ensuring a single source of truth.
