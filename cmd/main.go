@@ -1,11 +1,12 @@
 package main
 
 import (
-	"baristeuer/internal/data"
-	"baristeuer/internal/pdf"
-	"github.com/wailsapp/wails/v2"
-	"github.com/wailsapp/wails/v2/pkg/options"
-	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+        "baristeuer/internal/data"
+        "baristeuer/internal/pdf"
+        "baristeuer/internal/service"
+        "github.com/wailsapp/wails/v2"
+        "github.com/wailsapp/wails/v2/pkg/options"
+        "github.com/wailsapp/wails/v2/pkg/options/assetserver"
 )
 
 func main() {
@@ -16,8 +17,13 @@ func main() {
 	}
 	defer store.Close()
 
-	generator := pdf.NewGenerator("", store)
-	datasvc := data.NewDataService()
+        generator := pdf.NewGenerator("", store)
+        datasvc, err := service.NewDataService("baristeuer.db")
+        if err != nil {
+                println("Error:", err.Error())
+                return
+        }
+        defer datasvc.Close()
 
 	err = wails.Run(&options.App{
 		Title:       "Baristeuer",
