@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="logo.png" alt="Bari$teuer Logo" width="100">
+  <img src="logo.png" alt="Bari$teuer Logo" width="300">
 </div>
 
 # Bari$teuer - Tax Management for German Associations
