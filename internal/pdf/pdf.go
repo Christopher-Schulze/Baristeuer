@@ -112,9 +112,10 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	lines := []string{
 		"K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung f\xC3\xBCr Vereine", // "Körperschaftsteuererklärung für Vereine"
-		"Name des Vereins:",
-		"Steuernummer:",
+		"Name des Vereins: ____________________",
+		"Steuernummer: ____________________",
 		"Veranlagungszeitraum: 2025",
+		"(Bitte Formular vollständig ausf\xC3\xBCllen)",
 	}
 	return g.createForm(projectID, "KSt 1", lines)
 }
@@ -123,8 +124,9 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	lines := []string{
 		"Anlage Gem - Angaben zur Gemeinn\xC3\xBCtzigkeit", // "Anlage Gem - Angaben zur Gemeinnützigkeit"
-		"T\xC3\xA4tigkeit des Vereins:",
-		"Steuerbeg\xC3\xBCnstigte Zwecke:",
+		"T\xC3\xA4tigkeit des Vereins: ____________________",
+		"Steuerbeg\xC3\xBCnstigte Zwecke: ____________________",
+		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",
 	}
 	return g.createForm(projectID, "Anlage Gem", lines)
 }
@@ -133,8 +135,9 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
 	lines := []string{
 		"Anlage GK - Angaben zu Gesch\xC3\xA4ftsbetrieben", // "Anlage GK - Angaben zu Geschäftsbetrieben"
-		"Bezeichnung des wirtschaftlichen Gesch\xC3\xA4ftsbetriebs:",
-		"Gewinne/Verluste:",
+		"Bezeichnung des wirtschaftlichen Gesch\xC3\xA4ftsbetriebs: ____________________",
+		"Gewinne/Verluste: ____________________",
+		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",
 	}
 	return g.createForm(projectID, "Anlage GK", lines)
 }
@@ -143,8 +146,9 @@ func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
 func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
 	lines := []string{
 		"KSt 1F - Erweiterte K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung", // "KSt 1F - Erweiterte Körperschaftsteuererklärung"
-		"Angaben zu Beteiligungen:",
-		"Erhaltene F\xC3\xB6rdermittel:",
+		"Angaben zu Beteiligungen: ____________________",
+		"Erhaltene F\xC3\xB6rdermittel: ____________________",
+		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",
 	}
 	return g.createForm(projectID, "KSt 1F", lines)
 }
@@ -153,8 +157,9 @@ func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
 func (g *Generator) GenerateAnlageSport(projectID int64) (string, error) {
 	lines := []string{
 		"Anlage Sport - Sportvereine", // heading
-		"Mitgliederzahl:",
-		"Einnahmen aus Sportbetrieb:",
+		"Mitgliederzahl: ____________________",
+		"Einnahmen aus Sportbetrieb: ____________________",
+		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",
 	}
 	return g.createForm(projectID, "Anlage Sport", lines)
 }

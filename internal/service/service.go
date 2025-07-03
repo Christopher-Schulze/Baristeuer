@@ -2,11 +2,14 @@ package service
 
 import (
 	"baristeuer/internal/data"
+	"log"
+	"os"
 )
 
 // DataService provides application methods used by the UI.
 type DataService struct {
-	store *data.Store
+	store  *data.Store
+	logger *log.Logger
 }
 
 // NewDataService creates a new service with the given datastore location.
@@ -15,12 +18,14 @@ func NewDataService(dsn string) (*DataService, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &DataService{store: s}, nil
+	l := log.New(os.Stdout, "DataService: ", log.LstdFlags)
+	return &DataService{store: s, logger: l}, nil
 }
 
 // NewDataServiceFromStore wraps an existing store.
 func NewDataServiceFromStore(store *data.Store) *DataService {
-	return &DataService{store: store}
+	l := log.New(os.Stdout, "DataService: ", log.LstdFlags)
+	return &DataService{store: store, logger: l}
 }
 
 // CreateProject creates a project by name.
@@ -29,6 +34,7 @@ func (ds *DataService) CreateProject(name string) (*data.Project, error) {
 	if err := ds.store.CreateProject(p); err != nil {
 		return nil, err
 	}
+	ds.logger.Printf("Created project %d", p.ID)
 	return p, nil
 }
 
@@ -48,6 +54,7 @@ func (ds *DataService) ListIncomes(projectID int64) ([]data.Income, error) {
 		}
 		incomes = append(incomes, i)
 	}
+	ds.logger.Printf("Listed %d incomes for project %d", len(incomes), projectID)
 	return incomes, nil
 }
 
@@ -57,6 +64,7 @@ func (ds *DataService) AddIncome(projectID int64, source string, amount float64)
 	if err := ds.store.CreateIncome(i); err != nil {
 		return nil, err
 	}
+	ds.logger.Printf("Added income %.2f to project %d", amount, projectID)
 	return i, nil
 }
 
@@ -66,6 +74,7 @@ func (ds *DataService) AddExpense(projectID int64, category string, amount float
 	if err := ds.store.CreateExpense(e); err != nil {
 		return nil, err
 	}
+	ds.logger.Printf("Added expense %.2f to project %d", amount, projectID)
 	return e, nil
 }
 
@@ -85,6 +94,7 @@ func (ds *DataService) ListExpenses(projectID int64) ([]data.Expense, error) {
 		}
 		expenses = append(expenses, e)
 	}
+	ds.logger.Printf("Listed %d expenses for project %d", len(expenses), projectID)
 	return expenses, nil
 }
 
