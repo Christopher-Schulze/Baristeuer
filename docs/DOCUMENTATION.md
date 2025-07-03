@@ -58,6 +58,7 @@ also use `go test ./...`, which traverses all modules listed in `go.work`.
 - **React + Material UI Interface**: UI built with React components styled using Material UI.
 - **PDF Generation**: Creates detailed tax reports in PDF format for submission to the German tax office.
 - **SQLite Storage**: Simple persistence layer to store project data.
+- **Member Tracking**: Manage club members with names, emails and join dates.
 - **Unit Tests**: Tests covering the tax calculation logic.
 
 ## Cross-Platform Compatibility

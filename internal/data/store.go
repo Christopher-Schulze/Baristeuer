@@ -42,6 +42,12 @@ func (s *Store) init() error {
             category TEXT,
             amount REAL
         );`,
+		`CREATE TABLE IF NOT EXISTS members (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            email TEXT,
+            join_date TEXT
+        );`,
 	}
 	for _, stmt := range schema {
 		if _, err := s.DB.Exec(stmt); err != nil {
@@ -159,4 +165,51 @@ func (s *Store) SumExpenseByProject(projectID int64) (float64, error) {
 		return 0, err
 	}
 	return total, nil
+}
+
+// CRUD operations for Member
+func (s *Store) CreateMember(m *Member) error {
+	res, err := s.DB.Exec(`INSERT INTO members(name, email, join_date) VALUES(?,?,?)`, m.Name, m.Email, m.JoinDate)
+	if err != nil {
+		return err
+	}
+	m.ID, err = res.LastInsertId()
+	return err
+}
+
+func (s *Store) GetMember(id int64) (*Member, error) {
+	row := s.DB.QueryRow(`SELECT id, name, email, join_date FROM members WHERE id=?`, id)
+	var m Member
+	if err := row.Scan(&m.ID, &m.Name, &m.Email, &m.JoinDate); err != nil {
+		return nil, err
+	}
+	return &m, nil
+}
+
+func (s *Store) UpdateMember(m *Member) error {
+	_, err := s.DB.Exec(`UPDATE members SET name=?, email=?, join_date=? WHERE id=?`, m.Name, m.Email, m.JoinDate, m.ID)
+	return err
+}
+
+func (s *Store) DeleteMember(id int64) error {
+	_, err := s.DB.Exec(`DELETE FROM members WHERE id=?`, id)
+	return err
+}
+
+func (s *Store) ListMembers() ([]Member, error) {
+	rows, err := s.DB.Query(`SELECT id, name, email, join_date FROM members ORDER BY name`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var members []Member
+	for rows.Next() {
+		var m Member
+		if err := rows.Scan(&m.ID, &m.Name, &m.Email, &m.JoinDate); err != nil {
+			return nil, err
+		}
+		members = append(members, m)
+	}
+	return members, nil
 }

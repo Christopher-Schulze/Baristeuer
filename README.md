@@ -12,6 +12,7 @@ Bari$teuer is a software tool designed to assist German non-profit organizations
 
 - **Tax Calculation:** Calculates corporate tax (Körperschaftsteuer) and VAT (Umsatzsteuer) for non-profit organizations based on German tax laws.
 - **Data Management:** Centralized tracking of income, expenses, and donations.
+- **Member Management:** Track club members with join date and contact details.
 - **Tax Overview:** Calculates taxes for a project and displays the results in the UI.
 - **Reporting:** Generates tax reports for submission.
 - **User Interface:** German-language interface styled with Material UI themes.

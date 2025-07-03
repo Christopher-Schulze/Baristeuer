@@ -126,3 +126,45 @@ func TestExpenseCRUD(t *testing.T) {
 		t.Fatalf("expected error after delete")
 	}
 }
+
+func TestMemberCRUD(t *testing.T) {
+	s, err := NewStore(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	m := &Member{Name: "Alice", Email: "alice@example.com", JoinDate: "2024-01-02"}
+	if err := s.CreateMember(m); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := s.GetMember(m.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Email != m.Email {
+		t.Fatalf("expected %s, got %s", m.Email, got.Email)
+	}
+
+	m.Name = "Alice Smith"
+	if err := s.UpdateMember(m); err != nil {
+		t.Fatal(err)
+	}
+	got, _ = s.GetMember(m.ID)
+	if got.Name != "Alice Smith" {
+		t.Fatalf("update failed")
+	}
+
+	members, err := s.ListMembers()
+	if err != nil || len(members) != 1 {
+		t.Fatalf("expected one member, got %v", members)
+	}
+
+	if err := s.DeleteMember(m.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.GetMember(m.ID); err == nil {
+		t.Fatalf("expected error after delete")
+	}
+}

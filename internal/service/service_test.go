@@ -89,3 +89,27 @@ func TestDataService_CalculateProjectTaxes(t *testing.T) {
 		t.Fatalf("expected positive tax, got %f", result.TotalTax)
 	}
 }
+
+func TestDataService_MemberOperations(t *testing.T) {
+	ds, err := NewDataService(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	m, err := ds.AddMember("Bob", "bob@example.com", "2024-01-10")
+	if err != nil {
+		t.Fatalf("AddMember returned error: %v", err)
+	}
+	if m.ID == 0 {
+		t.Fatalf("expected member ID to be set")
+	}
+
+	members, err := ds.ListMembers()
+	if err != nil {
+		t.Fatalf("ListMembers returned error: %v", err)
+	}
+	if len(members) != 1 || members[0].Email != "bob@example.com" {
+		t.Fatalf("unexpected members: %+v", members)
+	}
+}
