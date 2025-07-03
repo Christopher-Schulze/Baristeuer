@@ -69,12 +69,17 @@ export default function App() {
 
   const handleAdd = async (e) => {
     e.preventDefault();
+    const value = parseFloat(amount);
     if (!description || !amount) {
       setError("Beschreibung und Betrag erforderlich");
       return;
     }
+    if (Number.isNaN(value) || value <= 0) {
+      setError("Betrag muss eine positive Zahl sein");
+      return;
+    }
     try {
-      await AddExpense(description, parseFloat(amount));
+      await AddExpense(description, value);
       setDescription("");
       setAmount("");
       setError("");

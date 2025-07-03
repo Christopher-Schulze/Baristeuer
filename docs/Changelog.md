@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.7.2025] - UI Validation and Logging
+
+### Added
+- **Cleanup Wails Bindings**: Removed outdated bindings from `cmd/internal/ui/wailsjs`.
+- **Input Validation**: Added positive amount checks in `App.jsx`.
+- **PDF Form Fields**: Extended placeholder forms with fill-in lines.
+- **Service Logging**: Introduced a basic logger in `internal/service`.
+
 ## [3.7.2025] - README Logo Path Fix
 
 ### Fixed
