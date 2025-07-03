@@ -48,6 +48,18 @@ The resulting binaries can be found in `build/bin`. Follow the official document
 
 See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for more details.
 
+## Packaging
+
+Run the packaging script to build binaries for macOS and Windows and place them
+in versioned directories under `build/bin`:
+
+```bash
+./scripts/package.sh
+```
+
+The script uses `wails build` internally and names the output directory after the
+current Git tag or commit hash.
+
 ---
 
 *This project is for internal use and is not open for contributions.*
