@@ -168,3 +168,31 @@ func TestMemberCRUD(t *testing.T) {
 		t.Fatalf("expected error after delete")
 	}
 }
+
+func TestStore_MemberIndexExists(t *testing.T) {
+	s, err := NewStore(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	rows, err := s.DB.Query(`SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='members'`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rows.Close()
+
+	found := false
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			t.Fatal(err)
+		}
+		if name == "idx_members_name" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("members name index not created")
+	}
+}

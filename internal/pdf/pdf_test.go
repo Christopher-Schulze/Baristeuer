@@ -8,6 +8,15 @@ import (
 	"baristeuer/internal/data"
 )
 
+func TestNewGeneratorEnvVar(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("BARISTEUER_PDFDIR", dir)
+	g := NewGenerator("", nil)
+	if g.BasePath != dir {
+		t.Fatalf("expected %s, got %s", dir, g.BasePath)
+	}
+}
+
 func TestGenerateReport(t *testing.T) {
 	dir := t.TempDir()
 	store, err := data.NewStore(":memory:")

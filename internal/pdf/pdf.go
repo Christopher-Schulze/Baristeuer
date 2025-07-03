@@ -21,7 +21,11 @@ type Generator struct {
 // NewGenerator returns a new Generator for storing reports.
 func NewGenerator(basePath string, store *data.Store) *Generator {
 	if basePath == "" {
-		basePath = filepath.Join(".", "internal", "data", "reports")
+		if env := os.Getenv("BARISTEUER_PDFDIR"); env != "" {
+			basePath = env
+		} else {
+			basePath = filepath.Join(".", "internal", "data", "reports")
+		}
 	}
 	return &Generator{BasePath: basePath, store: store}
 }
