@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	"errors"
 	"log/slog"
 	"strings"
 	"testing"
@@ -218,5 +219,31 @@ func TestDataService_AddIncome_DatabaseClosed(t *testing.T) {
 	_, err = ds.AddIncome(1, "donation", 5)
 	if err == nil || !strings.Contains(err.Error(), "create income") {
 		t.Fatalf("expected wrapped error, got %v", err)
+	}
+}
+
+func TestDataService_InvalidAmounts(t *testing.T) {
+	ds, err := NewDataService(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	proj, _ := ds.CreateProject("Invalid Amount")
+
+	if _, err := ds.AddIncome(proj.ID, "donation", -5); err == nil || !errors.Is(err, ErrInvalidAmount) {
+		t.Fatalf("expected invalid amount error, got %v", err)
+	}
+	if _, err := ds.AddExpense(proj.ID, "supplies", 0); err == nil || !errors.Is(err, ErrInvalidAmount) {
+		t.Fatalf("expected invalid amount error, got %v", err)
+	}
+
+	inc, _ := ds.AddIncome(proj.ID, "donation", 5)
+	if err := ds.UpdateIncome(inc.ID, proj.ID, "donation", 0); err == nil || !errors.Is(err, ErrInvalidAmount) {
+		t.Fatalf("expected invalid amount error, got %v", err)
+	}
+	exp, _ := ds.AddExpense(proj.ID, "supplies", 5)
+	if err := ds.UpdateExpense(exp.ID, proj.ID, "supplies", -2); err == nil || !errors.Is(err, ErrInvalidAmount) {
+		t.Fatalf("expected invalid amount error, got %v", err)
 	}
 }

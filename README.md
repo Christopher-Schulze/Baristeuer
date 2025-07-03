@@ -51,6 +51,7 @@ Follow the official documentation for platform specific details.
 
 1. Run `go work sync`.
 2. Execute `go test ./cmd/... ./internal/... ./internal/pdf/...`.
+3. Install frontend dependencies with `npm ci --prefix internal/ui` before running `npm test --prefix internal/ui`.
 
 See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for more details.
 

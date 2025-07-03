@@ -3,11 +3,14 @@ package service
 import (
 	"baristeuer/internal/data"
 	"baristeuer/internal/taxlogic"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
 	"strings"
 )
+
+var ErrInvalidAmount = errors.New("amount must be positive")
 
 // DataService provides application methods used by the UI.
 type DataService struct {
@@ -69,6 +72,9 @@ func (ds *DataService) ListIncomes(projectID int64) ([]data.Income, error) {
 
 // AddIncome adds a new income to the given project.
 func (ds *DataService) AddIncome(projectID int64, source string, amount float64) (*data.Income, error) {
+	if amount <= 0 {
+		return nil, fmt.Errorf("invalid amount: %w", ErrInvalidAmount)
+	}
 	i := &data.Income{ProjectID: projectID, Source: source, Amount: amount}
 	if err := ds.store.CreateIncome(i); err != nil {
 		return nil, fmt.Errorf("create income: %w", err)
@@ -79,6 +85,9 @@ func (ds *DataService) AddIncome(projectID int64, source string, amount float64)
 
 // UpdateIncome updates an existing income entry.
 func (ds *DataService) UpdateIncome(id int64, projectID int64, source string, amount float64) error {
+	if amount <= 0 {
+		return fmt.Errorf("invalid amount: %w", ErrInvalidAmount)
+	}
 	i := &data.Income{ID: id, ProjectID: projectID, Source: source, Amount: amount}
 	if err := ds.store.UpdateIncome(i); err != nil {
 		return fmt.Errorf("update income: %w", err)
@@ -98,6 +107,9 @@ func (ds *DataService) DeleteIncome(id int64) error {
 
 // AddExpense adds a new expense to the given project.
 func (ds *DataService) AddExpense(projectID int64, category string, amount float64) (*data.Expense, error) {
+	if amount <= 0 {
+		return nil, fmt.Errorf("invalid amount: %w", ErrInvalidAmount)
+	}
 	e := &data.Expense{ProjectID: projectID, Category: category, Amount: amount}
 	if err := ds.store.CreateExpense(e); err != nil {
 		return nil, fmt.Errorf("create expense: %w", err)
@@ -108,6 +120,9 @@ func (ds *DataService) AddExpense(projectID int64, category string, amount float
 
 // UpdateExpense updates an existing expense entry.
 func (ds *DataService) UpdateExpense(id int64, projectID int64, category string, amount float64) error {
+	if amount <= 0 {
+		return fmt.Errorf("invalid amount: %w", ErrInvalidAmount)
+	}
 	e := &data.Expense{ID: id, ProjectID: projectID, Category: category, Amount: amount}
 	if err := ds.store.UpdateExpense(e); err != nil {
 		return fmt.Errorf("update expense: %w", err)

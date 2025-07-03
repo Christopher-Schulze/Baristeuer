@@ -53,6 +53,7 @@ func (s *Store) init() error {
         );`,
 		`CREATE INDEX IF NOT EXISTS idx_incomes_project_id ON incomes(project_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_expenses_project_id ON expenses(project_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_members_name ON members(name);`,
 	}
 	for _, stmt := range schema {
 		if _, err := s.DB.Exec(stmt); err != nil {
