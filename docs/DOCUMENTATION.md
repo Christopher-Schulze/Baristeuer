@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Baristeuer is a desktop application for generating tax reports for non-profit organizations in Germany. It uses Go for the backend and a React frontend styled with Tailwind CSS. The application is bundled with Wails so it can run as a native program.
+Baristeuer is a desktop application for generating tax reports for non-profit organizations in Germany. It uses Go for the backend and a React frontend styled with Material UI. The application is bundled with Wails so it can run as a native program.
 
 ## Technology Stack
 
@@ -13,7 +13,7 @@ Baristeuer is a desktop application for generating tax reports for non-profit or
 
 ### Frontend
 - **React**: UI library for building the interface.
-- **Tailwind CSS**: Utility-first CSS framework for styling.
+- **Material UI**: Component library for styling.
 - **Vite**: Development server and build tool.
 
 ## Directory Structure
@@ -55,7 +55,7 @@ also use `go test ./...`, which traverses all modules listed in `go.work`.
 
 ## Key Features
 
-- **React + Tailwind Interface**: UI built with React components styled using Tailwind.
+- **React + Material UI Interface**: UI built with React components styled using Material UI.
 - **PDF Generation**: Creates detailed tax reports in PDF format for submission to the German tax office.
 - **SQLite Storage**: Simple persistence layer to store project data.
 - **Unit Tests**: Tests covering the tax calculation logic.
@@ -66,10 +66,10 @@ The application is required to be fully functional on both **macOS** and **Windo
 ## Final Project Assessment
 
 ### Current State
-The Baristeuer application is feature-complete, stable, and meets all core requirements. The backend, built with Go, provides robust tax calculation and data management logic. The React-based frontend, styled with Tailwind CSS, offers an intuitive and responsive user interface. The application has been successfully tested on both macOS and Windows, ensuring cross-platform compatibility.
+The Baristeuer application is stable and covers the core features. The backend, built with Go, provides robust tax calculation and data management logic. The React-based frontend, styled with Material UI, offers an intuitive and responsive user interface. Erste Vorlagen für Steuerformulare (KSt 1, Anlage Gem/GK usw.) werden als PDF erzeugt. Die Anwendung wurde auf macOS und Windows für Basisszenarien getestet.
 
 ### Production Readiness
-The project is considered production-ready. The CI/CD pipeline is fully operational, automating builds and tests to ensure code quality and reliability. The documentation is comprehensive and up-to-date, providing clear guidance for users and developers.
+Weitere Funktionen wie vollständige Steuerformulare und detaillierte PDF-Berichte sind noch in Arbeit. Die CI/CD-Pipeline führt Tests aus, dennoch ist das Projekt derzeit als Vorabversion zu betrachten.
 
 ### Potential Next Steps
 While the application is complete, future enhancements could include:
