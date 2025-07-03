@@ -52,4 +52,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Baristeuer-${{ matrix.os }}
-        path: build/bin/
+        path: build/bin/**
