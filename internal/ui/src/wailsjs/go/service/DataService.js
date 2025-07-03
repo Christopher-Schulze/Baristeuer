@@ -9,3 +9,15 @@ export function AddExpense(arg1, arg2) {
 export function ListExpenses() {
   return window.go.service.DataService.ListExpenses();
 }
+
+export function AddIncome(arg1, arg2) {
+  return window.go.service.DataService.AddIncome(arg1, arg2);
+}
+
+export function ListIncomes() {
+  return window.go.service.DataService.ListIncomes();
+}
+
+export function CalculateProjectTaxes(arg1) {
+  return window.go.service.DataService.CalculateProjectTaxes(arg1);
+}

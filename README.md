@@ -12,6 +12,7 @@ Bari$teuer is a software tool designed to assist German non-profit organizations
 
 - **Tax Calculation:** Calculates corporate tax (Körperschaftsteuer) and VAT (Umsatzsteuer) for non-profit organizations based on German tax laws.
 - **Data Management:** Centralized tracking of income, expenses, and donations.
+- **Tax Overview:** Calculates taxes for a project and displays the results in the UI.
 - **Reporting:** Generates tax reports for submission.
 - **User Interface:** German-language interface styled with Material UI themes.
 - **Cross-Platform:** Operates on both macOS and Windows.
@@ -28,7 +29,16 @@ Bari$teuer is built with the following technologies:
 
 ## Getting Started
 
-To use Bari$teuer, download the latest release for your operating system (macOS or Windows) and follow the installation instructions. Refer to the official documentation for further details.
+To build Bari$teuer locally, clone the repository and run:
+
+```bash
+go work sync
+npm install --prefix internal/ui
+npm run build --prefix internal/ui
+wails build -clean
+```
+
+The resulting binaries can be found in `build/bin`. Follow the official documentation for platform specific details.
 
 ## Testing
 

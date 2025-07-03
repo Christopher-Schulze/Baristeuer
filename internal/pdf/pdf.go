@@ -110,9 +110,14 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 
 // GenerateKSt1 creates a placeholder "KSt 1" form for the given project.
 func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
+	p, _ := g.store.GetProject(projectID)
+	nameLine := "Name des Vereins: ____________________"
+	if p != nil {
+		nameLine = fmt.Sprintf("Name des Vereins: %s", p.Name)
+	}
 	lines := []string{
 		"K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung f\xC3\xBCr Vereine", // "Körperschaftsteuererklärung für Vereine"
-		"Name des Vereins: ____________________",
+		nameLine,
 		"Steuernummer: ____________________",
 		"Veranlagungszeitraum: 2025",
 		"(Bitte Formular vollständig ausf\xC3\xBCllen)",
@@ -122,8 +127,13 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 
 // GenerateAnlageGem creates a placeholder "Anlage Gem" form for the given project.
 func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
+	p, _ := g.store.GetProject(projectID)
+	prefix := "Anlage Gem - Angaben zur Gemeinn\xC3\xBCtzigkeit"
+	if p != nil {
+		prefix = fmt.Sprintf("Anlage Gem - %s", p.Name)
+	}
 	lines := []string{
-		"Anlage Gem - Angaben zur Gemeinn\xC3\xBCtzigkeit", // "Anlage Gem - Angaben zur Gemeinnützigkeit"
+		prefix,
 		"T\xC3\xA4tigkeit des Vereins: ____________________",
 		"Steuerbeg\xC3\xBCnstigte Zwecke: ____________________",
 		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",
@@ -133,8 +143,13 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 
 // GenerateAnlageGK creates a placeholder "Anlage GK" form for the given project.
 func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
+	p, _ := g.store.GetProject(projectID)
+	title := "Anlage GK - Angaben zu Gesch\xC3\xA4ftsbetrieben"
+	if p != nil {
+		title = fmt.Sprintf("Anlage GK - %s", p.Name)
+	}
 	lines := []string{
-		"Anlage GK - Angaben zu Gesch\xC3\xA4ftsbetrieben", // "Anlage GK - Angaben zu Geschäftsbetrieben"
+		title,
 		"Bezeichnung des wirtschaftlichen Gesch\xC3\xA4ftsbetriebs: ____________________",
 		"Gewinne/Verluste: ____________________",
 		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",
@@ -144,8 +159,13 @@ func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
 
 // GenerateKSt1F creates a placeholder "KSt 1F" form for the given project.
 func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
+	p, _ := g.store.GetProject(projectID)
+	title := "KSt 1F - Erweiterte K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung"
+	if p != nil {
+		title = fmt.Sprintf("KSt 1F - %s", p.Name)
+	}
 	lines := []string{
-		"KSt 1F - Erweiterte K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung", // "KSt 1F - Erweiterte Körperschaftsteuererklärung"
+		title, // "KSt 1F - Erweiterte Körperschaftsteuererklärung"
 		"Angaben zu Beteiligungen: ____________________",
 		"Erhaltene F\xC3\xB6rdermittel: ____________________",
 		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",
@@ -155,8 +175,13 @@ func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
 
 // GenerateAnlageSport creates a placeholder "Anlage Sport" form for the given project.
 func (g *Generator) GenerateAnlageSport(projectID int64) (string, error) {
+	p, _ := g.store.GetProject(projectID)
+	title := "Anlage Sport - Sportvereine"
+	if p != nil {
+		title = fmt.Sprintf("Anlage Sport - %s", p.Name)
+	}
 	lines := []string{
-		"Anlage Sport - Sportvereine", // heading
+		title, // heading
 		"Mitgliederzahl: ____________________",
 		"Einnahmen aus Sportbetrieb: ____________________",
 		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",

@@ -19,7 +19,7 @@ Baristeuer is a desktop application for generating tax reports for non-profit or
 ## Directory Structure
 
 - `cmd/`: Application entry point and Wails setup.
-- `docs/`: Documentation files (`Changelog.md`, `DOCUMENTATION.md`, `TODO123.md`).
+ - `docs/`: Documentation files (`Changelog.md`, `DOCUMENTATION.md`).
 - `internal/`: Core application logic.
   - `data/`: Data models and SQLite storage.
   - `pdf/`: PDF generation utilities.

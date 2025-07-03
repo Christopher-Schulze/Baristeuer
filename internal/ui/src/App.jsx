@@ -23,7 +23,13 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { AddExpense, ListExpenses } from "./wailsjs/go/service/DataService";
+import {
+  AddExpense,
+  ListExpenses,
+  AddIncome,
+  ListIncomes,
+  CalculateProjectTaxes,
+} from "./wailsjs/go/service/DataService";
 import {
   GenerateReport,
   GenerateKSt1,
@@ -35,10 +41,13 @@ import {
 } from "./wailsjs/go/pdf/Generator";
 
 export default function App() {
+  const [incomes, setIncomes] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [source, setSource] = useState("");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
+  const [taxes, setTaxes] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [tab, setTab] = useState(0);
 
@@ -63,11 +72,21 @@ export default function App() {
     }
   };
 
+  const fetchIncomes = async () => {
+    try {
+      const list = await ListIncomes();
+      setIncomes(list || []);
+    } catch (err) {
+      setError(err.message || "Fehler beim Abrufen der Einnahmen");
+    }
+  };
+
   useEffect(() => {
     fetchExpenses();
+    fetchIncomes();
   }, []);
 
-  const handleAdd = async (e) => {
+  const handleAddExpense = async (e) => {
     e.preventDefault();
     const value = parseFloat(amount);
     if (!description || !amount) {
@@ -89,12 +108,44 @@ export default function App() {
     }
   };
 
+  const handleAddIncome = async (e) => {
+    e.preventDefault();
+    const value = parseFloat(amount);
+    if (!source || !amount) {
+      setError("Quelle und Betrag erforderlich");
+      return;
+    }
+    if (Number.isNaN(value) || value <= 0) {
+      setError("Betrag muss eine positive Zahl sein");
+      return;
+    }
+    try {
+      await AddIncome(source, value);
+      setSource("");
+      setAmount("");
+      setError("");
+      await fetchIncomes();
+    } catch (err) {
+      setError(err.message || "Fehler beim Hinzufügen");
+    }
+  };
+
   const handleGenerate = async (fn) => {
     try {
       await fn(1);
       setError("");
     } catch (err) {
       setError(err.message || "Fehler beim Erzeugen");
+    }
+  };
+
+  const handleCalculateTaxes = async () => {
+    try {
+      const result = await CalculateProjectTaxes(1);
+      setTaxes(result);
+      setError("");
+    } catch (err) {
+      setError(err.message || "Fehler bei Berechnung");
     }
   };
 
@@ -124,8 +175,10 @@ export default function App() {
           indicatorColor="secondary"
           centered
         >
+          <Tab label="Einnahmen" />
           <Tab label="Ausgaben" />
           <Tab label="Formulare" />
+          <Tab label="Steuern" />
         </Tabs>
       </AppBar>
       <Container maxWidth="md" sx={{ py: 4 }}>
@@ -133,11 +186,76 @@ export default function App() {
           <>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" component="h2" gutterBottom>
+                Neue Einnahme
+              </Typography>
+              <Box
+                component="form"
+                onSubmit={handleAddIncome}
+                display="flex"
+                gap={2}
+                flexWrap="wrap"
+              >
+                <TextField
+                  label="Quelle"
+                  value={source}
+                  onChange={(e) => setSource(e.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label="Betrag (€)"
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+                <Button type="submit" variant="contained">
+                  Hinzufügen
+                </Button>
+              </Box>
+              {error && (
+                <Typography color="error" sx={{ mt: 2 }}>
+                  {error}
+                </Typography>
+              )}
+            </Paper>
+            <Paper>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Quelle</TableCell>
+                    <TableCell align="right">Betrag (€)</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {incomes.length > 0 ? (
+                    incomes.map((i, idx) => (
+                      <TableRow key={idx} hover>
+                        <TableCell>{i.source}</TableCell>
+                        <TableCell align="right">
+                          {i.amount.toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={2} align="center">
+                        Keine Einnahmen vorhanden
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </Paper>
+          </>
+        )}
+        {tab === 1 && (
+          <>
+            <Paper sx={{ p: 3, mb: 4 }}>
+              <Typography variant="h6" component="h2" gutterBottom>
                 Neue Ausgabe
               </Typography>
               <Box
                 component="form"
-                onSubmit={handleAdd}
+                onSubmit={handleAddExpense}
                 display="flex"
                 gap={2}
                 flexWrap="wrap"
@@ -194,7 +312,7 @@ export default function App() {
             </Paper>
           </>
         )}
-        {tab === 1 && (
+        {tab === 2 && (
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <Button
@@ -272,6 +390,35 @@ export default function App() {
               </Card>
             </Grid>
           </Grid>
+        )}
+        {tab === 3 && (
+          <Paper sx={{ p: 3 }}>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleCalculateTaxes}
+            >
+              Steuern berechnen
+            </Button>
+            {taxes && (
+              <Box sx={{ mt: 2 }}>
+                <Typography>Einnahmen: {taxes.revenue.toFixed(2)} €</Typography>
+                <Typography>Ausgaben: {taxes.expenses.toFixed(2)} €</Typography>
+                <Typography>
+                  Steuerpflichtiges Einkommen: {taxes.taxableIncome.toFixed(2)}{" "}
+                  €
+                </Typography>
+                <Typography>
+                  Gesamtsteuer: {taxes.totalTax.toFixed(2)} €
+                </Typography>
+              </Box>
+            )}
+            {error && (
+              <Typography color="error" sx={{ mt: 2 }}>
+                {error}
+              </Typography>
+            )}
+          </Paper>
         )}
       </Container>
     </ThemeProvider>
