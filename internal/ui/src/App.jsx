@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { GenerateReport } from '../wailsjs/go/pdf/Generator';
-import { CreateProject, ListIncomes, AddExpense, AddIncome, ListExpenses } from '../wailsjs/go/service/DataService';
+import { GenerateReport } from './wailsjs/go/pdf/Generator';
+import { CreateProject, ListIncomes, AddExpense, AddIncome, ListExpenses } from './wailsjs/go/service/DataService';
 import './index.css';
 
 function App() {
@@ -63,8 +63,8 @@ function App() {
       await AddExpense(projectID, expenseCategory, parseFloat(expenseAmount));
       setExpenseCategory('');
       setExpenseAmount('');
-      const incomesList = await ListIncomes(projectID);
-      setIncomes(incomesList);
+      const list = await ListIncomes(projectID);
+      setIncomes(list);
       const expList = await ListExpenses(projectID);
       setExpensesList(expList);
     } catch (err) {
@@ -91,13 +91,11 @@ function App() {
     setError('');
     setFilePath('');
     try {
-      const rev = parseFloat(revenue);
-      const exp = parseFloat(expenses);
-      if (isNaN(rev) || isNaN(exp)) {
-        setError('Please enter valid numbers for revenue and expenses.');
+      if (!projectID) {
+        setError('Please create a project first.');
         return;
       }
-      const path = await GenerateReport(rev, exp);
+      const path = await GenerateReport(projectID);
       setFilePath(path);
     } catch (err) {
       setError(err.message || 'An unknown error occurred.');

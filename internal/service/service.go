@@ -18,6 +18,11 @@ func NewDataService(dsn string) (*DataService, error) {
 	return &DataService{store: s}, nil
 }
 
+// NewDataServiceFromStore wraps an existing store.
+func NewDataServiceFromStore(store *data.Store) *DataService {
+	return &DataService{store: store}
+}
+
 // CreateProject creates a project by name.
 func (ds *DataService) CreateProject(name string) (*data.Project, error) {
 	p := &data.Project{Name: name}
@@ -55,6 +60,15 @@ func (ds *DataService) AddIncome(projectID int64, source string, amount float64)
 	return i, nil
 }
 
+// AddExpense adds a new expense to the given project.
+func (ds *DataService) AddExpense(projectID int64, category string, amount float64) (*data.Expense, error) {
+	e := &data.Expense{ProjectID: projectID, Category: category, Amount: amount}
+	if err := ds.store.CreateExpense(e); err != nil {
+		return nil, err
+	}
+	return e, nil
+}
+
 // ListExpenses returns all expenses for the given project.
 func (ds *DataService) ListExpenses(projectID int64) ([]data.Expense, error) {
 	rows, err := ds.store.DB.Query(`SELECT id, project_id, category, amount FROM expenses WHERE project_id=?`, projectID)
@@ -72,15 +86,6 @@ func (ds *DataService) ListExpenses(projectID int64) ([]data.Expense, error) {
 		expenses = append(expenses, e)
 	}
 	return expenses, nil
-}
-
-// AddExpense adds a new expense to the given project.
-func (ds *DataService) AddExpense(projectID int64, category string, amount float64) (*data.Expense, error) {
-	e := &data.Expense{ProjectID: projectID, Category: category, Amount: amount}
-	if err := ds.store.CreateExpense(e); err != nil {
-		return nil, err
-	}
-	return e, nil
 }
 
 // Close closes the underlying datastore.
