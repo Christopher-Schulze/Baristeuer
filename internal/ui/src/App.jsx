@@ -1,90 +1,37 @@
 import { useState, useEffect } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import {
-  CssBaseline,
-  Container,
-  Typography,
-  Button,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Paper,
-  Switch,
-  FormControlLabel,
-  Box,
-  AppBar,
-  Toolbar,
-  Tabs,
-  Tab,
-  Grid,
-  Card,
-  CardContent,
-} from "@mui/material";
-import {
-  AddExpense,
-  ListExpenses,
-  AddIncome,
-  ListIncomes,
-  UpdateIncome,
-  DeleteIncome,
-  UpdateExpense,
-  DeleteExpense,
-  CalculateProjectTaxes,
-} from "./wailsjs/go/service/DataService";
-import {
-  GenerateReport,
-  GenerateKSt1,
-  GenerateAnlageGem,
-  GenerateAnlageGK,
-  GenerateKSt1F,
-  GenerateAnlageSport,
-  GenerateAllForms,
-} from "./wailsjs/go/pdf/Generator";
+import { CssBaseline, Container, FormControlLabel, Switch, AppBar, Toolbar, Typography, Tabs, Tab, Paper } from "@mui/material";
+import { ListExpenses, ListIncomes, AddIncome, UpdateIncome, DeleteIncome, AddExpense, UpdateExpense, DeleteExpense } from "./wailsjs/go/service/DataService";
+import IncomeForm from "./components/IncomeForm";
+import IncomeTable from "./components/IncomeTable";
+import ExpenseForm from "./components/ExpenseForm";
+import ExpenseTable from "./components/ExpenseTable";
+import TaxPanel from "./components/TaxPanel";
+import FormsPanel from "./components/FormsPanel";
 
 export default function App() {
   const [incomes, setIncomes] = useState([]);
   const [expenses, setExpenses] = useState([]);
-  const [source, setSource] = useState("");
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
-  const [error, setError] = useState("");
-  const [taxes, setTaxes] = useState(null);
+  const [editIncome, setEditIncome] = useState(null);
+  const [editExpense, setEditExpense] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [tab, setTab] = useState(0);
-  const [editIncomeId, setEditIncomeId] = useState(null);
-  const [editExpenseId, setEditExpenseId] = useState(null);
 
   const theme = createTheme({
     palette: {
       mode: darkMode ? "dark" : "light",
-      primary: {
-        main: "#1976d2",
-      },
-      secondary: {
-        main: "#9c27b0",
-      },
+      primary: { main: "#1976d2" },
+      secondary: { main: "#9c27b0" },
     },
   });
 
   const fetchExpenses = async () => {
-    try {
-      const list = await ListExpenses(1);
-      setExpenses(list || []);
-    } catch (err) {
-      setError(err.message || "Fehler beim Abrufen der Ausgaben");
-    }
+    const list = await ListExpenses(1);
+    setExpenses(list || []);
   };
-
   const fetchIncomes = async () => {
-    try {
-      const list = await ListIncomes(1);
-      setIncomes(list || []);
-    } catch (err) {
-      setError(err.message || "Fehler beim Abrufen der Einnahmen");
-    }
+    const list = await ListIncomes(1);
+    setIncomes(list || []);
   };
 
   useEffect(() => {
@@ -92,76 +39,33 @@ export default function App() {
     fetchIncomes();
   }, []);
 
-  const handleAddExpense = async (e) => {
-    e.preventDefault();
-    const value = parseFloat(amount);
-    if (!description || !amount) {
-      setError("Beschreibung und Betrag erforderlich");
-      return;
-    }
-    if (Number.isNaN(value) || value <= 0) {
-      setError("Betrag muss eine positive Zahl sein");
-      return;
-    }
+  const submitIncome = async (source, amount, setError) => {
     try {
-      if (editExpenseId !== null) {
-        await UpdateExpense(editExpenseId, 1, description, value);
-        setEditExpenseId(null);
+      if (editIncome) {
+        await UpdateIncome(editIncome.id, 1, source, amount);
+        setEditIncome(null);
       } else {
-        await AddExpense(1, description, value);
+        await AddIncome(1, source, amount);
       }
-      setDescription("");
-      setAmount("");
       setError("");
-      await fetchExpenses();
+      fetchIncomes();
     } catch (err) {
       setError(err.message || "Fehler beim Hinzufügen");
     }
   };
 
-  const handleAddIncome = async (e) => {
-    e.preventDefault();
-    const value = parseFloat(amount);
-    if (!source || !amount) {
-      setError("Quelle und Betrag erforderlich");
-      return;
-    }
-    if (Number.isNaN(value) || value <= 0) {
-      setError("Betrag muss eine positive Zahl sein");
-      return;
-    }
+  const submitExpense = async (desc, amount, setError) => {
     try {
-      if (editIncomeId !== null) {
-        await UpdateIncome(editIncomeId, 1, source, value);
-        setEditIncomeId(null);
+      if (editExpense) {
+        await UpdateExpense(editExpense.id, 1, desc, amount);
+        setEditExpense(null);
       } else {
-        await AddIncome(1, source, value);
+        await AddExpense(1, desc, amount);
       }
-      setSource("");
-      setAmount("");
       setError("");
-      await fetchIncomes();
+      fetchExpenses();
     } catch (err) {
       setError(err.message || "Fehler beim Hinzufügen");
-    }
-  };
-
-  const handleGenerate = async (fn) => {
-    try {
-      await fn(1);
-      setError("");
-    } catch (err) {
-      setError(err.message || "Fehler beim Erzeugen");
-    }
-  };
-
-  const handleCalculateTaxes = async () => {
-    try {
-      const result = await CalculateProjectTaxes(1);
-      setTaxes(result);
-      setError("");
-    } catch (err) {
-      setError(err.message || "Fehler bei Berechnung");
     }
   };
 
@@ -174,23 +78,11 @@ export default function App() {
             Baristeuer
           </Typography>
           <FormControlLabel
-            control={
-              <Switch
-                checked={darkMode}
-                onChange={() => setDarkMode(!darkMode)}
-                color="default"
-              />
-            }
+            control={<Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} color="default" />}
             label={darkMode ? "Dunkel" : "Hell"}
           />
         </Toolbar>
-        <Tabs
-          value={tab}
-          onChange={(_, v) => setTab(v)}
-          textColor="inherit"
-          indicatorColor="secondary"
-          centered
-        >
+        <Tabs value={tab} onChange={(_, v) => setTab(v)} textColor="inherit" indicatorColor="secondary" centered>
           <Tab label="Einnahmen" />
           <Tab label="Ausgaben" />
           <Tab label="Formulare" />
@@ -204,85 +96,17 @@ export default function App() {
               <Typography variant="h6" component="h2" gutterBottom>
                 Neue Einnahme
               </Typography>
-              <Box
-                component="form"
-                onSubmit={handleAddIncome}
-                display="flex"
-                gap={2}
-                flexWrap="wrap"
-              >
-                <TextField
-                  label="Quelle"
-                  value={source}
-                  onChange={(e) => setSource(e.target.value)}
-                  fullWidth
-                />
-                <TextField
-                  label="Betrag (€)"
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                />
-                <Button type="submit" variant="contained">
-                  Hinzufügen
-                </Button>
-              </Box>
-              {error && (
-                <Typography color="error" sx={{ mt: 2 }}>
-                  {error}
-                </Typography>
-              )}
+              <IncomeForm onSubmit={submitIncome} editItem={editIncome} />
             </Paper>
             <Paper>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Quelle</TableCell>
-                    <TableCell align="right">Betrag (€)</TableCell>
-                    <TableCell>Aktionen</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {incomes.length > 0 ? (
-                    incomes.map((i, idx) => (
-                      <TableRow key={idx} hover>
-                        <TableCell>{i.source}</TableCell>
-                        <TableCell align="right">
-                          {i.amount.toFixed(2)}
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            size="small"
-                            onClick={() => {
-                              setSource(i.source);
-                              setAmount(String(i.amount));
-                              setEditIncomeId(i.id);
-                            }}
-                          >
-                            Bearbeiten
-                          </Button>
-                          <Button
-                            size="small"
-                            color="error"
-                            onClick={async () => {
-                              await DeleteIncome(i.id);
-                              fetchIncomes();
-                            }}
-                          >
-                            Löschen
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={3} align="center">
-                        Keine Einnahmen vorhanden
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+              <IncomeTable
+                incomes={incomes}
+                onEdit={(i) => setEditIncome(i)}
+                onDelete={async (id) => {
+                  await DeleteIncome(id);
+                  fetchIncomes();
+                }}
+              />
             </Paper>
           </>
         )}
@@ -292,194 +116,24 @@ export default function App() {
               <Typography variant="h6" component="h2" gutterBottom>
                 Neue Ausgabe
               </Typography>
-              <Box
-                component="form"
-                onSubmit={handleAddExpense}
-                display="flex"
-                gap={2}
-                flexWrap="wrap"
-              >
-                <TextField
-                  label="Beschreibung"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  fullWidth
-                />
-                <TextField
-                  label="Betrag (€)"
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                />
-                <Button type="submit" variant="contained">
-                  Hinzufügen
-                </Button>
-              </Box>
-              {error && (
-                <Typography color="error" sx={{ mt: 2 }}>
-                  {error}
-                </Typography>
-              )}
+              <ExpenseForm onSubmit={submitExpense} editItem={editExpense} />
             </Paper>
             <Paper>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Beschreibung</TableCell>
-                    <TableCell align="right">Betrag (€)</TableCell>
-                    <TableCell>Aktionen</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {expenses.length > 0 ? (
-                    expenses.map((e, idx) => (
-                      <TableRow key={idx} hover>
-                        <TableCell>{e.description}</TableCell>
-                        <TableCell align="right">
-                          {e.amount.toFixed(2)}
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            size="small"
-                            onClick={() => {
-                              setDescription(e.description);
-                              setAmount(String(e.amount));
-                              setEditExpenseId(e.id);
-                            }}
-                          >
-                            Bearbeiten
-                          </Button>
-                          <Button
-                            size="small"
-                            color="error"
-                            onClick={async () => {
-                              await DeleteExpense(e.id);
-                              fetchExpenses();
-                            }}
-                          >
-                            Löschen
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={3} align="center">
-                        Keine Ausgaben vorhanden
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+              <ExpenseTable
+                expenses={expenses}
+                onEdit={(e) => setEditExpense(e)}
+                onDelete={async (id) => {
+                  await DeleteExpense(id);
+                  fetchExpenses();
+                }}
+              />
             </Paper>
           </>
         )}
-        {tab === 2 && (
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Button
-                fullWidth
-                variant="contained"
-                color="secondary"
-                onClick={() => handleGenerate(GenerateAllForms)}
-              >
-                Alle Formulare erstellen
-              </Button>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Card>
-                <CardContent>
-                  <Typography gutterBottom>KSt 1</Typography>
-                  <Button
-                    variant="outlined"
-                    onClick={() => handleGenerate(GenerateKSt1)}
-                  >
-                    Erstellen
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Card>
-                <CardContent>
-                  <Typography gutterBottom>Anlage Gem</Typography>
-                  <Button
-                    variant="outlined"
-                    onClick={() => handleGenerate(GenerateAnlageGem)}
-                  >
-                    Erstellen
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Card>
-                <CardContent>
-                  <Typography gutterBottom>Anlage GK</Typography>
-                  <Button
-                    variant="outlined"
-                    onClick={() => handleGenerate(GenerateAnlageGK)}
-                  >
-                    Erstellen
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Card>
-                <CardContent>
-                  <Typography gutterBottom>KSt 1F</Typography>
-                  <Button
-                    variant="outlined"
-                    onClick={() => handleGenerate(GenerateKSt1F)}
-                  >
-                    Erstellen
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Card>
-                <CardContent>
-                  <Typography gutterBottom>Anlage Sport</Typography>
-                  <Button
-                    variant="outlined"
-                    onClick={() => handleGenerate(GenerateAnlageSport)}
-                  >
-                    Erstellen
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        )}
+        {tab === 2 && <FormsPanel />}
         {tab === 3 && (
           <Paper sx={{ p: 3 }}>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleCalculateTaxes}
-            >
-              Steuern berechnen
-            </Button>
-            {taxes && (
-              <Box sx={{ mt: 2 }}>
-                <Typography>Einnahmen: {taxes.revenue.toFixed(2)} €</Typography>
-                <Typography>Ausgaben: {taxes.expenses.toFixed(2)} €</Typography>
-                <Typography>
-                  Steuerpflichtiges Einkommen: {taxes.taxableIncome.toFixed(2)}{" "}
-                  €
-                </Typography>
-                <Typography>
-                  Gesamtsteuer: {taxes.totalTax.toFixed(2)} €
-                </Typography>
-              </Box>
-            )}
-            {error && (
-              <Typography color="error" sx={{ mt: 2 }}>
-                {error}
-              </Typography>
-            )}
+            <TaxPanel />
           </Paper>
         )}
       </Container>

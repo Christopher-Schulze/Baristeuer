@@ -53,6 +53,14 @@ Running the command after `go work sync` ensures all workspace modules are
 included and prevents missing dependency errors. With Go 1.23 or newer you can
 also use `go test ./...`, which traverses all modules listed in `go.work`.
 
+### Frontend Tests
+To run the React unit tests install dependencies first:
+
+```bash
+npm ci --prefix internal/ui
+npm test --prefix internal/ui
+```
+
 ## Key Features
 
 - **React + Material UI Interface**: UI built with React components styled using Material UI.
