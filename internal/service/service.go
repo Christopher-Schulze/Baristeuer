@@ -69,6 +69,25 @@ func (ds *DataService) AddIncome(projectID int64, source string, amount float64)
 	return i, nil
 }
 
+// UpdateIncome updates an existing income entry.
+func (ds *DataService) UpdateIncome(id int64, projectID int64, source string, amount float64) error {
+	i := &data.Income{ID: id, ProjectID: projectID, Source: source, Amount: amount}
+	if err := ds.store.UpdateIncome(i); err != nil {
+		return err
+	}
+	ds.logger.Printf("Updated income %d", id)
+	return nil
+}
+
+// DeleteIncome removes an income entry by ID.
+func (ds *DataService) DeleteIncome(id int64) error {
+	if err := ds.store.DeleteIncome(id); err != nil {
+		return err
+	}
+	ds.logger.Printf("Deleted income %d", id)
+	return nil
+}
+
 // AddExpense adds a new expense to the given project.
 func (ds *DataService) AddExpense(projectID int64, category string, amount float64) (*data.Expense, error) {
 	e := &data.Expense{ProjectID: projectID, Category: category, Amount: amount}
@@ -77,6 +96,25 @@ func (ds *DataService) AddExpense(projectID int64, category string, amount float
 	}
 	ds.logger.Printf("Added expense %.2f to project %d", amount, projectID)
 	return e, nil
+}
+
+// UpdateExpense updates an existing expense entry.
+func (ds *DataService) UpdateExpense(id int64, projectID int64, category string, amount float64) error {
+	e := &data.Expense{ID: id, ProjectID: projectID, Category: category, Amount: amount}
+	if err := ds.store.UpdateExpense(e); err != nil {
+		return err
+	}
+	ds.logger.Printf("Updated expense %d", id)
+	return nil
+}
+
+// DeleteExpense removes an expense entry by ID.
+func (ds *DataService) DeleteExpense(id int64) error {
+	if err := ds.store.DeleteExpense(id); err != nil {
+		return err
+	}
+	ds.logger.Printf("Deleted expense %d", id)
+	return nil
 }
 
 // ListExpenses returns all expenses for the given project.

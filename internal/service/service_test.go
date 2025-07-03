@@ -31,6 +31,41 @@ func TestDataService_AddIncome(t *testing.T) {
 	}
 }
 
+func TestDataService_UpdateDeleteIncome(t *testing.T) {
+	ds, err := NewDataService(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	proj, err := ds.CreateProject("Income UD")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	inc, err := ds.AddIncome(proj.ID, "donation", 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := ds.UpdateIncome(inc.ID, proj.ID, "donation", 20); err != nil {
+		t.Fatalf("UpdateIncome failed: %v", err)
+	}
+
+	list, _ := ds.ListIncomes(proj.ID)
+	if len(list) != 1 || list[0].Amount != 20 {
+		t.Fatalf("update failed: %+v", list)
+	}
+
+	if err := ds.DeleteIncome(inc.ID); err != nil {
+		t.Fatalf("DeleteIncome failed: %v", err)
+	}
+	list, _ = ds.ListIncomes(proj.ID)
+	if len(list) != 0 {
+		t.Fatalf("expected empty list, got %+v", list)
+	}
+}
+
 func TestDataService_ListExpenses(t *testing.T) {
 	ds, err := NewDataService(":memory:")
 	if err != nil {
@@ -56,6 +91,41 @@ func TestDataService_ListExpenses(t *testing.T) {
 	}
 	if len(expenses) != 2 {
 		t.Fatalf("expected 2 expenses, got %d", len(expenses))
+	}
+}
+
+func TestDataService_UpdateDeleteExpense(t *testing.T) {
+	ds, err := NewDataService(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	proj, err := ds.CreateProject("Expense UD")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	exp, err := ds.AddExpense(proj.ID, "supplies", 5)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := ds.UpdateExpense(exp.ID, proj.ID, "supplies", 8); err != nil {
+		t.Fatalf("UpdateExpense failed: %v", err)
+	}
+
+	list, _ := ds.ListExpenses(proj.ID)
+	if len(list) != 1 || list[0].Amount != 8 {
+		t.Fatalf("update failed: %+v", list)
+	}
+
+	if err := ds.DeleteExpense(exp.ID); err != nil {
+		t.Fatalf("DeleteExpense failed: %v", err)
+	}
+	list, _ = ds.ListExpenses(proj.ID)
+	if len(list) != 0 {
+		t.Fatalf("expected empty list, got %+v", list)
 	}
 }
 
