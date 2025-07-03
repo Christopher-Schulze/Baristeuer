@@ -21,3 +21,11 @@ type Expense struct {
 	Category  string  `db:"category"`
 	Amount    float64 `db:"amount"`
 }
+
+// Member represents a club member.
+type Member struct {
+	ID       int64  `db:"id"`
+	Name     string `db:"name"`
+	Email    string `db:"email"`
+	JoinDate string `db:"join_date"`
+}

@@ -99,6 +99,26 @@ func (ds *DataService) ListExpenses(projectID int64) ([]data.Expense, error) {
 	return expenses, nil
 }
 
+// AddMember creates a new member.
+func (ds *DataService) AddMember(name, email, joinDate string) (*data.Member, error) {
+	m := &data.Member{Name: name, Email: email, JoinDate: joinDate}
+	if err := ds.store.CreateMember(m); err != nil {
+		return nil, err
+	}
+	ds.logger.Printf("Added member %s", name)
+	return m, nil
+}
+
+// ListMembers returns all members sorted by name.
+func (ds *DataService) ListMembers() ([]data.Member, error) {
+	members, err := ds.store.ListMembers()
+	if err != nil {
+		return nil, err
+	}
+	ds.logger.Printf("Listed %d members", len(members))
+	return members, nil
+}
+
 // CalculateProjectTaxes returns a detailed tax calculation for the given project.
 func (ds *DataService) CalculateProjectTaxes(projectID int64) (taxlogic.TaxResult, error) {
 	revenue, err := ds.store.SumIncomeByProject(projectID)
