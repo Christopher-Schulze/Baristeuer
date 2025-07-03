@@ -23,7 +23,7 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { AddExpense, ListExpenses } from "./wailsjs/go/data/DataService";
+import { AddExpense, ListExpenses } from "./wailsjs/go/service/DataService";
 import {
   GenerateReport,
   GenerateKSt1,
@@ -56,7 +56,7 @@ export default function App() {
 
   const fetchExpenses = async () => {
     try {
-      const list = await ListExpenses();
+      const list = await ListExpenses(1);
       setExpenses(list || []);
     } catch (err) {
       setError(err.message || "Fehler beim Abrufen der Ausgaben");
@@ -74,7 +74,7 @@ export default function App() {
       return;
     }
     try {
-      await AddExpense(description, parseFloat(amount));
+      await AddExpense(1, description, parseFloat(amount));
       setDescription("");
       setAmount("");
       setError("");
