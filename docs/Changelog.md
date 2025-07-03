@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.7.2025] - Path Correction
+
+### Fixed
+- **Logo Path**: Corrected the relative path to the logo in `README.md` to ensure it displays correctly.
 ## [3.7.2025] - README Refinement
 
 ### Changed
