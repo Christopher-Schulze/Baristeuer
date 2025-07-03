@@ -3,8 +3,6 @@
 import {data} from '../models';
 import {context} from '../models';
 
-export function AddExpense(arg1:string,arg2:number):Promise<void>;
+export function AddExpense(projectID:number,category:string,amount:number):Promise<data.Expense>;
 
-export function ListExpenses():Promise<Array<data.Expense>>;
-
-export function Startup(arg1:context.Context):Promise<void>;
+export function ListExpenses(projectID:number):Promise<Array<data.Expense>>;
