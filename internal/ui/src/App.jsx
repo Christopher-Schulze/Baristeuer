@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { GenerateReport } from '../wailsjs/go/pdf/Generator';
-import { CreateProject, ListIncomes, AddExpense } from '../wailsjs/go/service/DataService';
+import { CreateProject, ListIncomes, AddExpense, AddIncome, ListExpenses } from '../wailsjs/go/service/DataService';
 import './index.css';
 
 function App() {
@@ -14,6 +14,9 @@ function App() {
   const [expenseCategory, setExpenseCategory] = useState('');
   const [expenseAmount, setExpenseAmount] = useState('');
   const [incomes, setIncomes] = useState([]);
+  const [incomeSource, setIncomeSource] = useState('');
+  const [incomeAmount, setIncomeAmount] = useState('');
+  const [expensesList, setExpensesList] = useState([]);
 
   const toggleMode = () => {
     setMode(prev => (prev === 'light' ? 'dark' : 'light'));
@@ -32,6 +35,19 @@ function App() {
     fetchIncomes();
   }, [projectID]);
 
+  useEffect(() => {
+    const fetchExpenses = async () => {
+      if (!projectID) return;
+      try {
+        const list = await ListExpenses(projectID);
+        setExpensesList(list);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchExpenses();
+  }, [projectID]);
+
   const handleCreateProject = async () => {
     try {
       const p = await CreateProject(projectName);
@@ -47,10 +63,27 @@ function App() {
       await AddExpense(projectID, expenseCategory, parseFloat(expenseAmount));
       setExpenseCategory('');
       setExpenseAmount('');
-      const list = await ListIncomes(projectID);
-      setIncomes(list);
+      const incomesList = await ListIncomes(projectID);
+      setIncomes(incomesList);
+      const expList = await ListExpenses(projectID);
+      setExpensesList(expList);
     } catch (err) {
       setError(err.message || 'Failed to add expense');
+    }
+  };
+
+  const handleAddIncome = async () => {
+    if (!projectID) return;
+    try {
+      await AddIncome(projectID, incomeSource, parseFloat(incomeAmount));
+      setIncomeSource('');
+      setIncomeAmount('');
+      const incList = await ListIncomes(projectID);
+      setIncomes(incList);
+      const expList = await ListExpenses(projectID);
+      setExpensesList(expList);
+    } catch (err) {
+      setError(err.message || 'Failed to add income');
     }
   };
 
@@ -159,6 +192,32 @@ function App() {
             </div>
           )}
 
+          {projectID && (
+            <div className="mb-6">
+              <h2 className="font-semibold mb-2">Add Income</h2>
+              <input
+                type="text"
+                value={incomeSource}
+                onChange={e => setIncomeSource(e.target.value)}
+                placeholder="Source"
+                className={`w-full p-2 mb-2 border rounded ${mode === 'dark' ? 'bg-gray-700 border-gray-600' : 'border-gray-300'}`}
+              />
+              <input
+                type="number"
+                value={incomeAmount}
+                onChange={e => setIncomeAmount(e.target.value)}
+                placeholder="Amount"
+                className={`w-full p-2 mb-2 border rounded ${mode === 'dark' ? 'bg-gray-700 border-gray-600' : 'border-gray-300'}`}
+              />
+              <button
+                onClick={handleAddIncome}
+                className="px-4 py-2 bg-blue-500 text-white rounded"
+              >
+                Add Income
+              </button>
+            </div>
+          )}
+
           <button
             onClick={handleReport}
             className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded transition-transform transform hover:scale-105"
@@ -172,6 +231,17 @@ function App() {
               <ul className="list-disc list-inside">
                 {incomes.map(i => (
                   <li key={i.ID}>{i.Source} - {i.Amount}€</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {projectID && expensesList.length > 0 && (
+            <div className="mt-6">
+              <h2 className="font-semibold mb-2">Expenses</h2>
+              <ul className="list-disc list-inside">
+                {expensesList.map(e => (
+                  <li key={e.ID}>{e.Category} - {e.Amount}€</li>
                 ))}
               </ul>
             </div>
