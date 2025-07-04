@@ -1,6 +1,7 @@
 package pdf
 
 import (
+	"context"
 	"os"
 	"strings"
 	"testing"
@@ -25,14 +26,16 @@ func TestGenerateReport(t *testing.T) {
 	}
 	defer store.Close()
 
+	ctx := context.Background()
+
 	proj := &data.Project{Name: "Test"}
-	if err := store.CreateProject(proj); err != nil {
+	if err := store.CreateProject(ctx, proj); err != nil {
 		t.Fatal(err)
 	}
-	if err := store.CreateIncome(&data.Income{ProjectID: proj.ID, Source: "donation", Amount: 100}); err != nil {
+	if err := store.CreateIncome(ctx, &data.Income{ProjectID: proj.ID, Source: "donation", Amount: 100}); err != nil {
 		t.Fatal(err)
 	}
-	if err := store.CreateExpense(&data.Expense{ProjectID: proj.ID, Category: "supplies", Amount: 20}); err != nil {
+	if err := store.CreateExpense(ctx, &data.Expense{ProjectID: proj.ID, Category: "supplies", Amount: 20}); err != nil {
 		t.Fatal(err)
 	}
 
@@ -54,8 +57,10 @@ func TestFormGeneration(t *testing.T) {
 	}
 	defer store.Close()
 
+	ctx := context.Background()
+
 	proj := &data.Project{Name: "Test"}
-	if err := store.CreateProject(proj); err != nil {
+	if err := store.CreateProject(ctx, proj); err != nil {
 		t.Fatal(err)
 	}
 
