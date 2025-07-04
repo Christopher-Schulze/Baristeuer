@@ -64,9 +64,6 @@ func (s *Store) init() error {
 			return err
 		}
 	}
-	if _, err := s.DB.Exec(`CREATE INDEX IF NOT EXISTS idx_members_name ON members(name);`); err != nil {
-		return err
-	}
 	return nil
 }
 
