@@ -1,0 +1,69 @@
+{
+  "theme": {"dark": "Dark", "light": "Light"},
+  "tab": {
+    "projects": "Projects",
+    "incomes": "Income",
+    "expenses": "Expenses",
+    "forms": "Forms",
+    "taxes": "Taxes"
+  },
+  "income": {
+    "new": "New Income",
+    "add": "Add",
+    "source": "Source",
+    "amount": "Amount (€)",
+    "required": "Source and amount required",
+    "positive": "Amount must be a positive number",
+    "table": {
+      "source": "Source",
+      "amount": "Amount (€)",
+      "actions": "Actions",
+      "empty": "No income recorded"
+    }
+  },
+  "expense": {
+    "new": "New Expense",
+    "description": "Description",
+    "amount": "Amount (€)",
+    "required": "Description and amount required",
+    "positive": "Amount must be a positive number",
+    "table": {
+      "description": "Description",
+      "amount": "Amount (€)",
+      "actions": "Actions",
+      "empty": "No expenses recorded"
+    }
+  },
+  "project": {
+    "new": "New Project",
+    "create": "Create",
+    "error": "Error creating",
+    "delete": "Delete"
+  },
+  "forms": {
+    "generate_all": "Generate All Forms",
+    "error": "Error generating"
+  },
+  "form": {
+    "generate": "Generate",
+    "kst1": "KSt 1",
+    "anlageGem": "Anlage Gem",
+    "anlageGK": "Anlage GK",
+    "kst1f": "KSt 1F",
+    "anlageSport": "Anlage Sport"
+  },
+  "tax": {
+    "calculate": "Calculate Taxes",
+    "revenue": "Revenue: {{value}} €",
+    "expenses": "Expenses: {{value}} €",
+    "taxableIncome": "Taxable income: {{value}} €",
+    "totalTax": "Total tax: {{value}} €",
+    "error": "Error calculating"
+  },
+  "language": "Language",
+  "language_de": "German",
+  "language_en": "English",
+  "edit": "Edit",
+  "delete": "Delete",
+  "add_error": "Error adding item"
+}

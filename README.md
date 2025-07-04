@@ -15,7 +15,7 @@ Bari$teuer is a software tool designed to assist German non-profit organizations
 - **Member Management:** Track club members with join date and contact details.
 - **Tax Overview:** Calculates taxes for a project and displays the results in the UI.
 - **Reporting:** Generates tax reports for submission.
-- **User Interface:** German-language interface styled with Material UI themes.
+- **User Interface:** Interface available in German and English with a language selector, styled with Material UI themes.
 - **Cross-Platform:** Operates on both macOS and Windows.
 - **PDF Export:** Exports financial reports and a set of Vereinssteuerformulare (KSt 1, Anlagen Gem/GK usw.) to PDF format.
 
@@ -57,6 +57,8 @@ A minimal `config.json` might look like:
 ```
 
 Run `./baristeuer -config config.json` to load these settings.
+
+The UI language can be switched between German and English using the dropdown in the top toolbar.
 
 Follow the official documentation for platform specific details.
 

@@ -1,13 +1,15 @@
 import { Table, TableHead, TableBody, TableRow, TableCell, Button } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 export default function ExpenseTable({ expenses, onEdit, onDelete }) {
+  const { t } = useTranslation();
   return (
     <Table>
       <TableHead>
         <TableRow>
-          <TableCell>Beschreibung</TableCell>
-          <TableCell align="right">Betrag (€)</TableCell>
-          <TableCell>Aktionen</TableCell>
+          <TableCell>{t('expense.table.description')}</TableCell>
+          <TableCell align="right">{t('expense.table.amount')}</TableCell>
+          <TableCell>{t('expense.table.actions')}</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
@@ -18,10 +20,10 @@ export default function ExpenseTable({ expenses, onEdit, onDelete }) {
               <TableCell align="right">{e.amount.toFixed(2)}</TableCell>
               <TableCell>
                 <Button size="small" onClick={() => onEdit(e)}>
-                  Bearbeiten
+                  {t('edit')}
                 </Button>
                 <Button size="small" color="error" onClick={() => onDelete(e.id)}>
-                  Löschen
+                  {t('delete')}
                 </Button>
               </TableCell>
             </TableRow>
@@ -29,7 +31,7 @@ export default function ExpenseTable({ expenses, onEdit, onDelete }) {
         ) : (
           <TableRow>
             <TableCell colSpan={3} align="center">
-              Keine Ausgaben vorhanden
+              {t('expense.table.empty')}
             </TableCell>
           </TableRow>
         )}

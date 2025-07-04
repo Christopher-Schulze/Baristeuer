@@ -8,6 +8,7 @@ import {
   ListItem,
   ListItemText,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import {
   ListProjects,
   CreateProject,
@@ -18,6 +19,7 @@ export default function ProjectPanel({ activeId, onSelect }) {
   const [projects, setProjects] = useState([]);
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+  const { t } = useTranslation();
 
   const fetchProjects = async () => {
     const list = await ListProjects();
@@ -38,7 +40,7 @@ export default function ProjectPanel({ activeId, onSelect }) {
       fetchProjects();
       onSelect && onSelect(p.id);
     } catch (err) {
-      setError(err.message || "Fehler beim Erstellen");
+      setError(err.message || t('project.error'));
     }
   };
 
@@ -51,12 +53,12 @@ export default function ProjectPanel({ activeId, onSelect }) {
     <Box>
       <Box component="form" onSubmit={handleCreate} display="flex" gap={2} mb={2}>
         <TextField
-          label="Neues Projekt"
+          label={t('project.new')}
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
         <Button type="submit" variant="contained">
-          Erstellen
+          {t('project.create')}
         </Button>
       </Box>
       {error && (
@@ -72,7 +74,7 @@ export default function ProjectPanel({ activeId, onSelect }) {
             onClick={() => onSelect && onSelect(p.id)}
             secondaryAction={
               <Button color="error" onClick={() => handleDelete(p.id)}>
-                Löschen
+                {t('delete')}
               </Button>
             }
           >

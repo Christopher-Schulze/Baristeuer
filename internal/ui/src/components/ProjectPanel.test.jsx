@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { vi, beforeEach } from 'vitest';
 import ProjectPanel from './ProjectPanel';
+import '../i18n';
 
 vi.mock('../wailsjs/go/service/DataService', () => ({
   ListProjects: vi.fn(),
