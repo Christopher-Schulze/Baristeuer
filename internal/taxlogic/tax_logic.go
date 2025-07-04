@@ -20,6 +20,28 @@ func DefaultConfig2025() TaxConfig {
 	}
 }
 
+// DefaultConfig2026 returns the tax configuration for the year 2026.
+func DefaultConfig2026() TaxConfig {
+	return TaxConfig{
+		RevenueExemptionLimit:   45000.00,
+		ProfitAllowance:         5000.00,
+		CorporateTaxRate:        0.15,
+		SolidaritySurchargeRate: 0.055,
+	}
+}
+
+// defaultConfig returns the configuration for the given year, falling back to 2025.
+func defaultConfig(year int) TaxConfig {
+	switch year {
+	case 2026:
+		return DefaultConfig2026()
+	case 2025:
+		fallthrough
+	default:
+		return DefaultConfig2025()
+	}
+}
+
 // TaxResult holds the detailed results of a tax calculation.
 type TaxResult struct {
 	Revenue               float64 // Total revenue
@@ -32,6 +54,7 @@ type TaxResult struct {
 	TotalTax              float64 // Total tax liability
 	RevenueExemptionLimit float64 // The revenue exemption limit used for calculation
 	ProfitAllowance       float64 // The profit allowance used for calculation
+	Year                  int     // Tax year used for calculation
 	Timestamp             int64   // Unix timestamp of the calculation
 }
 
@@ -76,6 +99,8 @@ func CalculateTaxesWithConfig(revenue, expenses float64, cfg TaxConfig) TaxResul
 }
 
 // CalculateTaxes calculates taxes using the default configuration for 2025.
-func CalculateTaxes(revenue, expenses float64) TaxResult {
-	return CalculateTaxesWithConfig(revenue, expenses, DefaultConfig2025())
+func CalculateTaxes(revenue, expenses float64, year int) TaxResult {
+	result := CalculateTaxesWithConfig(revenue, expenses, defaultConfig(year))
+	result.Year = year
+	return result
 }

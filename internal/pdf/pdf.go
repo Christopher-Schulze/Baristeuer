@@ -42,7 +42,7 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("fetch expenses: %w", err)
 	}
-	taxResult := taxlogic.CalculateTaxes(revenue, expenses)
+	taxResult := taxlogic.CalculateTaxes(revenue, expenses, 2025)
 
 	// Ensure the directory exists
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
