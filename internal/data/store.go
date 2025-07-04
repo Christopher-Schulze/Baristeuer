@@ -3,7 +3,16 @@ package data
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"fmt"
+
 	_ "github.com/mattn/go-sqlite3"
+)
+
+// Error values for common failure scenarios.
+var (
+	ErrOpenDatabase = errors.New("open database")
+	ErrInitDatabase = errors.New("init database")
 )
 
 // Store wraps a sql.DB instance.
@@ -16,12 +25,12 @@ type Store struct {
 func NewStore(dsn string) (*Store, error) {
 	db, err := sql.Open("sqlite3", dsn)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", ErrOpenDatabase, err)
 	}
 	s := &Store{DB: db, path: dsn}
 	if err := s.init(); err != nil {
 		db.Close()
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", ErrInitDatabase, err)
 	}
 	return s, nil
 }

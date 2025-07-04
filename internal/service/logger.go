@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 // NewLogger creates a slog.Logger writing to the given file.
@@ -13,11 +15,15 @@ func NewLogger(logFile, level string) (*slog.Logger, io.Closer) {
 	var w io.Writer = os.Stdout
 	var c io.Closer
 	if logFile != "" {
-		f, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
-		if err == nil {
-			w = f
-			c = f
+		lj := &lumberjack.Logger{
+			Filename:   logFile,
+			MaxSize:    5, // megabytes
+			MaxBackups: 3,
+			MaxAge:     28, // days
+			Compress:   true,
 		}
+		w = lj
+		c = lj
 	}
 	lvl := slog.LevelInfo
 	switch strings.ToLower(level) {
