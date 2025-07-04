@@ -61,6 +61,22 @@ npm ci --prefix internal/ui
 npm test --prefix internal/ui
 ```
 
+## Configuration
+
+Runtime options can be provided via a JSON configuration file. By default the
+application looks for `config.json` in the working directory. Example:
+
+```json
+{
+  "dbPath": "baristeuer.db",
+  "pdfDir": "./reports",
+  "logFile": "baristeuer.log",
+  "logLevel": "info"
+}
+```
+
+Command line flags override values from the file.
+
 ## Key Features
 
 - **React + Material UI Interface**: UI built with React components styled using Material UI.

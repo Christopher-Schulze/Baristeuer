@@ -5,9 +5,9 @@ import (
 	"baristeuer/internal/taxlogic"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
-	"strings"
 )
 
 var ErrInvalidAmount = errors.New("amount must be positive")
@@ -26,35 +26,23 @@ type DataService struct {
 }
 
 // NewDataService creates a new service with the given datastore location.
-func NewDataService(dsn string) (*DataService, error) {
+func NewDataService(dsn string, logger *slog.Logger) (*DataService, error) {
 	s, err := data.NewStore(dsn)
 	if err != nil {
 		return nil, fmt.Errorf("create store: %w", err)
 	}
-	l := newLogger()
-	return &DataService{store: s, logger: l}, nil
+	if logger == nil {
+		logger = NewLogger("", "info")
+	}
+	return &DataService{store: s, logger: logger}, nil
 }
 
 // NewDataServiceFromStore wraps an existing store.
-func NewDataServiceFromStore(store *data.Store) *DataService {
-	l := newLogger()
-	return &DataService{store: store, logger: l}
-}
-
-func newLogger() *slog.Logger {
-	level := slog.LevelInfo
-	if lv := strings.ToLower(os.Getenv("LOG_LEVEL")); lv != "" {
-		switch lv {
-		case "debug":
-			level = slog.LevelDebug
-		case "warn":
-			level = slog.LevelWarn
-		case "error":
-			level = slog.LevelError
-		}
+func NewDataServiceFromStore(store *data.Store, logger *slog.Logger) *DataService {
+	if logger == nil {
+		logger = NewLogger("", "info")
 	}
-	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: level})
-	return slog.New(handler)
+	return &DataService{store: store, logger: logger}
 }
 
 // CreateProject creates a project by name.
@@ -190,6 +178,26 @@ func (ds *DataService) CalculateProjectTaxes(projectID int64) (taxlogic.TaxResul
 	result := taxlogic.CalculateTaxes(revenue, expenses)
 	ds.logger.Info("calculated taxes", "project", projectID, "total", result.TotalTax)
 	return result, nil
+}
+
+// ExportDatabase copies the underlying SQLite file to the given path.
+func (ds *DataService) ExportDatabase(dest string) error {
+	srcPath := ds.store.Path()
+	in, err := os.Open(srcPath)
+	if err != nil {
+		return fmt.Errorf("open source: %w", err)
+	}
+	defer in.Close()
+	out, err := os.Create(dest)
+	if err != nil {
+		return fmt.Errorf("create dest: %w", err)
+	}
+	defer out.Close()
+	if _, err := io.Copy(out, in); err != nil {
+		return fmt.Errorf("copy db: %w", err)
+	}
+	ds.logger.Info("exported database", "dest", dest)
+	return nil
 }
 
 // Close closes the underlying datastore.
