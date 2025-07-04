@@ -5,12 +5,14 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
 
 func TestDataService_AddIncome(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)))
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,7 +41,7 @@ func TestDataService_AddIncome(t *testing.T) {
 }
 
 func TestDataService_UpdateDeleteIncome(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)))
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +76,7 @@ func TestDataService_UpdateDeleteIncome(t *testing.T) {
 }
 
 func TestDataService_ListExpenses(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)))
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -102,7 +104,7 @@ func TestDataService_ListExpenses(t *testing.T) {
 }
 
 func TestDataService_UpdateDeleteExpense(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)))
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -137,7 +139,7 @@ func TestDataService_UpdateDeleteExpense(t *testing.T) {
 }
 
 func TestDataService_CalculateProjectTaxes(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)))
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -168,7 +170,7 @@ func TestDataService_CalculateProjectTaxes(t *testing.T) {
 }
 
 func TestDataService_MemberOperations(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)))
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -192,7 +194,7 @@ func TestDataService_MemberOperations(t *testing.T) {
 }
 
 func TestDataService_AddIncome_LogOutput(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)))
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -211,7 +213,7 @@ func TestDataService_AddIncome_LogOutput(t *testing.T) {
 }
 
 func TestDataService_AddIncome_DatabaseClosed(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)))
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -224,7 +226,7 @@ func TestDataService_AddIncome_DatabaseClosed(t *testing.T) {
 }
 
 func TestDataService_InvalidAmounts(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)))
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -256,5 +258,25 @@ func TestValidateAmount(t *testing.T) {
 	err := validateAmount(0)
 	if err == nil || !errors.Is(err, ErrInvalidAmount) {
 		t.Fatalf("expected invalid amount error, got %v", err)
+	}
+}
+
+func TestDataService_LoggerClosed(t *testing.T) {
+	tmpDir := t.TempDir()
+	logPath := filepath.Join(tmpDir, "app.log")
+	logger, closer := NewLogger(logPath, "info")
+	if closer == nil {
+		t.Fatalf("expected closer for log file")
+	}
+	ds, err := NewDataService(":memory:", logger, closer)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ds.Close(); err != nil {
+		t.Fatalf("close service: %v", err)
+	}
+	f := closer.(*os.File)
+	if _, err := f.WriteString("test"); err == nil {
+		t.Fatal("expected error writing to closed file")
 	}
 }
