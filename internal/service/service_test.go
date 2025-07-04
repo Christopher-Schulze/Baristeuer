@@ -280,3 +280,25 @@ func TestDataService_LoggerClosed(t *testing.T) {
 		t.Fatal("expected error writing to closed file")
 	}
 }
+
+func TestDataService_ExportDatabase(t *testing.T) {
+	tmpDir := t.TempDir()
+	dbPath := filepath.Join(tmpDir, "test.db")
+	ds, err := NewDataService(dbPath, slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	dest := filepath.Join(tmpDir, "export.db")
+	if err := ds.ExportDatabase(dest); err != nil {
+		t.Fatalf("ExportDatabase returned error: %v", err)
+	}
+	info, err := os.Stat(dest)
+	if err != nil {
+		t.Fatalf("exported file not found: %v", err)
+	}
+	if info.Size() == 0 {
+		t.Fatal("expected exported file to be non-empty")
+	}
+}
