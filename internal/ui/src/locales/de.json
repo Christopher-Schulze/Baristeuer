@@ -26,6 +26,7 @@
     "add": "Hinzufügen",
     "description": "Beschreibung",
     "amount": "Betrag (€)",
+    "add": "Hinzufügen",
     "required": "Beschreibung und Betrag erforderlich",
     "positive": "Betrag muss eine positive Zahl sein",
     "table": {
