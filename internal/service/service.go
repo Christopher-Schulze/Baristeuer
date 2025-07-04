@@ -69,7 +69,7 @@ func (ds *DataService) ListProjects() ([]data.Project, error) {
 
 // GetProject fetches a project by ID.
 func (ds *DataService) GetProject(id int64) (*data.Project, error) {
-	p, err := ds.store.GetProject(id)
+	p, err := ds.store.GetProject(context.Background(), id)
 	if err != nil {
 		return nil, fmt.Errorf("get project: %w", err)
 	}
@@ -79,7 +79,7 @@ func (ds *DataService) GetProject(id int64) (*data.Project, error) {
 // UpdateProject updates a project name.
 func (ds *DataService) UpdateProject(id int64, name string) error {
 	p := &data.Project{ID: id, Name: name}
-	if err := ds.store.UpdateProject(p); err != nil {
+	if err := ds.store.UpdateProject(context.Background(), p); err != nil {
 		return fmt.Errorf("update project: %w", err)
 	}
 	ds.logger.Info("updated project", "id", id)
@@ -88,7 +88,7 @@ func (ds *DataService) UpdateProject(id int64, name string) error {
 
 // DeleteProject removes a project by ID.
 func (ds *DataService) DeleteProject(id int64) error {
-	if err := ds.store.DeleteProject(id); err != nil {
+	if err := ds.store.DeleteProject(context.Background(), id); err != nil {
 		return fmt.Errorf("delete project: %w", err)
 	}
 	ds.logger.Info("deleted project", "id", id)
@@ -206,7 +206,7 @@ func (ds *DataService) ListMembers(ctx context.Context) ([]data.Member, error) {
 }
 
 // CalculateProjectTaxes returns a detailed tax calculation for the given project.
-func (ds *DataService) CalculateProjectTaxes(ctx context.Context, projectID int64) (taxlogic.TaxResult, error) {
+func (ds *DataService) CalculateProjectTaxes(ctx context.Context, projectID int64, year int) (taxlogic.TaxResult, error) {
 	revenue, err := ds.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {
 		return taxlogic.TaxResult{}, fmt.Errorf("sum income: %w", err)
@@ -215,7 +215,7 @@ func (ds *DataService) CalculateProjectTaxes(ctx context.Context, projectID int6
 	if err != nil {
 		return taxlogic.TaxResult{}, fmt.Errorf("sum expense: %w", err)
 	}
-	result := taxlogic.CalculateTaxes(revenue, expenses)
+	result := taxlogic.CalculateTaxes(revenue, expenses, year)
 	ds.logger.Info("calculated taxes", "project", projectID, "total", result.TotalTax)
 	return result, nil
 }
