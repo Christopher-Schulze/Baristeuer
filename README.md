@@ -39,11 +39,24 @@ npm run build --prefix internal/ui
 wails build -clean
 ```
 
-The resulting binaries can be found in `build/bin`. Use `-db` and `-pdfdir` flags to specify a custom SQLite file and PDF output directory, e.g.:
+The resulting binaries can be found in `build/bin`. You can configure paths via command-line flags or a `config.json` file. To override settings on the command line use `-db` and `-pdfdir`, e.g.:
 
 ```bash
 ./baristeuer -db mydata.db -pdfdir ./reports
 ```
+
+A minimal `config.json` might look like:
+
+```json
+{
+  "dbPath": "mydata.db",
+  "pdfDir": "./reports",
+  "logFile": "baristeuer.log",
+  "logLevel": "debug"
+}
+```
+
+Run `./baristeuer -config config.json` to load these settings.
 
 Follow the official documentation for platform specific details.
 
