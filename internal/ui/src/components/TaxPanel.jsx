@@ -2,13 +2,13 @@ import { useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
 import { CalculateProjectTaxes } from "../wailsjs/go/service/DataService";
 
-export default function TaxPanel() {
+export default function TaxPanel({ projectId }) {
   const [taxes, setTaxes] = useState(null);
   const [error, setError] = useState("");
 
   const handleCalculate = async () => {
     try {
-      const result = await CalculateProjectTaxes(1);
+      const result = await CalculateProjectTaxes(projectId);
       setTaxes(result);
       setError("");
     } catch (err) {

@@ -225,6 +225,41 @@ func TestDataService_AddIncome_DatabaseClosed(t *testing.T) {
 	}
 }
 
+func TestDataService_ProjectOperations(t *testing.T) {
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	p, err := ds.CreateProject("Proj1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	list, err := ds.ListProjects()
+	if err != nil || len(list) == 0 {
+		t.Fatalf("ListProjects failed: %v", err)
+	}
+	got, err := ds.GetProject(p.ID)
+	if err != nil || got.ID != p.ID {
+		t.Fatalf("GetProject failed: %v", err)
+	}
+	if err := ds.UpdateProject(p.ID, "New"); err != nil {
+		t.Fatalf("UpdateProject failed: %v", err)
+	}
+	updated, _ := ds.GetProject(p.ID)
+	if updated.Name != "New" {
+		t.Fatalf("update did not persist")
+	}
+	if err := ds.DeleteProject(p.ID); err != nil {
+		t.Fatalf("DeleteProject failed: %v", err)
+	}
+	list, _ = ds.ListProjects()
+	if len(list) != 0 {
+		t.Fatalf("expected empty list")
+	}
+}
+
 func TestDataService_InvalidAmounts(t *testing.T) {
 	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
 	if err != nil {

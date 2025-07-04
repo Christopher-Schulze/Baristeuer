@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { CssBaseline, Container, FormControlLabel, Switch, AppBar, Toolbar, Typography, Tabs, Tab, Paper } from "@mui/material";
 import { ListExpenses, ListIncomes, AddIncome, UpdateIncome, DeleteIncome, AddExpense, UpdateExpense, DeleteExpense } from "./wailsjs/go/service/DataService";
+import ProjectPanel from "./components/ProjectPanel";
 import IncomeForm from "./components/IncomeForm";
 import IncomeTable from "./components/IncomeTable";
 import ExpenseForm from "./components/ExpenseForm";
@@ -15,7 +16,8 @@ export default function App() {
   const [editIncome, setEditIncome] = useState(null);
   const [editExpense, setEditExpense] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
-  const [tab, setTab] = useState(0);
+  const [tab, setTab] = useState(1);
+  const [projectId, setProjectId] = useState(1);
 
   const theme = createTheme({
     palette: {
@@ -26,26 +28,26 @@ export default function App() {
   });
 
   const fetchExpenses = async () => {
-    const list = await ListExpenses(1);
+    const list = await ListExpenses(projectId);
     setExpenses(list || []);
   };
   const fetchIncomes = async () => {
-    const list = await ListIncomes(1);
+    const list = await ListIncomes(projectId);
     setIncomes(list || []);
   };
 
   useEffect(() => {
     fetchExpenses();
     fetchIncomes();
-  }, []);
+  }, [projectId]);
 
   const submitIncome = async (source, amount, setError) => {
     try {
       if (editIncome) {
-        await UpdateIncome(editIncome.id, 1, source, amount);
+        await UpdateIncome(editIncome.id, projectId, source, amount);
         setEditIncome(null);
       } else {
-        await AddIncome(1, source, amount);
+        await AddIncome(projectId, source, amount);
       }
       setError("");
       fetchIncomes();
@@ -57,10 +59,10 @@ export default function App() {
   const submitExpense = async (desc, amount, setError) => {
     try {
       if (editExpense) {
-        await UpdateExpense(editExpense.id, 1, desc, amount);
+        await UpdateExpense(editExpense.id, projectId, desc, amount);
         setEditExpense(null);
       } else {
-        await AddExpense(1, desc, amount);
+        await AddExpense(projectId, desc, amount);
       }
       setError("");
       fetchExpenses();
@@ -83,6 +85,7 @@ export default function App() {
           />
         </Toolbar>
         <Tabs value={tab} onChange={(_, v) => setTab(v)} textColor="inherit" indicatorColor="secondary" centered>
+          <Tab label="Projekte" />
           <Tab label="Einnahmen" />
           <Tab label="Ausgaben" />
           <Tab label="Formulare" />
@@ -91,6 +94,9 @@ export default function App() {
       </AppBar>
       <Container maxWidth="md" sx={{ py: 4 }}>
         {tab === 0 && (
+          <ProjectPanel activeId={projectId} onSelect={(id) => setProjectId(id)} />
+        )}
+        {tab === 1 && (
           <>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" component="h2" gutterBottom>
@@ -110,7 +116,7 @@ export default function App() {
             </Paper>
           </>
         )}
-        {tab === 1 && (
+        {tab === 2 && (
           <>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" component="h2" gutterBottom>
@@ -130,10 +136,10 @@ export default function App() {
             </Paper>
           </>
         )}
-        {tab === 2 && <FormsPanel />}
-        {tab === 3 && (
+        {tab === 3 && <FormsPanel projectId={projectId} />}
+        {tab === 4 && (
           <Paper sx={{ p: 3 }}>
-            <TaxPanel />
+            <TaxPanel projectId={projectId} />
           </Paper>
         )}
       </Container>

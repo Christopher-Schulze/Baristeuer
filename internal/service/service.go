@@ -56,6 +56,44 @@ func (ds *DataService) CreateProject(name string) (*data.Project, error) {
 	return p, nil
 }
 
+// ListProjects returns all projects.
+func (ds *DataService) ListProjects() ([]data.Project, error) {
+	projects, err := ds.store.ListProjects()
+	if err != nil {
+		return nil, fmt.Errorf("list projects: %w", err)
+	}
+	ds.logger.Info("listed projects", "count", len(projects))
+	return projects, nil
+}
+
+// GetProject fetches a project by ID.
+func (ds *DataService) GetProject(id int64) (*data.Project, error) {
+	p, err := ds.store.GetProject(id)
+	if err != nil {
+		return nil, fmt.Errorf("get project: %w", err)
+	}
+	return p, nil
+}
+
+// UpdateProject updates a project name.
+func (ds *DataService) UpdateProject(id int64, name string) error {
+	p := &data.Project{ID: id, Name: name}
+	if err := ds.store.UpdateProject(p); err != nil {
+		return fmt.Errorf("update project: %w", err)
+	}
+	ds.logger.Info("updated project", "id", id)
+	return nil
+}
+
+// DeleteProject removes a project by ID.
+func (ds *DataService) DeleteProject(id int64) error {
+	if err := ds.store.DeleteProject(id); err != nil {
+		return fmt.Errorf("delete project: %w", err)
+	}
+	ds.logger.Info("deleted project", "id", id)
+	return nil
+}
+
 // ListIncomes returns all incomes for the given project.
 func (ds *DataService) ListIncomes(projectID int64) ([]data.Income, error) {
 	incomes, err := ds.store.ListIncomes(projectID)

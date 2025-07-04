@@ -5,6 +5,11 @@ import App from './App';
 
 // mock the DataService module used by App
 vi.mock('./wailsjs/go/service/DataService', () => ({
+  CreateProject: vi.fn(),
+  ListProjects: vi.fn(),
+  GetProject: vi.fn(),
+  UpdateProject: vi.fn(),
+  DeleteProject: vi.fn(),
   AddExpense: vi.fn(),
   UpdateExpense: vi.fn(),
   DeleteExpense: vi.fn(),
@@ -18,6 +23,11 @@ vi.mock('./wailsjs/go/service/DataService', () => ({
 
 // import the mocked functions for easier access
 import {
+  CreateProject,
+  ListProjects,
+  GetProject,
+  UpdateProject,
+  DeleteProject,
   AddExpense,
   UpdateExpense,
   DeleteExpense,
