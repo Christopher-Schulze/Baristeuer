@@ -23,6 +23,7 @@
   },
   "expense": {
     "new": "New Expense",
+    "add": "Add",
     "description": "Description",
     "amount": "Amount (€)",
     "required": "Description and amount required",
