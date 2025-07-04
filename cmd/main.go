@@ -48,15 +48,10 @@ func main() {
 		fmt.Println("Error:", err)
 		return
 	}
-	defer store.Close()
 
 	logger, logCloser := service.NewLogger(cfg.LogFile, cfg.LogLevel)
 	generator := pdf.NewGenerator(cfg.PDFDir, store)
-	datasvc, err := service.NewDataService(cfg.DBPath, logger, logCloser)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
+	datasvc := service.NewDataServiceFromStore(store, logger, logCloser)
 	defer datasvc.Close()
 
 	err = wails.Run(&options.App{
