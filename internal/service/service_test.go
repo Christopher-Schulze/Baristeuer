@@ -247,7 +247,8 @@ func TestDataService_ProjectOperations(t *testing.T) {
 	}
 	defer ds.Close()
 
-	p, err := ds.CreateProject("Proj1")
+	ctx := context.Background()
+	p, err := ds.CreateProject(ctx, "Proj1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -316,7 +317,7 @@ func TestValidateAmount(t *testing.T) {
 func TestDataService_LoggerClosed(t *testing.T) {
 	tmpDir := t.TempDir()
 	logPath := filepath.Join(tmpDir, "app.log")
-	logger, closer := NewLogger(logPath, "info")
+	logger, closer := NewLogger(logPath, "info", "text")
 	if closer == nil {
 		t.Fatalf("expected closer for log file")
 	}

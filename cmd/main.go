@@ -49,7 +49,7 @@ func main() {
 		return
 	}
 
-	logger, logCloser := service.NewLogger(cfg.LogFile, cfg.LogLevel)
+	logger, logCloser := service.NewLogger(cfg.LogFile, cfg.LogLevel, cfg.LogFormat)
 	generator := pdf.NewGenerator(cfg.PDFDir, store)
 	datasvc := service.NewDataServiceFromStore(store, logger, logCloser)
 	defer datasvc.Close()

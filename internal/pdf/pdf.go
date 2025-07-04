@@ -3,6 +3,7 @@ package pdf
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -36,16 +37,19 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 	ctx := context.Background()
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {
+		slog.Error("fetch revenue", "err", err, "project", projectID)
 		return "", fmt.Errorf("fetch revenue: %w", err)
 	}
 	expenses, err := g.store.SumExpenseByProject(ctx, projectID)
 	if err != nil {
+		slog.Error("fetch expenses", "err", err, "project", projectID)
 		return "", fmt.Errorf("fetch expenses: %w", err)
 	}
 	taxResult := taxlogic.CalculateTaxes(revenue, expenses)
 
 	// Ensure the directory exists
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
+		slog.Error("create report dir", "err", err, "path", g.BasePath)
 		return "", fmt.Errorf("failed to create directory: %w", err)
 	}
 	fileName := fmt.Sprintf("tax_report_%d.pdf", taxResult.Timestamp)
@@ -109,6 +113,7 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 	pdf.Ln(10)
 
 	if err := pdf.OutputFileAndClose(filePath); err != nil {
+		slog.Error("write report", "err", err, "path", filePath)
 		return "", fmt.Errorf("failed to write PDF: %w", err)
 	}
 	return filePath, nil
@@ -122,6 +127,7 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	p, _ := g.store.GetProject(ctx, projectID)
 
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
+		slog.Error("create kst1 dir", "err", err, "path", g.BasePath)
 		return "", fmt.Errorf("failed to create directory: %w", err)
 	}
 	fileName := fmt.Sprintf("KSt_1_%d.pdf", projectID)
@@ -186,6 +192,7 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	pdf.MultiCell(0, 6, "Alle Angaben sind gem\xC3\xA4\xC3\x9F den Vorgaben der Finanzverwaltung zu machen.", "", "L", false)
 
 	if err := pdf.OutputFileAndClose(filePath); err != nil {
+		slog.Error("write kst1", "err", err, "path", filePath)
 		return "", fmt.Errorf("failed to write PDF: %w", err)
 	}
 	return filePath, nil
@@ -198,6 +205,7 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	p, _ := g.store.GetProject(ctx, projectID)
 
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
+		slog.Error("create gem dir", "err", err, "path", g.BasePath)
 		return "", fmt.Errorf("failed to create directory: %w", err)
 	}
 	fileName := fmt.Sprintf("Anlage_Gem_%d.pdf", projectID)
@@ -249,6 +257,7 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	pdf.MultiCell(0, 6, "Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen und dem KSt 1 beif\xC3\xBCgen.", "", "L", false)
 
 	if err := pdf.OutputFileAndClose(filePath); err != nil {
+		slog.Error("write gem", "err", err, "path", filePath)
 		return "", fmt.Errorf("failed to write PDF: %w", err)
 	}
 	return filePath, nil
@@ -322,6 +331,7 @@ func (g *Generator) GenerateAllForms(projectID int64) ([]string, error) {
 	for _, f := range forms {
 		p, err := f(projectID)
 		if err != nil {
+			slog.Error("generate form", "err", err)
 			return nil, err
 		}
 		paths = append(paths, p)
@@ -332,6 +342,7 @@ func (g *Generator) GenerateAllForms(projectID int64) ([]string, error) {
 // createForm writes a PDF with the given title and content lines.
 func (g *Generator) createForm(projectID int64, title string, lines []string) (string, error) {
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
+		slog.Error("create form dir", "err", err, "path", g.BasePath)
 		return "", fmt.Errorf("failed to create directory: %w", err)
 	}
 	sanitized := strings.ReplaceAll(title, " ", "_")
@@ -351,6 +362,7 @@ func (g *Generator) createForm(projectID int64, title string, lines []string) (s
 	}
 
 	if err := pdf.OutputFileAndClose(filePath); err != nil {
+		slog.Error("write form", "err", err, "path", filePath)
 		return "", fmt.Errorf("failed to write PDF: %w", err)
 	}
 	return filePath, nil

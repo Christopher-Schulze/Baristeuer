@@ -7,9 +7,10 @@ import (
 	"strings"
 )
 
-// NewLogger creates a slog.Logger writing to the given file.
-// If logFile is empty, logs are written to stdout.
-func NewLogger(logFile, level string) (*slog.Logger, io.Closer) {
+// NewLogger creates a slog.Logger writing to the given file. The format
+// parameter determines the output style: "json" or "text". If logFile is
+// empty, logs are written to stdout.
+func NewLogger(logFile, level, format string) (*slog.Logger, io.Closer) {
 	var w io.Writer = os.Stdout
 	var c io.Closer
 	if logFile != "" {
@@ -18,6 +19,12 @@ func NewLogger(logFile, level string) (*slog.Logger, io.Closer) {
 			w = f
 			c = f
 		}
+	}
+	if format == "" {
+		format = os.Getenv("BARISTEUER_LOGFORMAT")
+	}
+	if format == "" {
+		format = "text"
 	}
 	lvl := slog.LevelInfo
 	switch strings.ToLower(level) {
@@ -28,6 +35,13 @@ func NewLogger(logFile, level string) (*slog.Logger, io.Closer) {
 	case "error":
 		lvl = slog.LevelError
 	}
-	h := slog.NewTextHandler(w, &slog.HandlerOptions{Level: lvl})
+	opts := &slog.HandlerOptions{Level: lvl}
+	var h slog.Handler
+	switch strings.ToLower(format) {
+	case "json":
+		h = slog.NewJSONHandler(w, opts)
+	default:
+		h = slog.NewTextHandler(w, opts)
+	}
 	return slog.New(h), c
 }
