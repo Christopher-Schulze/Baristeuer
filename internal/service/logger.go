@@ -9,12 +9,14 @@ import (
 
 // NewLogger creates a slog.Logger writing to the given file.
 // If logFile is empty, logs are written to stdout.
-func NewLogger(logFile, level string) *slog.Logger {
+func NewLogger(logFile, level string) (*slog.Logger, io.Closer) {
 	var w io.Writer = os.Stdout
+	var c io.Closer
 	if logFile != "" {
 		f, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
 		if err == nil {
 			w = f
+			c = f
 		}
 	}
 	lvl := slog.LevelInfo
@@ -27,5 +29,5 @@ func NewLogger(logFile, level string) *slog.Logger {
 		lvl = slog.LevelError
 	}
 	h := slog.NewTextHandler(w, &slog.HandlerOptions{Level: lvl})
-	return slog.New(h)
+	return slog.New(h), c
 }

@@ -21,28 +21,29 @@ func validateAmount(amount float64) error {
 
 // DataService provides application methods used by the UI.
 type DataService struct {
-	store  *data.Store
-	logger *slog.Logger
+	store     *data.Store
+	logger    *slog.Logger
+	logCloser io.Closer
 }
 
 // NewDataService creates a new service with the given datastore location.
-func NewDataService(dsn string, logger *slog.Logger) (*DataService, error) {
+func NewDataService(dsn string, logger *slog.Logger, closer io.Closer) (*DataService, error) {
 	s, err := data.NewStore(dsn)
 	if err != nil {
 		return nil, fmt.Errorf("create store: %w", err)
 	}
 	if logger == nil {
-		logger = NewLogger("", "info")
+		logger, closer = NewLogger("", "info")
 	}
-	return &DataService{store: s, logger: logger}, nil
+	return &DataService{store: s, logger: logger, logCloser: closer}, nil
 }
 
 // NewDataServiceFromStore wraps an existing store.
-func NewDataServiceFromStore(store *data.Store, logger *slog.Logger) *DataService {
+func NewDataServiceFromStore(store *data.Store, logger *slog.Logger, closer io.Closer) *DataService {
 	if logger == nil {
-		logger = NewLogger("", "info")
+		logger, closer = NewLogger("", "info")
 	}
-	return &DataService{store: store, logger: logger}
+	return &DataService{store: store, logger: logger, logCloser: closer}
 }
 
 // CreateProject creates a project by name.
@@ -202,5 +203,8 @@ func (ds *DataService) ExportDatabase(dest string) error {
 
 // Close closes the underlying datastore.
 func (ds *DataService) Close() error {
+	if ds.logCloser != nil {
+		ds.logCloser.Close()
+	}
 	return ds.store.Close()
 }

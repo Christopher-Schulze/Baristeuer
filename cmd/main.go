@@ -50,9 +50,9 @@ func main() {
 	}
 	defer store.Close()
 
-	logger := service.NewLogger(cfg.LogFile, cfg.LogLevel)
+	logger, logCloser := service.NewLogger(cfg.LogFile, cfg.LogLevel)
 	generator := pdf.NewGenerator(cfg.PDFDir, store)
-	datasvc, err := service.NewDataService(cfg.DBPath, logger)
+	datasvc, err := service.NewDataService(cfg.DBPath, logger, logCloser)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
