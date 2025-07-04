@@ -28,4 +28,36 @@ test('selects a project', async () => {
   expect(onSelect).toHaveBeenCalledWith(2);
 });
 
+test('creates a project and shows it in the list', async () => {
+  ListProjects
+    .mockResolvedValueOnce([])
+    .mockResolvedValueOnce([{ id: 1, name: 'Foo' }]);
+  CreateProject.mockResolvedValueOnce({ id: 1, name: 'Foo' });
+  const onSelect = vi.fn();
+  render(<ProjectPanel activeId={0} onSelect={onSelect} />);
+  await screen.findByRole('textbox', { name: /Neues Projekt/i });
+  fireEvent.change(screen.getByLabelText(/Neues Projekt/i), { target: { value: 'Foo' } });
+  fireEvent.click(screen.getByRole('button', { name: /Erstellen/i }));
+
+  await waitFor(() => expect(CreateProject).toHaveBeenCalledWith('Foo'));
+  expect(await screen.findByText('Foo')).toBeInTheDocument();
+  expect(onSelect).toHaveBeenCalledWith(1);
+});
+
+test('deletes a project', async () => {
+  ListProjects
+    .mockResolvedValueOnce([
+      { id: 1, name: 'Alpha' },
+      { id: 2, name: 'Beta' },
+    ])
+    .mockResolvedValueOnce([{ id: 2, name: 'Beta' }]);
+  DeleteProject.mockResolvedValueOnce();
+  render(<ProjectPanel activeId={1} />);
+  await screen.findByText('Alpha');
+  fireEvent.click(screen.getAllByRole('button', { name: /Löschen/i })[0]);
+
+  await waitFor(() => expect(DeleteProject).toHaveBeenCalledWith(1));
+  await waitFor(() => expect(screen.queryByText('Alpha')).not.toBeInTheDocument());
+});
+
 
