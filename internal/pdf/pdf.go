@@ -298,11 +298,6 @@ func (g *Generator) GenerateAllForms(projectID int64) ([]string, error) {
 	return paths, nil
 }
 
-// createSimpleForm writes a minimal PDF with the given title.
-func (g *Generator) createSimpleForm(projectID int64, title string) (string, error) {
-	return g.createForm(projectID, title, []string{"(Platzhalter)"})
-}
-
 // createForm writes a PDF with the given title and content lines.
 func (g *Generator) createForm(projectID int64, title string, lines []string) (string, error) {
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
