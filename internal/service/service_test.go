@@ -246,8 +246,9 @@ func TestDataService_ProjectOperations(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer ds.Close()
+	ctx := context.Background()
 
-	p, err := ds.CreateProject("Proj1")
+	p, err := ds.CreateProject(ctx, "Proj1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -255,18 +256,18 @@ func TestDataService_ProjectOperations(t *testing.T) {
 	if err != nil || len(list) == 0 {
 		t.Fatalf("ListProjects failed: %v", err)
 	}
-	got, err := ds.GetProject(p.ID)
+	got, err := ds.GetProject(ctx, p.ID)
 	if err != nil || got.ID != p.ID {
 		t.Fatalf("GetProject failed: %v", err)
 	}
-	if err := ds.UpdateProject(p.ID, "New"); err != nil {
+	if err := ds.UpdateProject(ctx, p.ID, "New"); err != nil {
 		t.Fatalf("UpdateProject failed: %v", err)
 	}
-	updated, _ := ds.GetProject(p.ID)
+	updated, _ := ds.GetProject(ctx, p.ID)
 	if updated.Name != "New" {
 		t.Fatalf("update did not persist")
 	}
-	if err := ds.DeleteProject(p.ID); err != nil {
+	if err := ds.DeleteProject(ctx, p.ID); err != nil {
 		t.Fatalf("DeleteProject failed: %v", err)
 	}
 	list, _ = ds.ListProjects()
@@ -352,5 +353,26 @@ func TestDataService_ExportDatabase(t *testing.T) {
 	}
 	if info.Size() == 0 {
 		t.Fatal("expected exported file to be non-empty")
+	}
+}
+
+func TestDataService_UserAuth(t *testing.T) {
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	ctx := context.Background()
+	_, err = ds.CreateUser(ctx, "alice", "secret")
+	if err != nil {
+		t.Fatalf("CreateUser: %v", err)
+	}
+	token, err := ds.AuthenticateUser(ctx, "alice", "secret")
+	if err != nil || token == "" {
+		t.Fatalf("AuthenticateUser failed: %v", err)
+	}
+	if _, err := ds.AuthenticateUser(ctx, "alice", "bad"); err == nil {
+		t.Fatal("expected auth failure")
 	}
 }

@@ -50,6 +50,14 @@ export function DeleteIncome(arg1) {
   return window.go.service.DataService.DeleteIncome(arg1);
 }
 
+export function CreateUser(arg1, arg2) {
+  return window.go.service.DataService.CreateUser(arg1, arg2);
+}
+
+export function AuthenticateUser(arg1, arg2) {
+  return window.go.service.DataService.AuthenticateUser(arg1, arg2);
+}
+
 export function ListIncomes(arg1) {
   return window.go.service.DataService.ListIncomes(arg1);
 }

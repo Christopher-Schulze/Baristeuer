@@ -29,3 +29,10 @@ type Member struct {
 	Email    string `db:"email"`
 	JoinDate string `db:"join_date"`
 }
+
+// User represents an application user.
+type User struct {
+	ID           int64  `db:"id"`
+	Username     string `db:"username"`
+	PasswordHash string `db:"password_hash"`
+}

@@ -18,6 +18,8 @@ vi.mock('./wailsjs/go/service/DataService', () => ({
   UpdateIncome: vi.fn(),
   DeleteIncome: vi.fn(),
   ListIncomes: vi.fn(),
+  AuthenticateUser: vi.fn(),
+  CreateUser: vi.fn(),
   CalculateProjectTaxes: vi.fn(),
 }), { virtual: true });
 
@@ -36,17 +38,29 @@ import {
   UpdateIncome,
   DeleteIncome,
   ListIncomes,
+  AuthenticateUser,
+  CreateUser,
   CalculateProjectTaxes,
 } from './wailsjs/go/service/DataService';
 
 beforeEach(() => {
   vi.clearAllMocks();
+  AuthenticateUser.mockResolvedValue('tok');
 });
+
+async function doLogin() {
+  fireEvent.change(screen.getByLabelText(/Benutzername/i), { target: { value: 'a' } });
+  fireEvent.change(screen.getByLabelText(/Passwort/i), { target: { value: 'b' } });
+  fireEvent.click(screen.getByRole('button', { name: 'OK' }));
+  await waitFor(() => expect(AuthenticateUser).toHaveBeenCalled());
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+}
 
 test('renders app heading', async () => {
   ListExpenses.mockResolvedValueOnce([]);
   ListIncomes.mockResolvedValueOnce([]);
   render(<App />);
+  await doLogin();
   expect(await screen.findByRole('heading', { name: /Baristeuer/i })).toBeInTheDocument();
 });
 
@@ -57,7 +71,7 @@ test('adds a new income', async () => {
   ListIncomes.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 1, source: 'Donation', amount: 50 }]);
   AddIncome.mockResolvedValueOnce();
   render(<App />);
-  await screen.findByRole('heading', { name: /Baristeuer/i });
+  await doLogin();
 
   fireEvent.change(screen.getByLabelText(/Quelle/i), { target: { value: 'Donation' } });
   fireEvent.change(screen.getByLabelText(/Betrag/i), { target: { value: '50' } });
@@ -75,7 +89,7 @@ test('shows error when adding income fails', async () => {
   ListIncomes.mockResolvedValueOnce([]);
   AddIncome.mockRejectedValueOnce(new Error('fail'));
   render(<App />);
-  await screen.findByRole('heading', { name: /Baristeuer/i });
+  await doLogin();
 
   fireEvent.change(screen.getByLabelText(/Quelle/i), { target: { value: 'Foo' } });
   fireEvent.change(screen.getByLabelText(/Betrag/i), { target: { value: '5' } });
@@ -91,6 +105,7 @@ test('edits an income', async () => {
   ListIncomes.mockResolvedValueOnce([{ id: 1, source: 'Old', amount: 10 }]).mockResolvedValueOnce([{ id: 1, source: 'New', amount: 20 }]);
   UpdateIncome.mockResolvedValueOnce();
   render(<App />);
+  await doLogin();
   await screen.findByText('Old');
 
   fireEvent.click(screen.getByRole('button', { name: /Bearbeiten/i }));
@@ -109,6 +124,7 @@ test('deletes an income', async () => {
   ListIncomes.mockResolvedValueOnce([{ id: 1, source: 'Del', amount: 30 }]).mockResolvedValueOnce([]);
   DeleteIncome.mockResolvedValueOnce();
   render(<App />);
+  await doLogin();
   await screen.findByText('Del');
 
   fireEvent.click(screen.getByRole('button', { name: /Löschen/i }));
@@ -124,7 +140,7 @@ test('adds a new expense', async () => {
   ListExpenses.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 1, description: 'Rent', amount: 15 }]);
   AddExpense.mockResolvedValueOnce();
   render(<App />);
-  await screen.findByRole('heading', { name: /Baristeuer/i });
+  await doLogin();
 
   fireEvent.click(screen.getByRole('tab', { name: /Ausgaben/i }));
   fireEvent.change(screen.getByLabelText(/Beschreibung/i), { target: { value: 'Rent' } });
@@ -143,7 +159,7 @@ test('edits an expense', async () => {
   ListExpenses.mockResolvedValueOnce([{ id: 1, description: 'Coffee', amount: 3 }]).mockResolvedValueOnce([{ id: 1, description: 'Tea', amount: 4 }]);
   UpdateExpense.mockResolvedValueOnce();
   render(<App />);
-  await screen.findByRole('heading', { name: /Baristeuer/i });
+  await doLogin();
   fireEvent.click(screen.getByRole('tab', { name: /Ausgaben/i }));
   await screen.findByText('Coffee');
 
@@ -163,7 +179,7 @@ test('deletes an expense', async () => {
   ListExpenses.mockResolvedValueOnce([{ id: 1, description: 'Coffee', amount: 3 }]).mockResolvedValueOnce([]);
   DeleteExpense.mockResolvedValueOnce();
   render(<App />);
-  await screen.findByRole('heading', { name: /Baristeuer/i });
+  await doLogin();
   fireEvent.click(screen.getByRole('tab', { name: /Ausgaben/i }));
   await screen.findByText('Coffee');
 
@@ -180,7 +196,7 @@ test('shows tax calculation result', async () => {
   ListIncomes.mockResolvedValueOnce([]);
   CalculateProjectTaxes.mockResolvedValueOnce({ revenue: 100, expenses: 20, taxableIncome: 80, totalTax: 10 });
   render(<App />);
-  await screen.findByRole('heading', { name: /Baristeuer/i });
+  await doLogin();
 
   fireEvent.click(screen.getByRole('tab', { name: /Steuern/i }));
   fireEvent.click(screen.getByRole('button', { name: /Steuern berechnen/i }));

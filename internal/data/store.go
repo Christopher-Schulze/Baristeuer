@@ -56,9 +56,15 @@ func (s *Store) init() error {
             email TEXT,
             join_date TEXT
         );`,
+		`CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password_hash TEXT
+        );`,
 		`CREATE INDEX IF NOT EXISTS idx_incomes_project_id ON incomes(project_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_expenses_project_id ON expenses(project_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_members_name ON members(name);`,
+		`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);`,
 	}
 	for _, stmt := range schema {
 		if _, err := s.DB.Exec(stmt); err != nil {
@@ -280,4 +286,23 @@ func (s *Store) ListMembers(ctx context.Context) ([]Member, error) {
 		members = append(members, m)
 	}
 	return members, nil
+}
+
+// CRUD operations for User
+func (s *Store) CreateUser(ctx context.Context, u *User) error {
+	res, err := s.DB.ExecContext(ctx, `INSERT INTO users(username, password_hash) VALUES(?,?)`, u.Username, u.PasswordHash)
+	if err != nil {
+		return err
+	}
+	u.ID, err = res.LastInsertId()
+	return err
+}
+
+func (s *Store) GetUserByUsername(ctx context.Context, username string) (*User, error) {
+	row := s.DB.QueryRowContext(ctx, `SELECT id, username, password_hash FROM users WHERE username=?`, username)
+	var u User
+	if err := row.Scan(&u.ID, &u.Username, &u.PasswordHash); err != nil {
+		return nil, err
+	}
+	return &u, nil
 }

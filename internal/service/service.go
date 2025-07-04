@@ -4,11 +4,15 @@ import (
 	"baristeuer/internal/data"
 	"baristeuer/internal/taxlogic"
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
 	"log/slog"
 	"os"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 var ErrInvalidAmount = errors.New("amount must be positive")
@@ -68,8 +72,8 @@ func (ds *DataService) ListProjects() ([]data.Project, error) {
 }
 
 // GetProject fetches a project by ID.
-func (ds *DataService) GetProject(id int64) (*data.Project, error) {
-	p, err := ds.store.GetProject(id)
+func (ds *DataService) GetProject(ctx context.Context, id int64) (*data.Project, error) {
+	p, err := ds.store.GetProject(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("get project: %w", err)
 	}
@@ -77,9 +81,9 @@ func (ds *DataService) GetProject(id int64) (*data.Project, error) {
 }
 
 // UpdateProject updates a project name.
-func (ds *DataService) UpdateProject(id int64, name string) error {
+func (ds *DataService) UpdateProject(ctx context.Context, id int64, name string) error {
 	p := &data.Project{ID: id, Name: name}
-	if err := ds.store.UpdateProject(p); err != nil {
+	if err := ds.store.UpdateProject(ctx, p); err != nil {
 		return fmt.Errorf("update project: %w", err)
 	}
 	ds.logger.Info("updated project", "id", id)
@@ -87,8 +91,8 @@ func (ds *DataService) UpdateProject(id int64, name string) error {
 }
 
 // DeleteProject removes a project by ID.
-func (ds *DataService) DeleteProject(id int64) error {
-	if err := ds.store.DeleteProject(id); err != nil {
+func (ds *DataService) DeleteProject(ctx context.Context, id int64) error {
+	if err := ds.store.DeleteProject(ctx, id); err != nil {
 		return fmt.Errorf("delete project: %w", err)
 	}
 	ds.logger.Info("deleted project", "id", id)
@@ -203,6 +207,36 @@ func (ds *DataService) ListMembers(ctx context.Context) ([]data.Member, error) {
 	}
 	ds.logger.Info("listed members", "count", len(members))
 	return members, nil
+}
+
+// CreateUser registers a new user.
+func (ds *DataService) CreateUser(ctx context.Context, username, password string) (*data.User, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, fmt.Errorf("hash password: %w", err)
+	}
+	u := &data.User{Username: username, PasswordHash: string(hash)}
+	if err := ds.store.CreateUser(ctx, u); err != nil {
+		return nil, fmt.Errorf("create user: %w", err)
+	}
+	ds.logger.Info("created user", "id", u.ID)
+	return u, nil
+}
+
+// AuthenticateUser verifies credentials and returns an auth token.
+func (ds *DataService) AuthenticateUser(ctx context.Context, username, password string) (string, error) {
+	u, err := ds.store.GetUserByUsername(ctx, username)
+	if err != nil {
+		return "", fmt.Errorf("get user: %w", err)
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password)); err != nil {
+		return "", fmt.Errorf("invalid credentials")
+	}
+	tok := make([]byte, 16)
+	if _, err := rand.Read(tok); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(tok), nil
 }
 
 // CalculateProjectTaxes returns a detailed tax calculation for the given project.
