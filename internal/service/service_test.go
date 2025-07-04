@@ -168,15 +168,20 @@ func TestDataService_CalculateProjectTaxes(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	result, err := ds.CalculateProjectTaxes(ctx, proj.ID)
-	if err != nil {
-		t.Fatalf("CalculateProjectTaxes returned error: %v", err)
-	}
-	if !result.IsTaxable {
-		t.Fatalf("expected project to be taxable")
-	}
-	if result.TotalTax <= 0 {
-		t.Fatalf("expected positive tax, got %f", result.TotalTax)
+	for _, year := range []int{2025, 2026} {
+		result, err := ds.CalculateProjectTaxes(ctx, proj.ID, year)
+		if err != nil {
+			t.Fatalf("CalculateProjectTaxes returned error: %v", err)
+		}
+		if result.Year != year {
+			t.Fatalf("expected year %d got %d", year, result.Year)
+		}
+		if !result.IsTaxable {
+			t.Fatalf("expected project to be taxable")
+		}
+		if result.TotalTax <= 0 {
+			t.Fatalf("expected positive tax, got %f", result.TotalTax)
+		}
 	}
 }
 
@@ -247,7 +252,8 @@ func TestDataService_ProjectOperations(t *testing.T) {
 	}
 	defer ds.Close()
 
-	p, err := ds.CreateProject("Proj1")
+	ctx := context.Background()
+	p, err := ds.CreateProject(ctx, "Proj1")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -54,6 +54,6 @@ export function ListIncomes(arg1) {
   return window.go.service.DataService.ListIncomes(arg1);
 }
 
-export function CalculateProjectTaxes(arg1) {
-  return window.go.service.DataService.CalculateProjectTaxes(arg1);
+export function CalculateProjectTaxes(arg1, arg2) {
+  return window.go.service.DataService.CalculateProjectTaxes(arg1, arg2);
 }

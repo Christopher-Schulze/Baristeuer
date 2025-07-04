@@ -1,6 +1,7 @@
 package taxlogic
 
 import (
+	"fmt"
 	"math"
 	"testing"
 )
@@ -12,7 +13,7 @@ func floatEquals(a, b float64) bool {
 }
 
 func TestCalculateTaxes(t *testing.T) {
-	cfg := DefaultConfig2025()
+	years := []int{2025, 2026}
 	testCases := []struct {
 		name     string
 		revenue  float64
@@ -32,8 +33,8 @@ func TestCalculateTaxes(t *testing.T) {
 				CorporateTax:          0,
 				SolidaritySurcharge:   0,
 				TotalTax:              0,
-				RevenueExemptionLimit: cfg.RevenueExemptionLimit,
-				ProfitAllowance:       cfg.ProfitAllowance,
+				RevenueExemptionLimit: 45000.00,
+				ProfitAllowance:       5000.00,
 			},
 		},
 		{
@@ -49,8 +50,8 @@ func TestCalculateTaxes(t *testing.T) {
 				CorporateTax:          3750.00,  // 25000 * 0.15
 				SolidaritySurcharge:   206.25,   // 3750 * 0.055
 				TotalTax:              3956.25,  // 3750 + 206.25
-				RevenueExemptionLimit: cfg.RevenueExemptionLimit,
-				ProfitAllowance:       cfg.ProfitAllowance,
+				RevenueExemptionLimit: 45000.00,
+				ProfitAllowance:       5000.00,
 			},
 		},
 		{
@@ -66,8 +67,8 @@ func TestCalculateTaxes(t *testing.T) {
 				CorporateTax:          0,
 				SolidaritySurcharge:   0,
 				TotalTax:              0,
-				RevenueExemptionLimit: cfg.RevenueExemptionLimit,
-				ProfitAllowance:       cfg.ProfitAllowance,
+				RevenueExemptionLimit: 45000.00,
+				ProfitAllowance:       5000.00,
 			},
 		},
 		{
@@ -83,8 +84,8 @@ func TestCalculateTaxes(t *testing.T) {
 				CorporateTax:          0,
 				SolidaritySurcharge:   0,
 				TotalTax:              0,
-				RevenueExemptionLimit: cfg.RevenueExemptionLimit,
-				ProfitAllowance:       cfg.ProfitAllowance,
+				RevenueExemptionLimit: 45000.00,
+				ProfitAllowance:       5000.00,
 			},
 		},
 		{
@@ -100,8 +101,8 @@ func TestCalculateTaxes(t *testing.T) {
 				CorporateTax:          0,
 				SolidaritySurcharge:   0,
 				TotalTax:              0,
-				RevenueExemptionLimit: cfg.RevenueExemptionLimit,
-				ProfitAllowance:       cfg.ProfitAllowance,
+				RevenueExemptionLimit: 45000.00,
+				ProfitAllowance:       5000.00,
 			},
 		},
 		{
@@ -117,34 +118,39 @@ func TestCalculateTaxes(t *testing.T) {
 				CorporateTax:          0,
 				SolidaritySurcharge:   0,
 				TotalTax:              0,
-				RevenueExemptionLimit: cfg.RevenueExemptionLimit,
-				ProfitAllowance:       cfg.ProfitAllowance,
+				RevenueExemptionLimit: 45000.00,
+				ProfitAllowance:       5000.00,
 			},
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			result := CalculateTaxes(tc.revenue, tc.expenses)
+	for _, year := range years {
+		for _, tc := range testCases {
+			t.Run(fmt.Sprintf("%d/%s", year, tc.name), func(t *testing.T) {
+				result := CalculateTaxes(tc.revenue, tc.expenses, year)
 
-			if result.IsTaxable != tc.expected.IsTaxable {
-				t.Errorf("IsTaxable: got %v, want %v", result.IsTaxable, tc.expected.IsTaxable)
-			}
-			if !floatEquals(result.Profit, tc.expected.Profit) {
-				t.Errorf("Profit: got %f, want %f", result.Profit, tc.expected.Profit)
-			}
-			if !floatEquals(result.TaxableIncome, tc.expected.TaxableIncome) {
-				t.Errorf("TaxableIncome: got %f, want %f", result.TaxableIncome, tc.expected.TaxableIncome)
-			}
-			if !floatEquals(result.CorporateTax, tc.expected.CorporateTax) {
-				t.Errorf("CorporateTax: got %f, want %f", result.CorporateTax, tc.expected.CorporateTax)
-			}
-			if !floatEquals(result.SolidaritySurcharge, tc.expected.SolidaritySurcharge) {
-				t.Errorf("SolidaritySurcharge: got %f, want %f", result.SolidaritySurcharge, tc.expected.SolidaritySurcharge)
-			}
-			if !floatEquals(result.TotalTax, tc.expected.TotalTax) {
-				t.Errorf("TotalTax: got %f, want %f", result.TotalTax, tc.expected.TotalTax)
-			}
-		})
+				if result.IsTaxable != tc.expected.IsTaxable {
+					t.Errorf("IsTaxable: got %v, want %v", result.IsTaxable, tc.expected.IsTaxable)
+				}
+				if !floatEquals(result.Profit, tc.expected.Profit) {
+					t.Errorf("Profit: got %f, want %f", result.Profit, tc.expected.Profit)
+				}
+				if !floatEquals(result.TaxableIncome, tc.expected.TaxableIncome) {
+					t.Errorf("TaxableIncome: got %f, want %f", result.TaxableIncome, tc.expected.TaxableIncome)
+				}
+				if !floatEquals(result.CorporateTax, tc.expected.CorporateTax) {
+					t.Errorf("CorporateTax: got %f, want %f", result.CorporateTax, tc.expected.CorporateTax)
+				}
+				if !floatEquals(result.SolidaritySurcharge, tc.expected.SolidaritySurcharge) {
+					t.Errorf("SolidaritySurcharge: got %f, want %f", result.SolidaritySurcharge, tc.expected.SolidaritySurcharge)
+				}
+				if !floatEquals(result.TotalTax, tc.expected.TotalTax) {
+					t.Errorf("TotalTax: got %f, want %f", result.TotalTax, tc.expected.TotalTax)
+				}
+				if result.Year != year {
+					t.Errorf("Year: got %d, want %d", result.Year, year)
+				}
+			})
+		}
 	}
 }
