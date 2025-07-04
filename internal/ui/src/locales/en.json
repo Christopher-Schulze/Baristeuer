@@ -25,6 +25,7 @@
     "new": "New Expense",
     "description": "Description",
     "amount": "Amount (€)",
+    "add": "Add",
     "required": "Description and amount required",
     "positive": "Amount must be a positive number",
     "table": {
