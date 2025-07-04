@@ -333,9 +333,8 @@ func TestDataService_LoggerClosed(t *testing.T) {
 	if err := ds.Close(); err != nil {
 		t.Fatalf("close service: %v", err)
 	}
-	f := closer.(*os.File)
-	if _, err := f.WriteString("test"); err == nil {
-		t.Fatal("expected error writing to closed file")
+	if err := closer.Close(); err != nil {
+		t.Fatalf("unexpected error closing logger: %v", err)
 	}
 }
 

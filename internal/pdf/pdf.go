@@ -2,6 +2,7 @@ package pdf
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,6 +13,9 @@ import (
 	"baristeuer/internal/data"
 	"baristeuer/internal/taxlogic"
 )
+
+// Error returned when a PDF file cannot be created or written.
+var ErrWritePDF = errors.New("write PDF")
 
 // Generator handles PDF creation.
 type Generator struct {
@@ -109,7 +113,7 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 	pdf.Ln(10)
 
 	if err := pdf.OutputFileAndClose(filePath); err != nil {
-		return "", fmt.Errorf("failed to write PDF: %w", err)
+		return "", fmt.Errorf("%w: %v", ErrWritePDF, err)
 	}
 	return filePath, nil
 }
@@ -186,7 +190,7 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	pdf.MultiCell(0, 6, "Alle Angaben sind gem\xC3\xA4\xC3\x9F den Vorgaben der Finanzverwaltung zu machen.", "", "L", false)
 
 	if err := pdf.OutputFileAndClose(filePath); err != nil {
-		return "", fmt.Errorf("failed to write PDF: %w", err)
+		return "", fmt.Errorf("%w: %v", ErrWritePDF, err)
 	}
 	return filePath, nil
 }
@@ -249,7 +253,7 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	pdf.MultiCell(0, 6, "Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen und dem KSt 1 beif\xC3\xBCgen.", "", "L", false)
 
 	if err := pdf.OutputFileAndClose(filePath); err != nil {
-		return "", fmt.Errorf("failed to write PDF: %w", err)
+		return "", fmt.Errorf("%w: %v", ErrWritePDF, err)
 	}
 	return filePath, nil
 }
@@ -351,7 +355,7 @@ func (g *Generator) createForm(projectID int64, title string, lines []string) (s
 	}
 
 	if err := pdf.OutputFileAndClose(filePath); err != nil {
-		return "", fmt.Errorf("failed to write PDF: %w", err)
+		return "", fmt.Errorf("%w: %v", ErrWritePDF, err)
 	}
 	return filePath, nil
 }
