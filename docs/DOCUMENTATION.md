@@ -93,6 +93,25 @@ The application starts in German. Use the dropdown in the top toolbar to switch 
 ## Cross-Platform Compatibility
 The application is required to be fully functional on both **macOS** and **Windows** operating systems. All features must be tested and verified on both platforms to ensure a consistent user experience.
 
+## Release Workflow
+The creation of a new release is automated through GitHub Actions. When a tag is
+pushed, `.github/workflows/release.yml` builds the application, signs the
+checksums and publishes a GitHub release. The workflow performs the following
+steps:
+
+1. Checkout the repository with submodules and set up Go and Node.js.
+2. Install the Wails CLI and all dependencies.
+3. Execute `scripts/package.sh <tag>` to build binaries for macOS, Windows and
+   Linux.
+4. Archive the packages and generate a `SHA256SUMS` file.
+5. Import the GPG private key from the `GPG_PRIVATE_KEY` secret and sign the
+   checksums.
+6. Create the GitHub release and upload all artifacts.
+
+To run the packaging step locally or inspect its behaviour, execute
+`./scripts/package.sh` from the repository root. The script mirrors the build
+logic used in the release workflow.
+
 ## Final Project Assessment
 
 ### Current State
