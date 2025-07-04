@@ -144,15 +144,24 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	pdf.Cell(60, 8, "Name des Vereins:")
 	pdf.Cell(0, 8, name)
 	pdf.Ln(8)
-
+	pdf.Cell(60, 8, "Rechtsform:")
+	pdf.Cell(0, 8, "____________________")
+	pdf.Ln(8)
 	pdf.Cell(60, 8, "Steuernummer:")
 	pdf.Cell(0, 8, "____________________")
 	pdf.Ln(8)
-
 	pdf.Cell(60, 8, "Finanzamt:")
 	pdf.Cell(0, 8, "____________________")
 	pdf.Ln(8)
-
+	pdf.Cell(60, 8, "Straße, Hausnummer:")
+	pdf.Cell(0, 8, "____________________")
+	pdf.Ln(8)
+	pdf.Cell(60, 8, "PLZ, Ort:")
+	pdf.Cell(0, 8, "____________________")
+	pdf.Ln(8)
+	pdf.Cell(60, 8, "Vertreten durch:")
+	pdf.Cell(0, 8, "____________________")
+	pdf.Ln(8)
 	pdf.Cell(60, 8, "Veranlagungszeitraum:")
 	pdf.Cell(0, 8, "2025")
 	pdf.Ln(12)
@@ -165,6 +174,9 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	pdf.Cell(0, 8, "____________________")
 	pdf.Ln(8)
 	pdf.Cell(60, 8, "T\xC3\xA4tigkeitsbereich:")
+	pdf.Cell(0, 8, "____________________")
+	pdf.Ln(8)
+	pdf.Cell(60, 8, "Satzungsdatum:")
 	pdf.Cell(0, 8, "____________________")
 	pdf.Ln(10)
 
@@ -208,6 +220,9 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	pdf.Cell(60, 8, "Name des Vereins:")
 	pdf.Cell(0, 8, name)
 	pdf.Ln(8)
+	pdf.Cell(60, 8, "Anschrift des Vereins:")
+	pdf.Cell(0, 8, "____________________")
+	pdf.Ln(8)
 
 	pdf.Cell(60, 8, "T\xC3\xA4tigkeit des Vereins:")
 	pdf.Cell(0, 8, "____________________")
@@ -216,11 +231,17 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	pdf.Cell(60, 8, "Steuerbeg\xC3\xBCnstigte Zwecke:")
 	pdf.Cell(0, 8, "____________________")
 	pdf.Ln(8)
+	pdf.Cell(60, 8, "Vertreten durch:")
+	pdf.Cell(0, 8, "____________________")
+	pdf.Ln(8)
 
 	pdf.Cell(60, 8, "Verwendung der Mittel:")
 	pdf.Cell(0, 8, "____________________")
-	pdf.Ln(10)
+	pdf.Ln(8)
+	pdf.Cell(60, 8, "Bankverbindung:")
+	pdf.Cell(0, 8, "____________________")
 
+	pdf.Ln(10)
 	pdf.MultiCell(0, 6, "Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen und dem KSt 1 beif\xC3\xBCgen.", "", "L", false)
 
 	if err := pdf.OutputFileAndClose(filePath); err != nil {
@@ -240,6 +261,7 @@ func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
 		title,
 		"Bezeichnung des wirtschaftlichen Gesch\xC3\xA4ftsbetriebs: ____________________",
 		"Gewinne/Verluste: ____________________",
+		"Umsatz des Vorjahres: ____________________",
 		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",
 	}
 	return g.createForm(projectID, "Anlage GK", lines)
@@ -255,6 +277,7 @@ func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
 	lines := []string{
 		title, // "KSt 1F - Erweiterte Körperschaftsteuererklärung"
 		"Angaben zu Beteiligungen: ____________________",
+		"Beteiligungen an Kapitalgesellschaften: ____________________",
 		"Erhaltene F\xC3\xB6rdermittel: ____________________",
 		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",
 	}
@@ -272,6 +295,7 @@ func (g *Generator) GenerateAnlageSport(projectID int64) (string, error) {
 		title, // heading
 		"Mitgliederzahl: ____________________",
 		"Einnahmen aus Sportbetrieb: ____________________",
+		"Anzahl der Übungsleiter: ____________________",
 		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",
 	}
 	return g.createForm(projectID, "Anlage Sport", lines)
