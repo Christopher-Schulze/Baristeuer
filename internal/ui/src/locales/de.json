@@ -23,6 +23,7 @@
   },
   "expense": {
     "new": "Neue Ausgabe",
+    "add": "Hinzufügen",
     "description": "Beschreibung",
     "amount": "Betrag (€)",
     "required": "Beschreibung und Betrag erforderlich",
