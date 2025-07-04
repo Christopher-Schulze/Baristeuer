@@ -49,9 +49,10 @@ Once the workspace is synced, run the test suite from the repository root:
 go test ./cmd/... ./internal/... ./internal/pdf/...
 ```
 
-Running the command after `go work sync` ensures all workspace modules are
-included and prevents missing dependency errors. With Go 1.23 or newer you can
-also use `go test ./...`, which traverses all modules listed in `go.work`.
+Run this command from the repository root after executing `go work sync`. It
+ensures all workspace modules are included and prevents missing dependency
+errors. Future Go releases may support running `go test ./...` across workspace
+modules automatically.
 
 ### Frontend Tests
 To run the React unit tests you must install dependencies first:
