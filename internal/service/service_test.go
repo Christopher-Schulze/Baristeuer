@@ -247,3 +247,13 @@ func TestDataService_InvalidAmounts(t *testing.T) {
 		t.Fatalf("expected invalid amount error, got %v", err)
 	}
 }
+
+func TestValidateAmount(t *testing.T) {
+	if err := validateAmount(10); err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	err := validateAmount(0)
+	if err == nil || !errors.Is(err, ErrInvalidAmount) {
+		t.Fatalf("expected invalid amount error, got %v", err)
+	}
+}
