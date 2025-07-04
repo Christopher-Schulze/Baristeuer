@@ -196,3 +196,25 @@ func TestStore_MemberIndexExists(t *testing.T) {
 		t.Fatalf("members name index not created")
 	}
 }
+
+func TestMemberQueryByName(t *testing.T) {
+	s, err := NewStore(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	m := &Member{Name: "Bob", Email: "bob@example.com", JoinDate: "2024-01-03"}
+	if err := s.CreateMember(m); err != nil {
+		t.Fatal(err)
+	}
+
+	row := s.DB.QueryRow(`SELECT id, name, email, join_date FROM members WHERE name=?`, m.Name)
+	var got Member
+	if err := row.Scan(&got.ID, &got.Name, &got.Email, &got.JoinDate); err != nil {
+		t.Fatal(err)
+	}
+	if got.ID != m.ID || got.Email != m.Email {
+		t.Fatalf("queried member mismatch: %+v vs %+v", got, m)
+	}
+}
