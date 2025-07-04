@@ -7,7 +7,8 @@ import (
 
 // Store wraps a sql.DB instance.
 type Store struct {
-	DB *sql.DB
+	DB   *sql.DB
+	path string
 }
 
 // NewStore opens a SQLite database and ensures tables exist.
@@ -16,13 +17,16 @@ func NewStore(dsn string) (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	s := &Store{DB: db}
+	s := &Store{DB: db, path: dsn}
 	if err := s.init(); err != nil {
 		db.Close()
 		return nil, err
 	}
 	return s, nil
 }
+
+// Path returns the database path used to open the store.
+func (s *Store) Path() string { return s.path }
 
 func (s *Store) init() error {
 	if _, err := s.DB.Exec(`PRAGMA foreign_keys = ON`); err != nil {
