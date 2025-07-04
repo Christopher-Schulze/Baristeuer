@@ -1,0 +1,69 @@
+{
+  "theme": {"dark": "Dunkel", "light": "Hell"},
+  "tab": {
+    "projects": "Projekte",
+    "incomes": "Einnahmen",
+    "expenses": "Ausgaben",
+    "forms": "Formulare",
+    "taxes": "Steuern"
+  },
+  "income": {
+    "new": "Neue Einnahme",
+    "add": "Hinzufügen",
+    "source": "Quelle",
+    "amount": "Betrag (€)",
+    "required": "Quelle und Betrag erforderlich",
+    "positive": "Betrag muss eine positive Zahl sein",
+    "table": {
+      "source": "Quelle",
+      "amount": "Betrag (€)",
+      "actions": "Aktionen",
+      "empty": "Keine Einnahmen vorhanden"
+    }
+  },
+  "expense": {
+    "new": "Neue Ausgabe",
+    "description": "Beschreibung",
+    "amount": "Betrag (€)",
+    "required": "Beschreibung und Betrag erforderlich",
+    "positive": "Betrag muss eine positive Zahl sein",
+    "table": {
+      "description": "Beschreibung",
+      "amount": "Betrag (€)",
+      "actions": "Aktionen",
+      "empty": "Keine Ausgaben vorhanden"
+    }
+  },
+  "project": {
+    "new": "Neues Projekt",
+    "create": "Erstellen",
+    "error": "Fehler beim Erstellen",
+    "delete": "Löschen"
+  },
+  "forms": {
+    "generate_all": "Alle Formulare erstellen",
+    "error": "Fehler beim Erstellen"
+  },
+  "form": {
+    "generate": "Erstellen",
+    "kst1": "KSt 1",
+    "anlageGem": "Anlage Gem",
+    "anlageGK": "Anlage GK",
+    "kst1f": "KSt 1F",
+    "anlageSport": "Anlage Sport"
+  },
+  "tax": {
+    "calculate": "Steuern berechnen",
+    "revenue": "Einnahmen: {{value}} €",
+    "expenses": "Ausgaben: {{value}} €",
+    "taxableIncome": "Steuerpflichtiges Einkommen: {{value}} €",
+    "totalTax": "Gesamtsteuer: {{value}} €",
+    "error": "Fehler bei Berechnung"
+  },
+  "language": "Sprache",
+  "language_de": "Deutsch",
+  "language_en": "Englisch",
+  "edit": "Bearbeiten",
+  "delete": "Löschen",
+  "add_error": "Fehler beim Hinzufügen"
+}

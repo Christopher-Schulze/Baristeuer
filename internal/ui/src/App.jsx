@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { CssBaseline, Container, FormControlLabel, Switch, AppBar, Toolbar, Typography, Tabs, Tab, Paper } from "@mui/material";
+import { CssBaseline, Container, FormControlLabel, Switch, AppBar, Toolbar, Typography, Tabs, Tab, Paper, Select, MenuItem } from "@mui/material";
+import { useTranslation } from "react-i18next";
+import "./i18n";
 import { ListExpenses, ListIncomes, AddIncome, UpdateIncome, DeleteIncome, AddExpense, UpdateExpense, DeleteExpense } from "./wailsjs/go/service/DataService";
 import ProjectPanel from "./components/ProjectPanel";
 import IncomeForm from "./components/IncomeForm";
@@ -18,6 +20,8 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [tab, setTab] = useState(1);
   const [projectId, setProjectId] = useState(1);
+  const { t, i18n } = useTranslation();
+  const [language, setLanguage] = useState(i18n.language);
 
   const theme = createTheme({
     palette: {
@@ -36,6 +40,12 @@ export default function App() {
     setIncomes(list || []);
   };
 
+  const handleLanguageChange = (e) => {
+    const lng = e.target.value;
+    i18n.changeLanguage(lng);
+    setLanguage(lng);
+  };
+
   useEffect(() => {
     fetchExpenses();
     fetchIncomes();
@@ -52,7 +62,7 @@ export default function App() {
       setError("");
       fetchIncomes();
     } catch (err) {
-      setError(err.message || "Fehler beim Hinzufügen");
+      setError(err.message || t('add_error'));
     }
   };
 
@@ -67,7 +77,7 @@ export default function App() {
       setError("");
       fetchExpenses();
     } catch (err) {
-      setError(err.message || "Fehler beim Hinzufügen");
+      setError(err.message || t('add_error'));
     }
   };
 
@@ -79,17 +89,27 @@ export default function App() {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Baristeuer
           </Typography>
+          <Select
+            value={language}
+            onChange={handleLanguageChange}
+            size="small"
+            sx={{ mr: 2, color: 'inherit' }}
+            variant="standard"
+          >
+            <MenuItem value="de">DE</MenuItem>
+            <MenuItem value="en">EN</MenuItem>
+          </Select>
           <FormControlLabel
             control={<Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} color="default" />}
-            label={darkMode ? "Dunkel" : "Hell"}
+            label={darkMode ? t('theme.dark') : t('theme.light')}
           />
         </Toolbar>
         <Tabs value={tab} onChange={(_, v) => setTab(v)} textColor="inherit" indicatorColor="secondary" centered>
-          <Tab label="Projekte" />
-          <Tab label="Einnahmen" />
-          <Tab label="Ausgaben" />
-          <Tab label="Formulare" />
-          <Tab label="Steuern" />
+          <Tab label={t('tab.projects')} />
+          <Tab label={t('tab.incomes')} />
+          <Tab label={t('tab.expenses')} />
+          <Tab label={t('tab.forms')} />
+          <Tab label={t('tab.taxes')} />
         </Tabs>
       </AppBar>
       <Container maxWidth="md" sx={{ py: 4 }}>
@@ -100,7 +120,7 @@ export default function App() {
           <>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" component="h2" gutterBottom>
-                Neue Einnahme
+                {t('income.new')}
               </Typography>
               <IncomeForm onSubmit={submitIncome} editItem={editIncome} />
             </Paper>
@@ -120,7 +140,7 @@ export default function App() {
           <>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" component="h2" gutterBottom>
-                Neue Ausgabe
+                {t('expense.new')}
               </Typography>
               <ExpenseForm onSubmit={submitExpense} editItem={editExpense} />
             </Paper>

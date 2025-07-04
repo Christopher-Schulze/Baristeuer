@@ -8,6 +8,7 @@ import {
   Alert,
 } from "@mui/material";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   GenerateAllForms,
   GenerateAnlageGem,
@@ -19,12 +20,13 @@ import {
 
 export default function FormsPanel({ projectId }) {
   const [error, setError] = useState("");
+  const { t } = useTranslation();
 
   const handleGenerate = async (fn) => {
     try {
       await fn(projectId);
     } catch (err) {
-      setError(err.message || "Fehler beim Erstellen");
+      setError(err.message || t('forms.error'));
     }
   };
 
@@ -38,18 +40,18 @@ export default function FormsPanel({ projectId }) {
             color="secondary"
             onClick={() => handleGenerate(GenerateAllForms)}
           >
-            Alle Formulare erstellen
+            {t('forms.generate_all')}
           </Button>
         </Grid>
         <Grid item xs={12} sm={6}>
           <Card>
             <CardContent>
-              <Typography gutterBottom>KSt 1</Typography>
+              <Typography gutterBottom>{t('form.kst1')}</Typography>
               <Button
                 variant="outlined"
                 onClick={() => handleGenerate(GenerateKSt1)}
               >
-                Erstellen
+                {t('form.generate')}
               </Button>
             </CardContent>
           </Card>
@@ -57,12 +59,12 @@ export default function FormsPanel({ projectId }) {
         <Grid item xs={12} sm={6}>
           <Card>
             <CardContent>
-              <Typography gutterBottom>Anlage Gem</Typography>
+              <Typography gutterBottom>{t('form.anlageGem')}</Typography>
               <Button
                 variant="outlined"
                 onClick={() => handleGenerate(GenerateAnlageGem)}
               >
-                Erstellen
+                {t('form.generate')}
               </Button>
             </CardContent>
           </Card>
@@ -70,12 +72,12 @@ export default function FormsPanel({ projectId }) {
         <Grid item xs={12} sm={6}>
           <Card>
             <CardContent>
-              <Typography gutterBottom>Anlage GK</Typography>
+              <Typography gutterBottom>{t('form.anlageGK')}</Typography>
               <Button
                 variant="outlined"
                 onClick={() => handleGenerate(GenerateAnlageGK)}
               >
-                Erstellen
+                {t('form.generate')}
               </Button>
             </CardContent>
           </Card>
@@ -83,12 +85,12 @@ export default function FormsPanel({ projectId }) {
         <Grid item xs={12} sm={6}>
           <Card>
             <CardContent>
-              <Typography gutterBottom>KSt 1F</Typography>
+              <Typography gutterBottom>{t('form.kst1f')}</Typography>
               <Button
                 variant="outlined"
                 onClick={() => handleGenerate(GenerateKSt1F)}
               >
-                Erstellen
+                {t('form.generate')}
               </Button>
             </CardContent>
           </Card>
@@ -96,12 +98,12 @@ export default function FormsPanel({ projectId }) {
         <Grid item xs={12} sm={6}>
           <Card>
             <CardContent>
-              <Typography gutterBottom>Anlage Sport</Typography>
+              <Typography gutterBottom>{t('form.anlageSport')}</Typography>
               <Button
                 variant="outlined"
                 onClick={() => handleGenerate(GenerateAnlageSport)}
               >
-                Erstellen
+                {t('form.generate')}
               </Button>
             </CardContent>
           </Card>

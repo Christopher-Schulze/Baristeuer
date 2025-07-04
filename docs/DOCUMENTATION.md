@@ -78,9 +78,13 @@ application looks for `config.json` in the working directory. Example:
 
 Command line flags override values from the file.
 
+### Language Selection
+The application starts in German. Use the dropdown in the top toolbar to switch between German and English at any time.
+
 ## Key Features
 
 - **React + Material UI Interface**: UI built with React components styled using Material UI.
+- **Multi-language Support**: Interface available in German and English. Change the language via the toolbar dropdown.
 - **PDF Generation**: Creates detailed tax reports in PDF format for submission to the German tax office.
 - **SQLite Storage**: Simple persistence layer to store project data.
 - **Member Tracking**: Manage club members with names, emails and join dates.

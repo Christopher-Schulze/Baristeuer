@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { vi, beforeEach } from 'vitest';
 import App from './App';
+import './i18n';
 
 // mock the DataService module used by App
 vi.mock('./wailsjs/go/service/DataService', () => ({
