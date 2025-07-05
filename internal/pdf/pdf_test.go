@@ -53,7 +53,7 @@ func TestGenerateReport(t *testing.T) {
 
 	cfg := config.Config{TaxYear: 2026}
 	g := NewGenerator(dir, store, &cfg)
-	path, err := g.GenerateReport(proj.ID)
+	path, err := g.GenerateReport(ctx, proj.ID)
 	if err != nil {
 		t.Fatalf("GenerateReport failed: %v", err)
 	}
@@ -101,7 +101,7 @@ func TestFormGeneration(t *testing.T) {
 
 	files := []struct {
 		name     string
-		fn       func(int64) (string, error)
+		fn       func(context.Context, int64) (string, error)
 		expected []string
 	}{
 		{"kst1", g.GenerateKSt1, []string{"Einnahmen gesamt", "100.00", "Ausgaben gesamt", "2026"}},
@@ -111,7 +111,7 @@ func TestFormGeneration(t *testing.T) {
 		{"sport", g.GenerateAnlageSport, []string{"Mitgliederzahl", "1", "Einnahmen aus Sportbetrieb"}},
 	}
 	for _, f := range files {
-		path, err := f.fn(proj.ID)
+		path, err := f.fn(ctx, proj.ID)
 		if err != nil {
 			t.Fatalf("%s failed: %v", f.name, err)
 		}
@@ -134,7 +134,7 @@ func TestFormGeneration(t *testing.T) {
 	}
 
 	// test GenerateAllForms
-	paths, err := g.GenerateAllForms(proj.ID)
+	paths, err := g.GenerateAllForms(ctx, proj.ID)
 	if err != nil {
 		t.Fatalf("GenerateAllForms failed: %v", err)
 	}
@@ -181,7 +181,7 @@ func TestGenerateReportCombinations(t *testing.T) {
 			}
 
 			g := NewGenerator(dir, store, &config.Config{})
-			path, err := g.GenerateReport(proj.ID)
+			path, err := g.GenerateReport(ctx, proj.ID)
 			if err != nil {
 				t.Fatalf("GenerateReport failed: %v", err)
 			}

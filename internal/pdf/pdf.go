@@ -116,8 +116,7 @@ func tableRow(pdf *gofpdf.Fpdf, widths []float64, values []string) {
 }
 
 // GenerateReport creates a tax report PDF for the given project.
-func (g *Generator) GenerateReport(projectID int64) (string, error) {
-	ctx := context.Background()
+func (g *Generator) GenerateReport(ctx context.Context, projectID int64) (string, error) {
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {
 		return "", fmt.Errorf("fetch revenue: %w", err)
@@ -205,8 +204,7 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 // GenerateKSt1 creates a simplified "KSt 1" form for the given project with
 // layout similar to the official template. The content here is intentionally
 // generic but demonstrates how fields would be positioned in a real form.
-func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
-	ctx := context.Background()
+func (g *Generator) GenerateKSt1(ctx context.Context, projectID int64) (string, error) {
 	p, _ := g.store.GetProject(ctx, projectID)
 	info := g.formInfo()
 	if info.Name == "" && p != nil {
@@ -287,8 +285,7 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 // GenerateAnlageGem creates a simplified "Anlage Gem" form. It mirrors the
 // structure of the official form but uses generic placeholder fields.
 
-func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
-	ctx := context.Background()
+func (g *Generator) GenerateAnlageGem(ctx context.Context, projectID int64) (string, error) {
 	p, _ := g.store.GetProject(ctx, projectID)
 	info := g.formInfo()
 	if info.Name == "" && p != nil {
@@ -371,8 +368,7 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 }
 
 // GenerateAnlageGK creates a placeholder "Anlage GK" form for the given project.
-func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
-	ctx := context.Background()
+func (g *Generator) GenerateAnlageGK(ctx context.Context, projectID int64) (string, error) {
 	p, _ := g.store.GetProject(ctx, projectID)
 	info := g.formInfo()
 	if info.Name == "" && p != nil {
@@ -437,8 +433,7 @@ func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
 }
 
 // GenerateKSt1F creates a placeholder "KSt 1F" form for the given project.
-func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
-	ctx := context.Background()
+func (g *Generator) GenerateKSt1F(ctx context.Context, projectID int64) (string, error) {
 	p, _ := g.store.GetProject(ctx, projectID)
 	info := g.formInfo()
 	if info.Name == "" && p != nil {
@@ -496,8 +491,7 @@ func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
 }
 
 // GenerateAnlageSport creates a placeholder "Anlage Sport" form for the given project.
-func (g *Generator) GenerateAnlageSport(projectID int64) (string, error) {
-	ctx := context.Background()
+func (g *Generator) GenerateAnlageSport(ctx context.Context, projectID int64) (string, error) {
 	p, _ := g.store.GetProject(ctx, projectID)
 	info := g.formInfo()
 	if info.Name == "" && p != nil {
@@ -557,16 +551,16 @@ func (g *Generator) GenerateAnlageSport(projectID int64) (string, error) {
 }
 
 // GenerateAllForms creates all available forms for the given project and returns their paths.
-func (g *Generator) GenerateAllForms(projectID int64) ([]string, error) {
+func (g *Generator) GenerateAllForms(ctx context.Context, projectID int64) ([]string, error) {
 	var paths []string
 
-	report, err := g.GenerateReport(projectID)
+	report, err := g.GenerateReport(ctx, projectID)
 	if err != nil {
 		return nil, err
 	}
 	paths = append(paths, report)
 
-	forms := []func(int64) (string, error){
+	forms := []func(context.Context, int64) (string, error){
 		g.GenerateKSt1,
 		g.GenerateAnlageGem,
 		g.GenerateAnlageGK,
@@ -574,7 +568,7 @@ func (g *Generator) GenerateAllForms(projectID int64) ([]string, error) {
 		g.GenerateAnlageSport,
 	}
 	for _, f := range forms {
-		p, err := f(projectID)
+		p, err := f(ctx, projectID)
 		if err != nil {
 			return nil, err
 		}
