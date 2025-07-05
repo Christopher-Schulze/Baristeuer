@@ -6,7 +6,34 @@ on:
   pull_request:
 
 jobs:
-  build:
+  frontend:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Install frontend deps
+        run: npm ci
+        working-directory: internal/ui
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+        working-directory: internal/ui
+      - name: Lint frontend
+        run: npm run lint
+        working-directory: internal/ui
+      - name: Run frontend tests
+        run: npm test
+        working-directory: internal/ui
+      - name: Run e2e tests
+        run: npm run test:e2e
+        working-directory: internal/ui
+
+  go:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -17,42 +44,14 @@ jobs:
         run: |
           gofmt -w $(git ls-files '*.go')
           git diff --exit-code
-
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-
       - name: Sync Go workspace
         run: go work sync
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: Install frontend deps
-        run: npm ci
-        working-directory: internal/ui
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-        working-directory: internal/ui
-
-      - name: Lint frontend
-        run: npm run lint
-        working-directory: internal/ui
-
-      - name: Run frontend tests
-        run: npm test
-        working-directory: internal/ui
-
-      - name: Run e2e tests
-        run: npm run test:e2e
-        working-directory: internal/ui
-
       - name: Go vet
         run: go vet ./cmd/... ./internal/... ./internal/pdf/...
-
       - name: Go tests
         run: go test ./cmd/... ./internal/... ./internal/pdf/...
+
