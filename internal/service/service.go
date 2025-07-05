@@ -1,6 +1,7 @@
 package service
 
 import (
+	"baristeuer/internal/config"
 	"baristeuer/internal/data"
 	"baristeuer/internal/report"
 	syncsvc "baristeuer/internal/sync"
@@ -23,6 +24,13 @@ func validateAmount(amount float64) error {
 	return nil
 }
 
+func selectSyncClient(cfg *config.Config) syncsvc.Client {
+	if cfg != nil && cfg.CloudUploadURL != "" && cfg.CloudDownloadURL != "" {
+		return syncsvc.NewRemoteClient(cfg.CloudUploadURL, cfg.CloudDownloadURL, cfg.CloudToken)
+	}
+	return syncsvc.NewLocalClient("")
+}
+
 // DataService provides application methods used by the UI.
 type DataService struct {
 	store      *data.Store
@@ -32,7 +40,7 @@ type DataService struct {
 }
 
 // NewDataService creates a new service with the given datastore location.
-func NewDataService(dsn string, logger *slog.Logger, closer io.Closer) (*DataService, error) {
+func NewDataService(dsn string, logger *slog.Logger, closer io.Closer, cfg *config.Config) (*DataService, error) {
 	s, err := data.NewStore(dsn)
 	if err != nil {
 		return nil, fmt.Errorf("create store: %w", err)
@@ -40,16 +48,16 @@ func NewDataService(dsn string, logger *slog.Logger, closer io.Closer) (*DataSer
 	if logger == nil {
 		logger, closer = NewLogger("", "info", "text")
 	}
-	client := syncsvc.NewLocalClient("")
+	client := selectSyncClient(cfg)
 	return &DataService{store: s, logger: logger, logCloser: closer, syncClient: client}, nil
 }
 
 // NewDataServiceFromStore wraps an existing store.
-func NewDataServiceFromStore(store *data.Store, logger *slog.Logger, closer io.Closer) *DataService {
+func NewDataServiceFromStore(store *data.Store, logger *slog.Logger, closer io.Closer, cfg *config.Config) *DataService {
 	if logger == nil {
 		logger, closer = NewLogger("", "info", "text")
 	}
-	client := syncsvc.NewLocalClient("")
+	client := selectSyncClient(cfg)
 	return &DataService{store: store, logger: logger, logCloser: closer, syncClient: client}
 }
 

@@ -13,7 +13,7 @@ import (
 )
 
 func TestDataService_AddIncome(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,7 +44,7 @@ func TestDataService_AddIncome(t *testing.T) {
 }
 
 func TestDataService_UpdateDeleteIncome(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +81,7 @@ func TestDataService_UpdateDeleteIncome(t *testing.T) {
 }
 
 func TestDataService_ListExpenses(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,7 +111,7 @@ func TestDataService_ListExpenses(t *testing.T) {
 }
 
 func TestDataService_UpdateDeleteExpense(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -148,7 +148,7 @@ func TestDataService_UpdateDeleteExpense(t *testing.T) {
 }
 
 func TestDataService_CalculateProjectTaxes(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -209,7 +209,7 @@ func TestDataService_GenerateStatistics(t *testing.T) {
 }
 
 func TestDataService_MemberOperations(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -235,7 +235,7 @@ func TestDataService_MemberOperations(t *testing.T) {
 }
 
 func TestDataService_UpdateDeleteMember(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -268,7 +268,7 @@ func TestDataService_UpdateDeleteMember(t *testing.T) {
 }
 
 func TestDataService_AddIncome_LogOutput(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -289,7 +289,7 @@ func TestDataService_AddIncome_LogOutput(t *testing.T) {
 }
 
 func TestDataService_AddIncome_DatabaseClosed(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -302,7 +302,7 @@ func TestDataService_AddIncome_DatabaseClosed(t *testing.T) {
 }
 
 func TestDataService_ProjectOperations(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -338,7 +338,7 @@ func TestDataService_ProjectOperations(t *testing.T) {
 }
 
 func TestDataService_InvalidAmounts(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -382,7 +382,7 @@ func TestDataService_LoggerClosed(t *testing.T) {
 	if closer == nil {
 		t.Fatalf("expected closer for log file")
 	}
-	ds, err := NewDataService(":memory:", logger, closer)
+	ds, err := NewDataService(":memory:", logger, closer, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -397,7 +397,7 @@ func TestDataService_LoggerClosed(t *testing.T) {
 func TestDataService_ExportDatabase(t *testing.T) {
 	tmpDir := t.TempDir()
 	dbPath := filepath.Join(tmpDir, "test.db")
-	ds, err := NewDataService(dbPath, slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(dbPath, slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -419,7 +419,7 @@ func TestDataService_ExportDatabase(t *testing.T) {
 func TestDataService_RestoreDatabase(t *testing.T) {
 	tmpDir := t.TempDir()
 	dbPath := filepath.Join(tmpDir, "orig.db")
-	ds, err := NewDataService(dbPath, slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(dbPath, slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -451,7 +451,7 @@ func TestDataService_RestoreDatabase(t *testing.T) {
 
 func TestDataService_SetLogLevel(t *testing.T) {
 	logger, closer := NewLogger("", "info", "text")
-	ds, err := NewDataService(":memory:", logger, closer)
+	ds, err := NewDataService(":memory:", logger, closer, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -472,7 +472,7 @@ func TestDataService_SetLogFormat(t *testing.T) {
 	tmpDir := t.TempDir()
 	logPath := filepath.Join(tmpDir, "app.log")
 	logger, closer := NewLogger(logPath, "info", "text")
-	ds, err := NewDataService(":memory:", logger, closer)
+	ds, err := NewDataService(":memory:", logger, closer, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -495,7 +495,7 @@ func TestDataService_SetLogFormat(t *testing.T) {
 func TestDataService_ExportProjectCSV(t *testing.T) {
 	tmpDir := t.TempDir()
 	dbPath := filepath.Join(tmpDir, "db.db")
-	ds, err := NewDataService(dbPath, slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(dbPath, slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -524,7 +524,7 @@ func TestDataService_ExportProjectCSV(t *testing.T) {
 }
 
 func TestDataService_ContextCancellation(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -549,7 +549,7 @@ func TestDataService_ContextCancellation(t *testing.T) {
 func TestDataService_ExportRestoreCycle(t *testing.T) {
 	tmpDir := t.TempDir()
 	dbPath := filepath.Join(tmpDir, "db.db")
-	ds, err := NewDataService(dbPath, slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(dbPath, slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -95,7 +95,7 @@ func main() {
 
 	logger, logCloser := service.NewLogger(cfg.LogFile, cfg.LogLevel, cfg.LogFormat)
 	generator := pdf.NewGenerator(cfg.PDFDir, store, &cfg)
-	datasvc := service.NewDataServiceFromStore(store, logger, logCloser)
+	datasvc := service.NewDataServiceFromStore(store, logger, logCloser, &cfg)
 	defer datasvc.Close()
 
 	// Load optional runtime plugins from ./plugins if available.

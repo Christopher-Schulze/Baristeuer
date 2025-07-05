@@ -8,7 +8,7 @@ import (
 )
 
 func benchmarkAddIncome(b *testing.B, n int) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -32,7 +32,7 @@ func BenchmarkAddIncomeMass1e2(b *testing.B) { benchmarkAddIncome(b, 100) }
 func BenchmarkAddIncomeMass1e3(b *testing.B) { benchmarkAddIncome(b, 1000) }
 
 func benchmarkAddExpense(b *testing.B, n int) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		b.Fatal(err)
 	}

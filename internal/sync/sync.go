@@ -5,6 +5,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"baristeuer/internal/cloud"
 )
 
 // Client defines upload and download operations for the database.
@@ -54,4 +56,20 @@ func (c *LocalClient) Upload(ctx context.Context, src string) error {
 func (c *LocalClient) Download(ctx context.Context, dest string) error {
 	src := filepath.Join(c.BaseDir, filepath.Base(dest))
 	return copyFile(src, dest)
+}
+
+// RemoteClient wraps a cloud.Client implementing the Client interface.
+type RemoteClient struct{ c *cloud.Client }
+
+// NewRemoteClient constructs a RemoteClient for the given endpoints and token.
+func NewRemoteClient(uploadURL, downloadURL, token string) *RemoteClient {
+	return &RemoteClient{c: cloud.NewClient(uploadURL, downloadURL, token)}
+}
+
+func (c *RemoteClient) Upload(ctx context.Context, src string) error {
+	return c.c.Upload(ctx, src)
+}
+
+func (c *RemoteClient) Download(ctx context.Context, dest string) error {
+	return c.c.Download(ctx, dest)
 }
