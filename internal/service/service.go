@@ -200,6 +200,16 @@ func (ds *DataService) AddMember(ctx context.Context, name, email, joinDate stri
 	return m, nil
 }
 
+// UpdateMember updates an existing member.
+func (ds *DataService) UpdateMember(ctx context.Context, id int64, name, email, joinDate string) error {
+	m := &data.Member{ID: id, Name: name, Email: email, JoinDate: joinDate}
+	if err := ds.store.UpdateMember(ctx, m); err != nil {
+		return fmt.Errorf("update member: %w", err)
+	}
+	ds.logger.Info("updated member", "id", id)
+	return nil
+}
+
 // ListMembers returns all members sorted by name.
 func (ds *DataService) ListMembers(ctx context.Context) ([]data.Member, error) {
 	members, err := ds.store.ListMembers(ctx)

@@ -159,11 +159,12 @@ func TestMemberCRUD(t *testing.T) {
 	}
 
 	m.Name = "Alice Smith"
+	m.JoinDate = "2024-02-01"
 	if err := s.UpdateMember(ctx, m); err != nil {
 		t.Fatal(err)
 	}
 	got, _ = s.GetMember(ctx, m.ID)
-	if got.Name != "Alice Smith" {
+	if got.Name != "Alice Smith" || got.JoinDate != "2024-02-01" {
 		t.Fatalf("update failed")
 	}
 
