@@ -26,7 +26,6 @@
     "add": "Add",
     "description": "Description",
     "amount": "Amount (€)",
-    "add": "Add",
     "required": "Description and amount required",
     "positive": "Amount must be a positive number",
     "table": {
@@ -60,6 +59,7 @@
     "expenses": "Expenses: {{value}} €",
     "taxableIncome": "Taxable income: {{value}} €",
     "totalTax": "Total tax: {{value}} €",
+    "year": "Year",
     "error": "Error calculating"
   },
   "language": "Language",

@@ -26,7 +26,6 @@
     "add": "Hinzufügen",
     "description": "Beschreibung",
     "amount": "Betrag (€)",
-    "add": "Hinzufügen",
     "required": "Beschreibung und Betrag erforderlich",
     "positive": "Betrag muss eine positive Zahl sein",
     "table": {
@@ -60,6 +59,7 @@
     "expenses": "Ausgaben: {{value}} €",
     "taxableIncome": "Steuerpflichtiges Einkommen: {{value}} €",
     "totalTax": "Gesamtsteuer: {{value}} €",
+    "year": "Jahr",
     "error": "Fehler bei Berechnung"
   },
   "language": "Sprache",
