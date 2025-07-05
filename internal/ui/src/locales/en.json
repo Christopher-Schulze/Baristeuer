@@ -2,6 +2,7 @@
   "theme": {"dark": "Dark", "light": "Light"},
   "tab": {
     "projects": "Projects",
+    "members": "Members",
     "incomes": "Income",
     "expenses": "Expenses",
     "forms": "Forms",
@@ -40,6 +41,21 @@
     "create": "Create",
     "error": "Error creating",
     "delete": "Delete"
+  },
+  "member": {
+    "new": "New Member",
+    "add": "Add",
+    "name": "Name",
+    "email": "Email",
+    "joinDate": "Join Date",
+    "required": "Name and email required",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "joinDate": "Join Date",
+      "actions": "Actions",
+      "empty": "No members recorded"
+    }
   },
   "forms": {
     "generate_all": "Generate All Forms",

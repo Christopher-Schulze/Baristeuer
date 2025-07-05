@@ -57,3 +57,15 @@ export function ListIncomes(arg1) {
 export function CalculateProjectTaxes(arg1, arg2) {
   return window.go.service.DataService.CalculateProjectTaxes(arg1, arg2);
 }
+
+export function AddMember(arg1, arg2, arg3) {
+  return window.go.service.DataService.AddMember(arg1, arg2, arg3);
+}
+
+export function ListMembers() {
+  return window.go.service.DataService.ListMembers();
+}
+
+export function DeleteMember(arg1) {
+  return window.go.service.DataService.DeleteMember(arg1);
+}

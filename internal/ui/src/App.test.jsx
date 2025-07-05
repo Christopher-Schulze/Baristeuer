@@ -19,6 +19,9 @@ vi.mock('./wailsjs/go/service/DataService', () => ({
   UpdateIncome: vi.fn(),
   DeleteIncome: vi.fn(),
   ListIncomes: vi.fn(),
+  AddMember: vi.fn(),
+  ListMembers: vi.fn(),
+  DeleteMember: vi.fn(),
   CalculateProjectTaxes: vi.fn(),
 }), { virtual: true });
 
@@ -37,6 +40,9 @@ import {
   UpdateIncome,
   DeleteIncome,
   ListIncomes,
+  AddMember,
+  ListMembers,
+  DeleteMember,
   CalculateProjectTaxes,
 } from './wailsjs/go/service/DataService';
 
@@ -47,6 +53,7 @@ beforeEach(() => {
 test('renders app heading', async () => {
   ListExpenses.mockResolvedValueOnce([]);
   ListIncomes.mockResolvedValueOnce([]);
+  ListMembers.mockResolvedValueOnce([]);
   render(<App />);
   expect(await screen.findByRole('heading', { name: /Baristeuer/i })).toBeInTheDocument();
 });
@@ -56,6 +63,7 @@ test('renders app heading', async () => {
 test('adds a new income', async () => {
   ListExpenses.mockResolvedValueOnce([]);
   ListIncomes.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 1, source: 'Donation', amount: 50 }]);
+  ListMembers.mockResolvedValueOnce([]);
   AddIncome.mockResolvedValueOnce();
   render(<App />);
   await screen.findByRole('heading', { name: /Baristeuer/i });
@@ -74,6 +82,7 @@ test('adds a new income', async () => {
 test('shows error when adding income fails', async () => {
   ListExpenses.mockResolvedValueOnce([]);
   ListIncomes.mockResolvedValueOnce([]);
+  ListMembers.mockResolvedValueOnce([]);
   AddIncome.mockRejectedValueOnce(new Error('fail'));
   render(<App />);
   await screen.findByRole('heading', { name: /Baristeuer/i });
@@ -90,6 +99,7 @@ test('shows error when adding income fails', async () => {
 test('edits an income', async () => {
   ListExpenses.mockResolvedValueOnce([]);
   ListIncomes.mockResolvedValueOnce([{ id: 1, source: 'Old', amount: 10 }]).mockResolvedValueOnce([{ id: 1, source: 'New', amount: 20 }]);
+  ListMembers.mockResolvedValueOnce([]);
   UpdateIncome.mockResolvedValueOnce();
   render(<App />);
   await screen.findByText('Old');
@@ -108,6 +118,7 @@ test('edits an income', async () => {
 test('deletes an income', async () => {
   ListExpenses.mockResolvedValueOnce([]);
   ListIncomes.mockResolvedValueOnce([{ id: 1, source: 'Del', amount: 30 }]).mockResolvedValueOnce([]);
+  ListMembers.mockResolvedValueOnce([]);
   DeleteIncome.mockResolvedValueOnce();
   render(<App />);
   await screen.findByText('Del');
@@ -123,6 +134,7 @@ test('deletes an income', async () => {
 test('adds a new expense', async () => {
   ListIncomes.mockResolvedValueOnce([]);
   ListExpenses.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 1, description: 'Rent', amount: 15 }]);
+  ListMembers.mockResolvedValueOnce([]);
   AddExpense.mockResolvedValueOnce();
   render(<App />);
   await screen.findByRole('heading', { name: /Baristeuer/i });
@@ -142,6 +154,7 @@ test('adds a new expense', async () => {
 test('edits an expense', async () => {
   ListIncomes.mockResolvedValueOnce([]);
   ListExpenses.mockResolvedValueOnce([{ id: 1, description: 'Coffee', amount: 3 }]).mockResolvedValueOnce([{ id: 1, description: 'Tea', amount: 4 }]);
+  ListMembers.mockResolvedValueOnce([]);
   UpdateExpense.mockResolvedValueOnce();
   render(<App />);
   await screen.findByRole('heading', { name: /Baristeuer/i });
@@ -162,6 +175,7 @@ test('edits an expense', async () => {
 test('deletes an expense', async () => {
   ListIncomes.mockResolvedValueOnce([]);
   ListExpenses.mockResolvedValueOnce([{ id: 1, description: 'Coffee', amount: 3 }]).mockResolvedValueOnce([]);
+  ListMembers.mockResolvedValueOnce([]);
   DeleteExpense.mockResolvedValueOnce();
   render(<App />);
   await screen.findByRole('heading', { name: /Baristeuer/i });
@@ -179,6 +193,7 @@ test('deletes an expense', async () => {
 test('shows tax calculation result', async () => {
   ListExpenses.mockResolvedValueOnce([]);
   ListIncomes.mockResolvedValueOnce([]);
+  ListMembers.mockResolvedValueOnce([]);
   CalculateProjectTaxes.mockResolvedValueOnce({ revenue: 100, expenses: 20, taxableIncome: 80, totalTax: 10 });
   render(<App />);
   await screen.findByRole('heading', { name: /Baristeuer/i });
@@ -190,4 +205,43 @@ test('shows tax calculation result', async () => {
   expect(screen.getByText('Ausgaben: 20.00 \u20AC')).toBeInTheDocument();
   expect(screen.getByText('Steuerpflichtiges Einkommen: 80.00 \u20AC')).toBeInTheDocument();
   expect(screen.getByText('Gesamtsteuer: 10.00 \u20AC')).toBeInTheDocument();
+});
+
+// Add member
+
+test('adds a new member', async () => {
+  ListExpenses.mockResolvedValueOnce([]);
+  ListIncomes.mockResolvedValueOnce([]);
+  ListMembers.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 1, name: 'Alice', email: 'a@example.com', joinDate: '2024-01-10' }]);
+  AddMember.mockResolvedValueOnce();
+  render(<App />);
+  await screen.findByRole('heading', { name: /Baristeuer/i });
+
+  fireEvent.click(screen.getByRole('tab', { name: /Mitglieder/i }));
+  fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: 'Alice' } });
+  fireEvent.change(screen.getByLabelText(/E-Mail/i), { target: { value: 'a@example.com' } });
+  fireEvent.change(screen.getByLabelText(/Beitrittsdatum/i), { target: { value: '2024-01-10' } });
+  fireEvent.click(screen.getByRole('button', { name: /Hinzufügen/i }));
+
+  await waitFor(() => expect(AddMember).toHaveBeenCalledWith('Alice', 'a@example.com', '2024-01-10'));
+  expect(await screen.findByText('Alice')).toBeInTheDocument();
+});
+
+// Delete member
+
+test('deletes a member', async () => {
+  ListExpenses.mockResolvedValueOnce([]);
+  ListIncomes.mockResolvedValueOnce([]);
+  ListMembers.mockResolvedValueOnce([{ id: 1, name: 'Bob', email: 'b@example.com', joinDate: '2024-01-05' }]).mockResolvedValueOnce([]);
+  DeleteMember.mockResolvedValueOnce();
+  render(<App />);
+  await screen.findByRole('heading', { name: /Baristeuer/i });
+
+  fireEvent.click(screen.getByRole('tab', { name: /Mitglieder/i }));
+  await screen.findByText('Bob');
+
+  fireEvent.click(screen.getByRole('button', { name: /Löschen/i }));
+
+  await waitFor(() => expect(DeleteMember).toHaveBeenCalledWith(1));
+  await waitFor(() => expect(screen.queryByText('Bob')).not.toBeInTheDocument());
 });

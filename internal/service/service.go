@@ -197,12 +197,21 @@ func (ds *DataService) AddMember(ctx context.Context, name, email, joinDate stri
 
 // ListMembers returns all members sorted by name.
 func (ds *DataService) ListMembers(ctx context.Context) ([]data.Member, error) {
-	members, err := ds.store.ListMembers(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("list members: %w", err)
-	}
-	ds.logger.Info("listed members", "count", len(members))
-	return members, nil
+        members, err := ds.store.ListMembers(ctx)
+        if err != nil {
+                return nil, fmt.Errorf("list members: %w", err)
+        }
+        ds.logger.Info("listed members", "count", len(members))
+        return members, nil
+}
+
+// DeleteMember removes a member by ID.
+func (ds *DataService) DeleteMember(ctx context.Context, id int64) error {
+        if err := ds.store.DeleteMember(ctx, id); err != nil {
+                return fmt.Errorf("delete member: %w", err)
+        }
+        ds.logger.Info("deleted member", "id", id)
+        return nil
 }
 
 // CalculateProjectTaxes returns a detailed tax calculation for the given project.
