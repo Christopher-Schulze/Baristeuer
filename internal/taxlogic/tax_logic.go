@@ -1,6 +1,10 @@
 package taxlogic
 
-import "time"
+import (
+	"encoding/json"
+	"os"
+	"time"
+)
 
 // TaxConfig holds the constants for a given tax year.
 type TaxConfig struct {
@@ -8,6 +12,20 @@ type TaxConfig struct {
 	ProfitAllowance         float64
 	CorporateTaxRate        float64
 	SolidaritySurchargeRate float64
+}
+
+// LoadConfig reads tax parameters from a JSON file.
+func LoadConfig(path string) (TaxConfig, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return TaxConfig{}, err
+	}
+	defer f.Close()
+	var cfg TaxConfig
+	if err := json.NewDecoder(f).Decode(&cfg); err != nil {
+		return TaxConfig{}, err
+	}
+	return cfg, nil
 }
 
 // DefaultConfig2025 returns the tax configuration for the year 2025.
@@ -30,9 +48,21 @@ func DefaultConfig2026() TaxConfig {
 	}
 }
 
+// DefaultConfig2027 returns the tax configuration for the year 2027.
+func DefaultConfig2027() TaxConfig {
+	return TaxConfig{
+		RevenueExemptionLimit:   45000.00,
+		ProfitAllowance:         5000.00,
+		CorporateTaxRate:        0.15,
+		SolidaritySurchargeRate: 0.055,
+	}
+}
+
 // defaultConfig returns the configuration for the given year, falling back to 2025.
 func defaultConfig(year int) TaxConfig {
 	switch year {
+	case 2027:
+		return DefaultConfig2027()
 	case 2026:
 		return DefaultConfig2026()
 	case 2025:
