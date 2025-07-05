@@ -16,6 +16,7 @@
     "restore": "Datenbank wiederherstellen",
     "csv": "Projekt-CSV exportieren",
     "select_log": "Log-Level",
+    "log_format": "Log-Format",
     "apply": "Anwenden",
     "exported": "Datenbank exportiert",
     "restored": "Datenbank wiederhergestellt",

@@ -322,7 +322,7 @@ func TestValidateAmount(t *testing.T) {
 func TestDataService_LoggerClosed(t *testing.T) {
 	tmpDir := t.TempDir()
 	logPath := filepath.Join(tmpDir, "app.log")
-	logger, closer := NewLogger(logPath, "info")
+	logger, closer := NewLogger(logPath, "info", "text")
 	if closer == nil {
 		t.Fatalf("expected closer for log file")
 	}
@@ -394,7 +394,7 @@ func TestDataService_RestoreDatabase(t *testing.T) {
 }
 
 func TestDataService_SetLogLevel(t *testing.T) {
-	logger, closer := NewLogger("", "info")
+	logger, closer := NewLogger("", "info", "text")
 	ds, err := NewDataService(":memory:", logger, closer)
 	if err != nil {
 		t.Fatal(err)

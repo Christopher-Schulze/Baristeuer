@@ -16,6 +16,7 @@
     "restore": "Restore Database",
     "csv": "Export Project CSV",
     "select_log": "Log Level",
+    "log_format": "Log Format",
     "apply": "Apply",
     "exported": "Database exported",
     "restored": "Database restored",

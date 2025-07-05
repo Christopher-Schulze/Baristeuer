@@ -2,5 +2,6 @@
   "dbPath": "baristeuer.db",
   "pdfDir": "./internal/data/reports",
   "logFile": "baristeuer.log",
-  "logLevel": "info"
+  "logLevel": "info",
+  "logFormat": "text"
 }

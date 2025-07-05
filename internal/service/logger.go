@@ -25,7 +25,7 @@ func parseLevel(level string) slog.Level {
 
 // NewLogger creates a slog.Logger writing to the given file.
 // If logFile is empty, logs are written to stdout.
-func NewLogger(logFile, level string) (*slog.Logger, io.Closer) {
+func NewLogger(logFile, level, format string) (*slog.Logger, io.Closer) {
 	var w io.Writer = os.Stdout
 	var c io.Closer
 	if logFile != "" {
@@ -40,7 +40,12 @@ func NewLogger(logFile, level string) (*slog.Logger, io.Closer) {
 		c = lj
 	}
 	logLevelVar.Set(parseLevel(level))
-	h := slog.NewTextHandler(w, &slog.HandlerOptions{Level: logLevelVar})
+	var h slog.Handler
+	if strings.ToLower(format) == "json" {
+		h = slog.NewJSONHandler(w, &slog.HandlerOptions{Level: logLevelVar})
+	} else {
+		h = slog.NewTextHandler(w, &slog.HandlerOptions{Level: logLevelVar})
+	}
 	return slog.New(h), c
 }
 
