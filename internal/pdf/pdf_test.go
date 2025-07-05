@@ -86,16 +86,12 @@ func TestFormGeneration(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	g := NewGenerator(dir, store)
-	info := FormInfo{
-		Name:        "Testverein",
-		TaxNumber:   "11/111/11111",
-		Address:     "Hauptstr. 1",
-		City:        "Musterstadt",
-		BankAccount: "DE00 0000 0000 0000 0000 00",
-		Activity:    "Sport",
-		FiscalYear:  "2025",
-	}
+	g := NewGenerator(dir, store, nil)
+	g.cfg.FormName = "Testverein"
+	g.cfg.FormTaxNumber = "11/111/11111"
+	g.cfg.FormAddress = "Hauptstr. 1"
+	g.SetTaxYear(2025)
+	g.SetTaxYear(2025)
 
 	files := []struct {
 		name     string
