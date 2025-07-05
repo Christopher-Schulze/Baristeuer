@@ -27,3 +27,14 @@ test('submits valid data', async () => {
   fireEvent.click(screen.getByRole('button', { name: /Hinzufügen/i }));
   expect(onSubmit).toHaveBeenCalled();
 });
+
+test('shows submit error', async () => {
+  onSubmit.mockImplementation(async (_d, _a, setErr) => {
+    setErr('fail');
+  });
+  render(<ExpenseForm onSubmit={onSubmit} />);
+  fireEvent.change(screen.getByLabelText(/Beschreibung/i), { target: { value: 'X' } });
+  fireEvent.change(screen.getByLabelText(/Betrag/i), { target: { value: '1' } });
+  fireEvent.click(screen.getByRole('button', { name: /Hinzufügen/i }));
+  expect(await screen.findByText('fail')).toBeInTheDocument();
+});

@@ -26,9 +26,11 @@ export default function App() {
   const [projectId, setProjectId] = useState(1);
   const { t, i18n } = useTranslation();
   const [language, setLanguage] = useState(i18n.language);
-  const [error, setError] = useState("");
-  const handleError = (err, key = 'errors.add') => {
-    setError(err.message || t(key));
+  const [incomeError, setIncomeError] = useState("");
+  const [expenseError, setExpenseError] = useState("");
+  const [memberError, setMemberError] = useState("");
+  const handleError = (err, setter, key = 'errors.add') => {
+    setter(err.message || t(key));
   };
 
   const theme = createTheme({
@@ -77,7 +79,7 @@ export default function App() {
       setError("");
       fetchIncomes();
     } catch (err) {
-      handleError(err);
+      handleError(err, setIncomeError);
     }
   };
 
@@ -92,7 +94,7 @@ export default function App() {
       setError("");
       fetchExpenses();
     } catch (err) {
-      handleError(err);
+      handleError(err, setExpenseError);
     }
   };
 
@@ -102,7 +104,7 @@ export default function App() {
       setError("");
       fetchMembers();
     } catch (err) {
-      handleError(err);
+      handleError(err, setMemberError);
     }
   };
 
@@ -214,9 +216,19 @@ export default function App() {
           </Paper>
         )}
       </Container>
-      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError('')}>
-        <Alert severity="error" onClose={() => setError('')}>
-          {error}
+      <Snackbar open={!!incomeError} autoHideDuration={6000} onClose={() => setIncomeError('')}>
+        <Alert severity="error" onClose={() => setIncomeError('')}>
+          {incomeError}
+        </Alert>
+      </Snackbar>
+      <Snackbar open={!!expenseError} autoHideDuration={6000} onClose={() => setExpenseError('')}>
+        <Alert severity="error" onClose={() => setExpenseError('')}>
+          {expenseError}
+        </Alert>
+      </Snackbar>
+      <Snackbar open={!!memberError} autoHideDuration={6000} onClose={() => setMemberError('')}>
+        <Alert severity="error" onClose={() => setMemberError('')}>
+          {memberError}
         </Alert>
       </Snackbar>
     </ThemeProvider>

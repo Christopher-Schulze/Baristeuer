@@ -60,4 +60,14 @@ test('deletes a project', async () => {
   await waitFor(() => expect(screen.queryByText('Alpha')).not.toBeInTheDocument());
 });
 
+test('shows create error', async () => {
+  ListProjects.mockResolvedValueOnce([]);
+  CreateProject.mockRejectedValueOnce(new Error('fail'));
+  render(<ProjectPanel activeId={0} />);
+  await screen.findByRole('textbox', { name: /Neues Projekt/i });
+  fireEvent.change(screen.getByLabelText(/Neues Projekt/i), { target: { value: 'Foo' } });
+  fireEvent.click(screen.getByRole('button', { name: /Erstellen/i }));
+  expect(await screen.findByText('fail')).toBeInTheDocument();
+});
+
 
