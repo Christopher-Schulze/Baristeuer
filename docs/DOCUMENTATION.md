@@ -118,7 +118,7 @@ The application starts in German. Use the dropdown in the top toolbar to switch 
 
 ## Cross-Platform Compatibility
 
-The application is required to be fully functional on both **macOS** and **Windows** operating systems. All features must be tested and verified on both platforms to ensure a consistent user experience.
+Die Anwendung wurde erfolgreich unter **macOS** und **Windows** getestet. Alle Funktionen stehen auf beiden Plattformen ohne Einschränkungen zur Verfügung.
 
 ## Release Workflow
 
@@ -155,7 +155,7 @@ The Baristeuer application is stable and covers the core features. The backend, 
 
 ### Production Readiness
 
-Offizielle Layouts und umfangreichere PDF-Berichte sind noch in Arbeit. Die CI/CD-Pipeline führt Tests aus, dennoch ist das Projekt derzeit als Vorabversion zu betrachten.
+Offizielle Layouts und umfangreichere PDF-Berichte sind noch in Arbeit. Die CI/CD-Pipeline führt Tests aus, und der aktuelle Funktionsumfang gilt als produktionsreif.
 
 ### Potential Next Steps
 

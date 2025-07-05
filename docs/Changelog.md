@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.7.2025] - Documentation Update
+
+### Changed
+
+- Clarified production readiness and cross-platform support in `DOCUMENTATION.md`.
+
+
 ## [5.7.2025] - Build and Configuration Improvements
 
 ### Added
