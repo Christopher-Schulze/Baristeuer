@@ -63,7 +63,9 @@ func NewGenerator(basePath string, store *data.Store, cfg *config.Config) *Gener
 		cfg = &config.Config{}
 	}
 	if basePath == "" {
-		if cfg.PDFDir != "" {
+		if env := os.Getenv("BARISTEUER_PDFDIR"); env != "" {
+			basePath = env
+		} else if cfg.PDFDir != "" {
 			basePath = cfg.PDFDir
 		} else {
 			basePath = config.DefaultConfig.PDFDir
