@@ -231,3 +231,36 @@ func TestMemberQueryByName(t *testing.T) {
 		t.Fatalf("queried member mismatch: %+v vs %+v", got, m)
 	}
 }
+
+func TestCreateProjectDuplicate(t *testing.T) {
+	s, err := NewStore(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	ctx := context.Background()
+	p1 := &Project{Name: "Dup"}
+	if err := s.CreateProject(ctx, p1); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.CreateProject(ctx, &Project{Name: "Dup"}); err == nil {
+		t.Fatalf("expected unique constraint error")
+	}
+}
+
+func TestProjectUpdateDeleteErrors(t *testing.T) {
+	s, err := NewStore(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	ctx := context.Background()
+	if err := s.UpdateProject(ctx, &Project{ID: 99, Name: "x"}); err == nil {
+		t.Fatalf("expected update error")
+	}
+	if err := s.DeleteProject(ctx, 99); err == nil {
+		t.Fatalf("expected delete error")
+	}
+}
