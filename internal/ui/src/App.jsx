@@ -3,22 +3,25 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { CssBaseline, Container, FormControlLabel, Switch, AppBar, Toolbar, Typography, Tabs, Tab, Paper, Select, MenuItem } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import "./i18n";
-import { ListExpenses, ListIncomes, AddIncome, UpdateIncome, DeleteIncome, AddExpense, UpdateExpense, DeleteExpense } from "./wailsjs/go/service/DataService";
+import { ListExpenses, ListIncomes, AddIncome, UpdateIncome, DeleteIncome, AddExpense, UpdateExpense, DeleteExpense, AddMember, ListMembers, DeleteMember } from "./wailsjs/go/service/DataService";
 import ProjectPanel from "./components/ProjectPanel";
 import IncomeForm from "./components/IncomeForm";
 import IncomeTable from "./components/IncomeTable";
 import ExpenseForm from "./components/ExpenseForm";
 import ExpenseTable from "./components/ExpenseTable";
+import MemberForm from "./components/MemberForm";
+import MemberTable from "./components/MemberTable";
 import TaxPanel from "./components/TaxPanel";
 import FormsPanel from "./components/FormsPanel";
 
 export default function App() {
   const [incomes, setIncomes] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [members, setMembers] = useState([]);
   const [editIncome, setEditIncome] = useState(null);
   const [editExpense, setEditExpense] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
-  const [tab, setTab] = useState(1);
+  const [tab, setTab] = useState(2);
   const [projectId, setProjectId] = useState(1);
   const { t, i18n } = useTranslation();
   const [language, setLanguage] = useState(i18n.language);
@@ -39,6 +42,10 @@ export default function App() {
     const list = await ListIncomes(projectId);
     setIncomes(list || []);
   };
+  const fetchMembers = async () => {
+    const list = await ListMembers();
+    setMembers(list || []);
+  };
 
   const handleLanguageChange = (e) => {
     const lng = e.target.value;
@@ -50,6 +57,9 @@ export default function App() {
     fetchExpenses();
     fetchIncomes();
   }, [projectId]);
+  useEffect(() => {
+    fetchMembers();
+  }, []);
 
   const submitIncome = async (source, amount, setError) => {
     try {
@@ -81,6 +91,16 @@ export default function App() {
     }
   };
 
+  const submitMember = async (name, email, joinDate, setError) => {
+    try {
+      await AddMember(name, email, joinDate);
+      setError("");
+      fetchMembers();
+    } catch (err) {
+      setError(err.message || t('add_error'));
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -106,6 +126,7 @@ export default function App() {
         </Toolbar>
         <Tabs value={tab} onChange={(_, v) => setTab(v)} textColor="inherit" indicatorColor="secondary" centered>
           <Tab label={t('tab.projects')} />
+          <Tab label={t('tab.members')} />
           <Tab label={t('tab.incomes')} />
           <Tab label={t('tab.expenses')} />
           <Tab label={t('tab.forms')} />
@@ -117,6 +138,25 @@ export default function App() {
           <ProjectPanel activeId={projectId} onSelect={(id) => setProjectId(id)} />
         )}
         {tab === 1 && (
+          <>
+            <Paper sx={{ p: 3, mb: 4 }}>
+              <Typography variant="h6" component="h2" gutterBottom>
+                {t('member.new')}
+              </Typography>
+              <MemberForm onSubmit={submitMember} />
+            </Paper>
+            <Paper>
+              <MemberTable
+                members={members}
+                onDelete={async (id) => {
+                  await DeleteMember(id);
+                  fetchMembers();
+                }}
+              />
+            </Paper>
+          </>
+        )}
+        {tab === 2 && (
           <>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" component="h2" gutterBottom>
@@ -136,7 +176,7 @@ export default function App() {
             </Paper>
           </>
         )}
-        {tab === 2 && (
+        {tab === 3 && (
           <>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" component="h2" gutterBottom>
@@ -156,8 +196,8 @@ export default function App() {
             </Paper>
           </>
         )}
-        {tab === 3 && <FormsPanel projectId={projectId} />}
-        {tab === 4 && (
+        {tab === 4 && <FormsPanel projectId={projectId} />}
+        {tab === 5 && (
           <Paper sx={{ p: 3 }}>
             <TaxPanel projectId={projectId} />
           </Paper>

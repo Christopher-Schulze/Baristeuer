@@ -2,6 +2,7 @@
   "theme": {"dark": "Dunkel", "light": "Hell"},
   "tab": {
     "projects": "Projekte",
+    "members": "Mitglieder",
     "incomes": "Einnahmen",
     "expenses": "Ausgaben",
     "forms": "Formulare",
@@ -40,6 +41,21 @@
     "create": "Erstellen",
     "error": "Fehler beim Erstellen",
     "delete": "Löschen"
+  },
+  "member": {
+    "new": "Neues Mitglied",
+    "add": "Hinzufügen",
+    "name": "Name",
+    "email": "E-Mail",
+    "joinDate": "Beitrittsdatum",
+    "required": "Name und E-Mail erforderlich",
+    "table": {
+      "name": "Name",
+      "email": "E-Mail",
+      "joinDate": "Beitrittsdatum",
+      "actions": "Aktionen",
+      "empty": "Keine Mitglieder vorhanden"
+    }
   },
   "forms": {
     "generate_all": "Alle Formulare erstellen",
