@@ -1,9 +1,35 @@
 import { useState, useEffect, useCallback } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { CssBaseline, Container, FormControlLabel, Switch, AppBar, Toolbar, Typography, Tabs, Tab, Paper, Select, MenuItem } from "@mui/material";
+import {
+  CssBaseline,
+  Container,
+  FormControlLabel,
+  Switch,
+  AppBar,
+  Toolbar,
+  Typography,
+  Tabs,
+  Tab,
+  Paper,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import { useTranslation } from "react-i18next";
 import "./i18n";
-import { ListExpenses, ListIncomes, AddIncome, UpdateIncome, DeleteIncome, AddExpense, UpdateExpense, DeleteExpense, AddMember, ListMembers, DeleteMember } from "./wailsjs/go/service/DataService";
+import {
+  ListExpenses,
+  ListIncomes,
+  AddIncome,
+  UpdateIncome,
+  DeleteIncome,
+  AddExpense,
+  UpdateExpense,
+  DeleteExpense,
+  AddMember,
+  ListMembers,
+  DeleteMember,
+  Login,
+} from "./wailsjs/go/service/DataService";
 import ProjectPanel from "./components/ProjectPanel";
 import IncomeForm from "./components/IncomeForm";
 import IncomeTable from "./components/IncomeTable";
@@ -14,6 +40,7 @@ import MemberTable from "./components/MemberTable";
 import TaxPanel from "./components/TaxPanel";
 import FormsPanel from "./components/FormsPanel";
 import SettingsPanel from "./components/SettingsPanel";
+import LoginPanel from "./components/LoginPanel";
 
 export default function App() {
   const [incomes, setIncomes] = useState([]);
@@ -24,6 +51,7 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [tab, setTab] = useState(2);
   const [projectId, setProjectId] = useState(1);
+  const [loggedIn, setLoggedIn] = useState(false);
   const { t, i18n } = useTranslation();
   const [language, setLanguage] = useState(i18n.language);
 
@@ -73,7 +101,7 @@ export default function App() {
       setError("");
       fetchIncomes();
     } catch (err) {
-      setError(err.message || t('add_error'));
+      setError(err.message || t("add_error"));
     }
   };
 
@@ -88,7 +116,7 @@ export default function App() {
       setError("");
       fetchExpenses();
     } catch (err) {
-      setError(err.message || t('add_error'));
+      setError(err.message || t("add_error"));
     }
   };
 
@@ -98,9 +126,20 @@ export default function App() {
       setError("");
       fetchMembers();
     } catch (err) {
-      setError(err.message || t('add_error'));
+      setError(err.message || t("add_error"));
     }
   };
+
+  if (!loggedIn) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Container maxWidth="sm">
+          <LoginPanel onLoggedIn={() => setLoggedIn(true)} />
+        </Container>
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -114,36 +153,51 @@ export default function App() {
             value={language}
             onChange={handleLanguageChange}
             size="small"
-            sx={{ mr: 2, color: 'inherit' }}
+            sx={{ mr: 2, color: "inherit" }}
             variant="standard"
           >
             <MenuItem value="de">DE</MenuItem>
             <MenuItem value="en">EN</MenuItem>
           </Select>
           <FormControlLabel
-            control={<Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} color="default" />}
-            label={darkMode ? t('theme.dark') : t('theme.light')}
+            control={
+              <Switch
+                checked={darkMode}
+                onChange={() => setDarkMode(!darkMode)}
+                color="default"
+              />
+            }
+            label={darkMode ? t("theme.dark") : t("theme.light")}
           />
         </Toolbar>
-        <Tabs value={tab} onChange={(_, v) => setTab(v)} textColor="inherit" indicatorColor="secondary" centered>
-          <Tab label={t('tab.projects')} />
-          <Tab label={t('tab.members')} />
-          <Tab label={t('tab.incomes')} />
-          <Tab label={t('tab.expenses')} />
-          <Tab label={t('tab.forms')} />
-          <Tab label={t('tab.taxes')} />
-          <Tab label={t('tab.settings')} />
+        <Tabs
+          value={tab}
+          onChange={(_, v) => setTab(v)}
+          textColor="inherit"
+          indicatorColor="secondary"
+          centered
+        >
+          <Tab label={t("tab.projects")} />
+          <Tab label={t("tab.members")} />
+          <Tab label={t("tab.incomes")} />
+          <Tab label={t("tab.expenses")} />
+          <Tab label={t("tab.forms")} />
+          <Tab label={t("tab.taxes")} />
+          <Tab label={t("tab.settings")} />
         </Tabs>
       </AppBar>
       <Container maxWidth="md" sx={{ py: 4 }}>
         {tab === 0 && (
-          <ProjectPanel activeId={projectId} onSelect={(id) => setProjectId(id)} />
+          <ProjectPanel
+            activeId={projectId}
+            onSelect={(id) => setProjectId(id)}
+          />
         )}
         {tab === 1 && (
           <>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" component="h2" gutterBottom>
-                {t('member.new')}
+                {t("member.new")}
               </Typography>
               <MemberForm onSubmit={submitMember} />
             </Paper>
@@ -162,7 +216,7 @@ export default function App() {
           <>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" component="h2" gutterBottom>
-                {t('income.new')}
+                {t("income.new")}
               </Typography>
               <IncomeForm onSubmit={submitIncome} editItem={editIncome} />
             </Paper>
@@ -182,7 +236,7 @@ export default function App() {
           <>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" component="h2" gutterBottom>
-                {t('expense.new')}
+                {t("expense.new")}
               </Typography>
               <ExpenseForm onSubmit={submitExpense} editItem={editExpense} />
             </Paper>

@@ -2,8 +2,9 @@ package data
 
 // Project represents a club project with a name.
 type Project struct {
-	ID   int64  `db:"id"`
-	Name string `db:"name"`
+	ID     int64  `db:"id"`
+	UserID int64  `db:"user_id"`
+	Name   string `db:"name"`
 }
 
 // Income represents income for a project.
@@ -28,4 +29,11 @@ type Member struct {
 	Name     string `db:"name"`
 	Email    string `db:"email"`
 	JoinDate string `db:"join_date"`
+}
+
+// User represents an application user.
+type User struct {
+	ID           int64  `db:"id"`
+	Username     string `db:"username"`
+	PasswordHash string `db:"password_hash"`
 }

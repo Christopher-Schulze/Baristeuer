@@ -43,8 +43,14 @@ func (s *Store) init() error {
 		return err
 	}
 	schema := []string{
+		`CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password_hash TEXT
+        );`,
 		`CREATE TABLE IF NOT EXISTS projects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
             name TEXT
         );`,
 		`CREATE TABLE IF NOT EXISTS incomes (
@@ -68,6 +74,7 @@ func (s *Store) init() error {
 		`CREATE INDEX IF NOT EXISTS idx_incomes_project_id ON incomes(project_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_expenses_project_id ON expenses(project_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_members_name ON members(name);`,
+		`CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects(user_id);`,
 	}
 	for _, stmt := range schema {
 		if _, err := s.DB.Exec(stmt); err != nil {
@@ -82,7 +89,13 @@ func (s *Store) Close() error { return s.DB.Close() }
 
 // CRUD operations for Project
 func (s *Store) CreateProject(ctx context.Context, p *Project) error {
-	res, err := s.DB.ExecContext(ctx, `INSERT INTO projects(name) VALUES(?)`, p.Name)
+	var res sql.Result
+	var err error
+	if p.UserID == 0 {
+		res, err = s.DB.ExecContext(ctx, `INSERT INTO projects(user_id, name) VALUES(NULL, ?)`, p.Name)
+	} else {
+		res, err = s.DB.ExecContext(ctx, `INSERT INTO projects(user_id, name) VALUES(?,?)`, p.UserID, p.Name)
+	}
 	if err != nil {
 		return err
 	}
@@ -91,9 +104,9 @@ func (s *Store) CreateProject(ctx context.Context, p *Project) error {
 }
 
 func (s *Store) GetProject(ctx context.Context, id int64) (*Project, error) {
-	row := s.DB.QueryRowContext(ctx, `SELECT id, name FROM projects WHERE id=?`, id)
+	row := s.DB.QueryRowContext(ctx, `SELECT id, COALESCE(user_id,0), name FROM projects WHERE id=?`, id)
 	var p Project
-	if err := row.Scan(&p.ID, &p.Name); err != nil {
+	if err := row.Scan(&p.ID, &p.UserID, &p.Name); err != nil {
 		return nil, err
 	}
 	return &p, nil
@@ -111,7 +124,7 @@ func (s *Store) DeleteProject(ctx context.Context, id int64) error {
 
 // ListProjects returns all projects ordered by id.
 func (s *Store) ListProjects() ([]Project, error) {
-	rows, err := s.DB.Query(`SELECT id, name FROM projects ORDER BY id`)
+	rows, err := s.DB.Query(`SELECT id, COALESCE(user_id,0), name FROM projects ORDER BY id`)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +133,26 @@ func (s *Store) ListProjects() ([]Project, error) {
 	var projects []Project
 	for rows.Next() {
 		var p Project
-		if err := rows.Scan(&p.ID, &p.Name); err != nil {
+		if err := rows.Scan(&p.ID, &p.UserID, &p.Name); err != nil {
+			return nil, err
+		}
+		projects = append(projects, p)
+	}
+	return projects, nil
+}
+
+// ListProjectsByUser returns all projects for a specific user.
+func (s *Store) ListProjectsByUser(ctx context.Context, userID int64) ([]Project, error) {
+	rows, err := s.DB.QueryContext(ctx, `SELECT id, user_id, name FROM projects WHERE user_id=? ORDER BY id`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var projects []Project
+	for rows.Next() {
+		var p Project
+		if err := rows.Scan(&p.ID, &p.UserID, &p.Name); err != nil {
 			return nil, err
 		}
 		projects = append(projects, p)
@@ -289,4 +321,23 @@ func (s *Store) ListMembers(ctx context.Context) ([]Member, error) {
 		members = append(members, m)
 	}
 	return members, nil
+}
+
+// CRUD operations for User
+func (s *Store) CreateUser(ctx context.Context, u *User) error {
+	res, err := s.DB.ExecContext(ctx, `INSERT INTO users(username, password_hash) VALUES(?,?)`, u.Username, u.PasswordHash)
+	if err != nil {
+		return err
+	}
+	u.ID, err = res.LastInsertId()
+	return err
+}
+
+func (s *Store) GetUserByUsername(ctx context.Context, username string) (*User, error) {
+	row := s.DB.QueryRowContext(ctx, `SELECT id, username, password_hash FROM users WHERE username=?`, username)
+	var u User
+	if err := row.Scan(&u.ID, &u.Username, &u.PasswordHash); err != nil {
+		return nil, err
+	}
+	return &u, nil
 }

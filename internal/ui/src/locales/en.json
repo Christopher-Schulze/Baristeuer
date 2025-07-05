@@ -98,5 +98,12 @@
   "language_en": "English",
   "edit": "Edit",
   "delete": "Delete",
-  "add_error": "Error adding item"
+  "add_error": "Error adding item",
+  "login": {
+    "username": "Username",
+    "password": "Password",
+    "login": "Login",
+    "register": "Register",
+    "error": "Login failed"
+  }
 }

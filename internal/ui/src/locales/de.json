@@ -98,5 +98,12 @@
   "language_en": "Englisch",
   "edit": "Bearbeiten",
   "delete": "Löschen",
-  "add_error": "Fehler beim Hinzufügen"
+  "add_error": "Fehler beim Hinzufügen",
+  "login": {
+    "username": "Benutzer",
+    "password": "Passwort",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "error": "Anmeldung fehlgeschlagen"
+  }
 }

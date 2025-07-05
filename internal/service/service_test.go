@@ -442,3 +442,49 @@ func TestDataService_ExportProjectCSV(t *testing.T) {
 		t.Fatalf("csv content unexpected: %s", data)
 	}
 }
+
+func TestDataService_RegisterAndLogin(t *testing.T) {
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	ctx := context.Background()
+	user, err := ds.Register(ctx, "alice", "secret")
+	if err != nil {
+		t.Fatalf("register: %v", err)
+	}
+	if err := ds.Login(ctx, user.Username, "secret"); err != nil {
+		t.Fatalf("login: %v", err)
+	}
+	proj, err := ds.CreateProject(ctx, "Mine")
+	if err != nil {
+		t.Fatalf("create project: %v", err)
+	}
+	list, err := ds.ListProjects()
+	if err != nil || len(list) != 1 || list[0].ID != proj.ID {
+		t.Fatalf("unexpected projects: %+v", list)
+	}
+}
+
+func TestDataService_AccessRestriction(t *testing.T) {
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	ctx := context.Background()
+	user1, _ := ds.Register(ctx, "u1", "pw1")
+	user2, _ := ds.Register(ctx, "u2", "pw2")
+
+	_ = ds.Login(ctx, user1.Username, "pw1")
+	proj, _ := ds.CreateProject(ctx, "P1")
+	ds.Logout()
+
+	_ = ds.Login(ctx, user2.Username, "pw2")
+	if _, err := ds.GetProject(proj.ID); !errors.Is(err, ErrNotAuthenticated) {
+		t.Fatalf("expected auth error, got %v", err)
+	}
+}

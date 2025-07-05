@@ -85,3 +85,15 @@ export function SetLogLevel(arg1) {
 export function ExportProjectCSV(arg1, arg2) {
   return window.go.service.DataService.ExportProjectCSV(arg1, arg2);
 }
+
+export function Login(arg1, arg2) {
+  return window.go.service.DataService.Login(arg1, arg2);
+}
+
+export function Register(arg1, arg2) {
+  return window.go.service.DataService.Register(arg1, arg2);
+}
+
+export function Logout() {
+  return window.go.service.DataService.Logout();
+}

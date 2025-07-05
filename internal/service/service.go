@@ -10,9 +10,12 @@ import (
 	"io"
 	"log/slog"
 	"os"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 var ErrInvalidAmount = errors.New("amount must be positive")
+var ErrNotAuthenticated = errors.New("not authenticated")
 
 func validateAmount(amount float64) error {
 	if amount <= 0 {
@@ -26,6 +29,7 @@ type DataService struct {
 	store     *data.Store
 	logger    *slog.Logger
 	logCloser io.Closer
+	userID    int64
 }
 
 // NewDataService creates a new service with the given datastore location.
@@ -48,9 +52,38 @@ func NewDataServiceFromStore(store *data.Store, logger *slog.Logger, closer io.C
 	return &DataService{store: store, logger: logger, logCloser: closer}
 }
 
+// Register creates a new user account.
+func (ds *DataService) Register(ctx context.Context, username, password string) (*data.User, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, fmt.Errorf("hash password: %w", err)
+	}
+	u := &data.User{Username: username, PasswordHash: string(hash)}
+	if err := ds.store.CreateUser(ctx, u); err != nil {
+		return nil, fmt.Errorf("create user: %w", err)
+	}
+	return u, nil
+}
+
+// Login verifies credentials and stores the user ID in the service.
+func (ds *DataService) Login(ctx context.Context, username, password string) error {
+	u, err := ds.store.GetUserByUsername(ctx, username)
+	if err != nil {
+		return fmt.Errorf("get user: %w", err)
+	}
+	if bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password)) != nil {
+		return ErrNotAuthenticated
+	}
+	ds.userID = u.ID
+	return nil
+}
+
+// Logout clears the current user.
+func (ds *DataService) Logout() { ds.userID = 0 }
+
 // CreateProject creates a project by name.
 func (ds *DataService) CreateProject(ctx context.Context, name string) (*data.Project, error) {
-	p := &data.Project{Name: name}
+	p := &data.Project{Name: name, UserID: ds.userID}
 	if err := ds.store.CreateProject(ctx, p); err != nil {
 		return nil, fmt.Errorf("create project: %w", err)
 	}
@@ -60,7 +93,15 @@ func (ds *DataService) CreateProject(ctx context.Context, name string) (*data.Pr
 
 // ListProjects returns all projects.
 func (ds *DataService) ListProjects() ([]data.Project, error) {
-	projects, err := ds.store.ListProjects()
+	var (
+		projects []data.Project
+		err      error
+	)
+	if ds.userID > 0 {
+		projects, err = ds.store.ListProjectsByUser(context.Background(), ds.userID)
+	} else {
+		projects, err = ds.store.ListProjects()
+	}
 	if err != nil {
 		return nil, fmt.Errorf("list projects: %w", err)
 	}
@@ -74,12 +115,22 @@ func (ds *DataService) GetProject(id int64) (*data.Project, error) {
 	if err != nil {
 		return nil, fmt.Errorf("get project: %w", err)
 	}
+	if ds.userID > 0 && p.UserID != ds.userID {
+		return nil, ErrNotAuthenticated
+	}
 	return p, nil
 }
 
 // UpdateProject updates a project name.
 func (ds *DataService) UpdateProject(id int64, name string) error {
-	p := &data.Project{ID: id, Name: name}
+	p, err := ds.store.GetProject(context.Background(), id)
+	if err != nil {
+		return fmt.Errorf("get project: %w", err)
+	}
+	if ds.userID > 0 && p.UserID != ds.userID {
+		return ErrNotAuthenticated
+	}
+	p.Name = name
 	if err := ds.store.UpdateProject(context.Background(), p); err != nil {
 		return fmt.Errorf("update project: %w", err)
 	}
@@ -89,6 +140,13 @@ func (ds *DataService) UpdateProject(id int64, name string) error {
 
 // DeleteProject removes a project by ID.
 func (ds *DataService) DeleteProject(id int64) error {
+	p, err := ds.store.GetProject(context.Background(), id)
+	if err != nil {
+		return fmt.Errorf("get project: %w", err)
+	}
+	if ds.userID > 0 && p.UserID != ds.userID {
+		return ErrNotAuthenticated
+	}
 	if err := ds.store.DeleteProject(context.Background(), id); err != nil {
 		return fmt.Errorf("delete project: %w", err)
 	}
@@ -98,6 +156,15 @@ func (ds *DataService) DeleteProject(id int64) error {
 
 // ListIncomes returns all incomes for the given project.
 func (ds *DataService) ListIncomes(ctx context.Context, projectID int64) ([]data.Income, error) {
+	if ds.userID > 0 {
+		p, err := ds.store.GetProject(ctx, projectID)
+		if err != nil {
+			return nil, fmt.Errorf("get project: %w", err)
+		}
+		if p.UserID != ds.userID {
+			return nil, ErrNotAuthenticated
+		}
+	}
 	incomes, err := ds.store.ListIncomes(ctx, projectID)
 	if err != nil {
 		return nil, fmt.Errorf("list incomes: %w", err)
@@ -110,6 +177,15 @@ func (ds *DataService) ListIncomes(ctx context.Context, projectID int64) ([]data
 func (ds *DataService) AddIncome(ctx context.Context, projectID int64, source string, amount float64) (*data.Income, error) {
 	if err := validateAmount(amount); err != nil {
 		return nil, err
+	}
+	if ds.userID > 0 {
+		p, err := ds.store.GetProject(ctx, projectID)
+		if err != nil {
+			return nil, fmt.Errorf("get project: %w", err)
+		}
+		if p.UserID != ds.userID {
+			return nil, ErrNotAuthenticated
+		}
 	}
 	i := &data.Income{ProjectID: projectID, Source: source, Amount: amount}
 	if err := ds.store.CreateIncome(ctx, i); err != nil {
@@ -124,6 +200,19 @@ func (ds *DataService) UpdateIncome(ctx context.Context, id int64, projectID int
 	if err := validateAmount(amount); err != nil {
 		return err
 	}
+	if ds.userID > 0 {
+		inc, err := ds.store.GetIncome(ctx, id)
+		if err != nil {
+			return fmt.Errorf("get income: %w", err)
+		}
+		p, err := ds.store.GetProject(ctx, inc.ProjectID)
+		if err != nil {
+			return fmt.Errorf("get project: %w", err)
+		}
+		if p.UserID != ds.userID {
+			return ErrNotAuthenticated
+		}
+	}
 	i := &data.Income{ID: id, ProjectID: projectID, Source: source, Amount: amount}
 	if err := ds.store.UpdateIncome(ctx, i); err != nil {
 		return fmt.Errorf("update income: %w", err)
@@ -134,6 +223,19 @@ func (ds *DataService) UpdateIncome(ctx context.Context, id int64, projectID int
 
 // DeleteIncome removes an income entry by ID.
 func (ds *DataService) DeleteIncome(ctx context.Context, id int64) error {
+	if ds.userID > 0 {
+		inc, err := ds.store.GetIncome(ctx, id)
+		if err != nil {
+			return fmt.Errorf("get income: %w", err)
+		}
+		p, err := ds.store.GetProject(ctx, inc.ProjectID)
+		if err != nil {
+			return fmt.Errorf("get project: %w", err)
+		}
+		if p.UserID != ds.userID {
+			return ErrNotAuthenticated
+		}
+	}
 	if err := ds.store.DeleteIncome(ctx, id); err != nil {
 		return fmt.Errorf("delete income: %w", err)
 	}
@@ -145,6 +247,15 @@ func (ds *DataService) DeleteIncome(ctx context.Context, id int64) error {
 func (ds *DataService) AddExpense(ctx context.Context, projectID int64, category string, amount float64) (*data.Expense, error) {
 	if err := validateAmount(amount); err != nil {
 		return nil, err
+	}
+	if ds.userID > 0 {
+		p, err := ds.store.GetProject(ctx, projectID)
+		if err != nil {
+			return nil, fmt.Errorf("get project: %w", err)
+		}
+		if p.UserID != ds.userID {
+			return nil, ErrNotAuthenticated
+		}
 	}
 	e := &data.Expense{ProjectID: projectID, Category: category, Amount: amount}
 	if err := ds.store.CreateExpense(ctx, e); err != nil {
@@ -159,6 +270,19 @@ func (ds *DataService) UpdateExpense(ctx context.Context, id int64, projectID in
 	if err := validateAmount(amount); err != nil {
 		return err
 	}
+	if ds.userID > 0 {
+		exp, err := ds.store.GetExpense(ctx, id)
+		if err != nil {
+			return fmt.Errorf("get expense: %w", err)
+		}
+		p, err := ds.store.GetProject(ctx, exp.ProjectID)
+		if err != nil {
+			return fmt.Errorf("get project: %w", err)
+		}
+		if p.UserID != ds.userID {
+			return ErrNotAuthenticated
+		}
+	}
 	e := &data.Expense{ID: id, ProjectID: projectID, Category: category, Amount: amount}
 	if err := ds.store.UpdateExpense(ctx, e); err != nil {
 		return fmt.Errorf("update expense: %w", err)
@@ -169,6 +293,19 @@ func (ds *DataService) UpdateExpense(ctx context.Context, id int64, projectID in
 
 // DeleteExpense removes an expense entry by ID.
 func (ds *DataService) DeleteExpense(ctx context.Context, id int64) error {
+	if ds.userID > 0 {
+		exp, err := ds.store.GetExpense(ctx, id)
+		if err != nil {
+			return fmt.Errorf("get expense: %w", err)
+		}
+		p, err := ds.store.GetProject(ctx, exp.ProjectID)
+		if err != nil {
+			return fmt.Errorf("get project: %w", err)
+		}
+		if p.UserID != ds.userID {
+			return ErrNotAuthenticated
+		}
+	}
 	if err := ds.store.DeleteExpense(ctx, id); err != nil {
 		return fmt.Errorf("delete expense: %w", err)
 	}
@@ -178,6 +315,15 @@ func (ds *DataService) DeleteExpense(ctx context.Context, id int64) error {
 
 // ListExpenses returns all expenses for the given project.
 func (ds *DataService) ListExpenses(ctx context.Context, projectID int64) ([]data.Expense, error) {
+	if ds.userID > 0 {
+		p, err := ds.store.GetProject(ctx, projectID)
+		if err != nil {
+			return nil, fmt.Errorf("get project: %w", err)
+		}
+		if p.UserID != ds.userID {
+			return nil, ErrNotAuthenticated
+		}
+	}
 	expenses, err := ds.store.ListExpenses(ctx, projectID)
 	if err != nil {
 		return nil, fmt.Errorf("list expenses: %w", err)
@@ -217,6 +363,15 @@ func (ds *DataService) DeleteMember(ctx context.Context, id int64) error {
 
 // CalculateProjectTaxes returns a detailed tax calculation for the given project.
 func (ds *DataService) CalculateProjectTaxes(ctx context.Context, projectID int64, year int) (taxlogic.TaxResult, error) {
+	if ds.userID > 0 {
+		p, err := ds.store.GetProject(ctx, projectID)
+		if err != nil {
+			return taxlogic.TaxResult{}, fmt.Errorf("get project: %w", err)
+		}
+		if p.UserID != ds.userID {
+			return taxlogic.TaxResult{}, ErrNotAuthenticated
+		}
+	}
 	revenue, err := ds.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {
 		return taxlogic.TaxResult{}, fmt.Errorf("sum income: %w", err)
@@ -288,6 +443,15 @@ func (ds *DataService) RestoreDatabase(src string) error {
 
 // ExportProjectCSV writes all incomes and expenses of a project into a CSV file.
 func (ds *DataService) ExportProjectCSV(ctx context.Context, projectID int64, dest string) error {
+	if ds.userID > 0 {
+		p, err := ds.store.GetProject(ctx, projectID)
+		if err != nil {
+			return fmt.Errorf("get project: %w", err)
+		}
+		if p.UserID != ds.userID {
+			return ErrNotAuthenticated
+		}
+	}
 	incomes, err := ds.store.ListIncomes(ctx, projectID)
 	if err != nil {
 		return fmt.Errorf("list incomes: %w", err)

@@ -231,3 +231,24 @@ func TestMemberQueryByName(t *testing.T) {
 		t.Fatalf("queried member mismatch: %+v vs %+v", got, m)
 	}
 }
+
+func TestUserCreateAndQuery(t *testing.T) {
+	s, err := NewStore(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	ctx := context.Background()
+	u := &User{Username: "foo", PasswordHash: "bar"}
+	if err := s.CreateUser(ctx, u); err != nil {
+		t.Fatal(err)
+	}
+	got, err := s.GetUserByUsername(ctx, u.Username)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.ID != u.ID || got.Username != u.Username {
+		t.Fatalf("user mismatch: %+v vs %+v", got, u)
+	}
+}
