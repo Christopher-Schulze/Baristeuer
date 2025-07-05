@@ -57,4 +57,15 @@
       }
     }
   };
+
+  const exports = [];
+  svc.ExportDatabase = async (dest) => {
+    exports.push({ type: "db", dest });
+  };
+  svc.ExportProjectCSV = async (pid, dest) => {
+    exports.push({ type: "csv", pid, dest });
+  };
+  svc.RestoreDatabase = async () => {};
+  svc.SetLogLevel = async () => {};
+  window.__exports = exports;
 })();
