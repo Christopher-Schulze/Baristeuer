@@ -93,3 +93,7 @@ export function SetLogFormat(arg1) {
 export function ExportProjectCSV(arg1, arg2) {
   return window.go.service.DataService.ExportProjectCSV(arg1, arg2);
 }
+
+export function GenerateStatistics(arg1, arg2) {
+  return window.go.service.DataService.GenerateStatistics(arg1, arg2);
+}

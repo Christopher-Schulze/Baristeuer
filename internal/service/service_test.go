@@ -185,6 +185,29 @@ func TestDataService_CalculateProjectTaxes(t *testing.T) {
 	}
 }
 
+func TestDataService_GenerateStatistics(t *testing.T) {
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	ctx := context.Background()
+	proj, _ := ds.CreateProject(ctx, "Stats")
+	ds.AddIncome(ctx, proj.ID, "donation", 10)
+	ds.AddIncome(ctx, proj.ID, "donation", 20)
+	ds.AddExpense(ctx, proj.ID, "rent", 5)
+	ds.AddExpense(ctx, proj.ID, "rent", 15)
+
+	stats, err := ds.GenerateStatistics(ctx, proj.ID, 2025)
+	if err != nil {
+		t.Fatalf("GenerateStatistics returned error: %v", err)
+	}
+	if stats.AverageIncome != 15 || stats.AverageExpense != 10 || stats.Trend != 5 || stats.Year != 2025 {
+		t.Fatalf("unexpected stats: %+v", stats)
+	}
+}
+
 func TestDataService_MemberOperations(t *testing.T) {
 	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
 	if err != nil {

@@ -7,6 +7,7 @@
     "expenses": "Expenses",
     "forms": "Forms",
     "taxes": "Taxes",
+    "reports": "Reports",
     "settings": "Settings"
   },
 
@@ -88,6 +89,12 @@
     "totalTax": "Total tax: {{value}} €",
     "year": "Year",
     "error": "Error calculating"
+  },
+  "reports": {
+    "average": "Average",
+    "avgIncome": "Avg Income",
+    "avgExpense": "Avg Expense",
+    "trend": "Trend: {{value}}"
   },
   "language": "Language",
   "language_de": "German",

@@ -14,6 +14,7 @@ import MemberTable from "./components/MemberTable";
 import TaxPanel from "./components/TaxPanel";
 import FormsPanel from "./components/FormsPanel";
 import SettingsPanel from "./components/SettingsPanel";
+import ReportPanel from "./components/ReportPanel";
 
 export default function App() {
   const [incomes, setIncomes] = useState([]);
@@ -144,6 +145,7 @@ export default function App() {
           <Tab label={t('tab.expenses')} />
           <Tab label={t('tab.forms')} />
           <Tab label={t('tab.taxes')} />
+          <Tab label={t('tab.reports')} />
           <Tab label={t('tab.settings')} />
         </Tabs>
       </AppBar>
@@ -218,6 +220,11 @@ export default function App() {
           </Paper>
         )}
         {tab === 6 && (
+          <Paper sx={{ p: 3 }}>
+            <ReportPanel projectId={projectId} />
+          </Paper>
+        )}
+        {tab === 7 && (
           <Paper sx={{ p: 3 }}>
             <SettingsPanel projectId={projectId} />
           </Paper>
