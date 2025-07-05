@@ -136,12 +136,16 @@ export default function SettingsPanel({ projectId }) {
       </Box>
       <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
         <TextField
+          select
           label={t("settings.tax_year") || "Tax Year"}
-          type="number"
           value={taxYear}
-          onChange={(e) => setTaxYear(e.target.value)}
+          onChange={(e) => setTaxYear(parseInt(e.target.value))}
           size="small"
-        />
+        >
+          <MenuItem value={2025}>2025</MenuItem>
+          <MenuItem value={2026}>2026</MenuItem>
+          <MenuItem value={2027}>2027</MenuItem>
+        </TextField>
         <Button variant="outlined" onClick={applyYear}>
           {t("settings.apply")}
         </Button>

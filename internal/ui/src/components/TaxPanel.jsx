@@ -30,6 +30,7 @@ export default function TaxPanel({ projectId }) {
       >
         <MenuItem value={2025}>2025</MenuItem>
         <MenuItem value={2026}>2026</MenuItem>
+        <MenuItem value={2027}>2027</MenuItem>
       </TextField>
       <Button variant="contained" color="secondary" onClick={handleCalculate}>
         {t('tax.calculate')}
