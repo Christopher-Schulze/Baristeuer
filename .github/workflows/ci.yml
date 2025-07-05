@@ -1,6 +1,8 @@
 name: CI
 
 on:
+  push:
+    branches: [ main ]
   pull_request:
 
 jobs:
@@ -8,39 +10,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Go
-        uses: actions/setup-go@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
-          go-version: '1.23.x'
-          cache: true
-          cache-dependency-path: |
-            cmd/go.sum
-            internal/go.sum
-            internal/pdf/go.sum
-      - name: Sync Go workspace
-        run: go work sync
-      - name: Run go vet
-        run: |
-          go -C cmd vet ./...
-          go -C internal vet ./...
-          go -C internal/pdf vet ./...
-      - name: Run go test
-        run: |
-          go -C cmd test ./...
-          go -C internal test ./...
-          go -C internal/pdf test ./...
-      - name: Set up Node.js
+          go-version: '1.22'
+
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: internal/ui/package-lock.json
-      - name: Install frontend dependencies
-        run: npm ci
-        working-directory: internal/ui
+          node-version: '20'
+
+      - name: Install frontend deps
+        run: npm ci --prefix internal/ui
+
+      - name: Lint frontend
+        run: npm run lint --prefix internal/ui
+
       - name: Run frontend tests
-        run: npm test --if-present
-        working-directory: internal/ui
-      - name: Build frontend
-        run: npm run build
-        working-directory: internal/ui
+        run: npm test --prefix internal/ui
+
+      - name: Go vet
+        run: go vet ./cmd/... ./internal/... ./internal/pdf/...
+
+      - name: Go tests
+        run: go test ./cmd/... ./internal/... ./internal/pdf/...

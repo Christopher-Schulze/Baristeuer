@@ -19,6 +19,7 @@ func main() {
 	logFile := flag.String("logfile", "", "log file path")
 	logLevel := flag.String("loglevel", "", "log level")
 	exportPath := flag.String("exportdb", "", "export database to path and exit")
+	restorePath := flag.String("restoredb", "", "restore database from path and exit")
 	flag.Parse()
 
 	cfg, err := config.Load(*cfgPath)
@@ -58,6 +59,13 @@ func main() {
 	if *exportPath != "" {
 		if err := datasvc.ExportDatabase(*exportPath); err != nil {
 			fmt.Println("Error exporting database:", err)
+		}
+		return
+	}
+
+	if *restorePath != "" {
+		if err := datasvc.RestoreDatabase(*restorePath); err != nil {
+			fmt.Println("Error restoring database:", err)
 		}
 		return
 	}

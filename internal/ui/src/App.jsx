@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { CssBaseline, Container, FormControlLabel, Switch, AppBar, Toolbar, Typography, Tabs, Tab, Paper, Select, MenuItem } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -13,6 +13,7 @@ import MemberForm from "./components/MemberForm";
 import MemberTable from "./components/MemberTable";
 import TaxPanel from "./components/TaxPanel";
 import FormsPanel from "./components/FormsPanel";
+import SettingsPanel from "./components/SettingsPanel";
 
 export default function App() {
   const [incomes, setIncomes] = useState([]);
@@ -34,14 +35,14 @@ export default function App() {
     },
   });
 
-  const fetchExpenses = async () => {
+  const fetchExpenses = useCallback(async () => {
     const list = await ListExpenses(projectId);
     setExpenses(list || []);
-  };
-  const fetchIncomes = async () => {
+  }, [projectId]);
+  const fetchIncomes = useCallback(async () => {
     const list = await ListIncomes(projectId);
     setIncomes(list || []);
-  };
+  }, [projectId]);
   const fetchMembers = async () => {
     const list = await ListMembers();
     setMembers(list || []);
@@ -56,7 +57,7 @@ export default function App() {
   useEffect(() => {
     fetchExpenses();
     fetchIncomes();
-  }, [projectId]);
+  }, [fetchExpenses, fetchIncomes]);
   useEffect(() => {
     fetchMembers();
   }, []);
@@ -131,6 +132,7 @@ export default function App() {
           <Tab label={t('tab.expenses')} />
           <Tab label={t('tab.forms')} />
           <Tab label={t('tab.taxes')} />
+          <Tab label={t('tab.settings')} />
         </Tabs>
       </AppBar>
       <Container maxWidth="md" sx={{ py: 4 }}>
@@ -200,6 +202,11 @@ export default function App() {
         {tab === 5 && (
           <Paper sx={{ p: 3 }}>
             <TaxPanel projectId={projectId} />
+          </Paper>
+        )}
+        {tab === 6 && (
+          <Paper sx={{ p: 3 }}>
+            <SettingsPanel projectId={projectId} />
           </Paper>
         )}
       </Container>

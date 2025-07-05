@@ -1,12 +1,25 @@
 {
-  "theme": {"dark": "Dark", "light": "Light"},
+  "theme": { "dark": "Dark", "light": "Light" },
   "tab": {
     "projects": "Projects",
     "members": "Members",
     "incomes": "Income",
     "expenses": "Expenses",
     "forms": "Forms",
-    "taxes": "Taxes"
+    "taxes": "Taxes",
+    "settings": "Settings"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "export": "Export Database",
+    "restore": "Restore Database",
+    "csv": "Export Project CSV",
+    "select_log": "Log Level",
+    "apply": "Apply",
+    "exported": "Database exported",
+    "restored": "Database restored",
+    "csv_exported": "CSV exported"
   },
   "income": {
     "new": "New Income",
@@ -49,6 +62,8 @@
     "email": "Email",
     "joinDate": "Join Date",
     "required": "Name and email required",
+    "invalid_email": "Invalid email address",
+    "invalid_date": "Invalid date",
     "table": {
       "name": "Name",
       "email": "Email",

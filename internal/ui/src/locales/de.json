@@ -1,12 +1,25 @@
 {
-  "theme": {"dark": "Dunkel", "light": "Hell"},
+  "theme": { "dark": "Dunkel", "light": "Hell" },
   "tab": {
     "projects": "Projekte",
     "members": "Mitglieder",
     "incomes": "Einnahmen",
     "expenses": "Ausgaben",
     "forms": "Formulare",
-    "taxes": "Steuern"
+    "taxes": "Steuern",
+    "settings": "Einstellungen"
+  },
+
+  "settings": {
+    "title": "Einstellungen",
+    "export": "Datenbank exportieren",
+    "restore": "Datenbank wiederherstellen",
+    "csv": "Projekt-CSV exportieren",
+    "select_log": "Log-Level",
+    "apply": "Anwenden",
+    "exported": "Datenbank exportiert",
+    "restored": "Datenbank wiederhergestellt",
+    "csv_exported": "CSV exportiert"
   },
   "income": {
     "new": "Neue Einnahme",
@@ -49,6 +62,8 @@
     "email": "E-Mail",
     "joinDate": "Beitrittsdatum",
     "required": "Name und E-Mail erforderlich",
+    "invalid_email": "Ungültige E-Mail-Adresse",
+    "invalid_date": "Ungültiges Datum",
     "table": {
       "name": "Name",
       "email": "E-Mail",

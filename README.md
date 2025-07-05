@@ -18,6 +18,7 @@ Bari$teuer is a software tool designed to assist German non-profit organizations
 - **User Interface:** Interface available in German and English with a language selector, styled with Material UI themes.
 - **Cross-Platform:** Operates on both macOS and Windows.
 - **PDF Export:** Exports financial reports and a set of Vereinssteuerformulare (KSt 1, Anlagen Gem/GK usw.) to PDF format.
+- **CSV Export:** Saves incomes and expenses of a project to a CSV file.
 
 ## Technology Stack
 
@@ -51,6 +52,14 @@ To export the current database without starting the UI, call the binary with `-e
 ./baristeuer -exportdb backup.db
 ```
 
+To restore a previously exported database before launching the UI, use `-restoredb`:
+
+```bash
+./baristeuer -restoredb backup.db
+```
+
+You can export all incomes and expenses of a project to CSV via the service method `ExportProjectCSV` or by using the UI settings panel.
+
 A minimal `config.json` might look like:
 
 ```json
@@ -64,7 +73,7 @@ A minimal `config.json` might look like:
 
 Run `./baristeuer -config config.json` to load these settings.
 
-The UI language can be switched between German and English using the dropdown in the top toolbar.
+The UI language can be switched between German and English using the dropdown in the top toolbar. You can change the log level at runtime via the service method `SetLogLevel` or by editing the configuration and restarting the application.
 
 Follow the official documentation for platform specific details.
 
@@ -104,4 +113,4 @@ current Git tag or commit hash.
 
 ---
 
-*This project is for internal use and is not open for contributions.*
+_This project is for internal use and is not open for contributions._
