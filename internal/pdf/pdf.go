@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/jung-kurt/gofpdf"
+	gofpdi "github.com/jung-kurt/gofpdf/contrib/gofpdi"
 
 	"baristeuer/internal/config"
 	"baristeuer/internal/data"
@@ -18,6 +19,24 @@ import (
 
 // Error returned when a PDF file cannot be created or written.
 var ErrWritePDF = errors.New("write PDF")
+
+const templatesDir = "internal/pdf/templates"
+
+func addTemplate(pdf *gofpdf.Fpdf, name string) {
+	pdfPath := filepath.Join(templatesDir, name+".pdf")
+	if _, err := os.Stat(pdfPath); err == nil {
+		imp := gofpdi.NewImporter()
+		tpl := imp.ImportPage(pdf, pdfPath, 1, "/MediaBox")
+		imp.UseImportedTemplate(pdf, tpl, 0, 0, 210, 297)
+		return
+	}
+	metaPath := filepath.Join(templatesDir, name+".txt")
+	if b, err := os.ReadFile(metaPath); err == nil {
+		pdf.SetFont("Arial", "", 8)
+		pdf.MultiCell(0, 4, string(b), "", "L", false)
+		pdf.Ln(4)
+	}
+}
 
 // Generator handles PDF creation.
 type Generator struct {
@@ -338,6 +357,7 @@ func (g *Generator) GenerateKSt1(ctx context.Context, projectID int64) (string, 
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.SetCompression(false)
 	pdf.AddPage()
+	addTemplate(pdf, "kst1")
 	pdf.SetFont("Arial", "B", 14)
 	pdf.CellFormat(0, 10, "KSt 1 - K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung", "", 1, "C", false, 0, "")
 	pdf.Ln(4)
@@ -431,6 +451,7 @@ func (g *Generator) GenerateAnlageGem(ctx context.Context, projectID int64) (str
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.SetCompression(false)
 	pdf.AddPage()
+	addTemplate(pdf, "anlage_gem")
 	pdf.SetFont("Arial", "B", 14)
 	pdf.CellFormat(0, 10, title, "", 1, "C", false, 0, "")
 	pdf.Ln(4)
@@ -504,6 +525,7 @@ func (g *Generator) GenerateAnlageGK(ctx context.Context, projectID int64) (stri
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.SetCompression(false)
 	pdf.AddPage()
+	addTemplate(pdf, "anlage_gk")
 	pdf.SetFont("Arial", "B", 14)
 	pdf.CellFormat(0, 10, title, "", 1, "C", false, 0, "")
 	pdf.Ln(4)
@@ -566,6 +588,7 @@ func (g *Generator) GenerateKSt1F(ctx context.Context, projectID int64) (string,
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.SetCompression(false)
 	pdf.AddPage()
+	addTemplate(pdf, "kst1f")
 	pdf.SetFont("Arial", "B", 14)
 	pdf.CellFormat(0, 10, title, "", 1, "C", false, 0, "")
 	pdf.Ln(4)
@@ -628,6 +651,7 @@ func (g *Generator) GenerateAnlageSport(ctx context.Context, projectID int64) (s
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.SetCompression(false)
 	pdf.AddPage()
+	addTemplate(pdf, "anlage_sport")
 	pdf.SetFont("Arial", "B", 14)
 	pdf.CellFormat(0, 10, title, "", 1, "C", false, 0, "")
 	pdf.Ln(4)
