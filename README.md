@@ -45,6 +45,12 @@ The resulting binaries can be found in `build/bin`. You can configure paths via 
 ./baristeuer -db mydata.db -pdfdir ./reports
 ```
 
+To export the current database without starting the UI, call the binary with `-exportdb` and a target path:
+
+```bash
+./baristeuer -exportdb backup.db
+```
+
 A minimal `config.json` might look like:
 
 ```json
