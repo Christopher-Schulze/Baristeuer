@@ -26,8 +26,6 @@
     "add": "Hinzufügen",
     "source": "Quelle",
     "amount": "Betrag (€)",
-    "required": "Quelle und Betrag erforderlich",
-    "positive": "Betrag muss eine positive Zahl sein",
     "table": {
       "source": "Quelle",
       "amount": "Betrag (€)",
@@ -40,8 +38,6 @@
     "add": "Hinzufügen",
     "description": "Beschreibung",
     "amount": "Betrag (€)",
-    "required": "Beschreibung und Betrag erforderlich",
-    "positive": "Betrag muss eine positive Zahl sein",
     "table": {
       "description": "Beschreibung",
       "amount": "Betrag (€)",
@@ -61,9 +57,6 @@
     "name": "Name",
     "email": "E-Mail",
     "joinDate": "Beitrittsdatum",
-    "required": "Name und E-Mail erforderlich",
-    "invalid_email": "Ungültige E-Mail-Adresse",
-    "invalid_date": "Ungültiges Datum",
     "table": {
       "name": "Name",
       "email": "E-Mail",
@@ -98,5 +91,14 @@
   "language_en": "Englisch",
   "edit": "Bearbeiten",
   "delete": "Löschen",
-  "add_error": "Fehler beim Hinzufügen"
+  "errors": {
+    "income_required": "Quelle und Betrag erforderlich",
+    "income_positive": "Betrag muss eine positive Zahl sein",
+    "expense_required": "Beschreibung und Betrag erforderlich",
+    "expense_positive": "Betrag muss eine positive Zahl sein",
+    "member_required": "Name und E-Mail erforderlich",
+    "member_invalid_email": "Ungültige E-Mail-Adresse",
+    "member_invalid_date": "Ungültiges Datum",
+    "add": "Fehler beim Hinzufügen"
+  }
 }
