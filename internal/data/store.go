@@ -45,25 +45,25 @@ func (s *Store) init() error {
 	schema := []string{
 		`CREATE TABLE IF NOT EXISTS projects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT
+            name TEXT NOT NULL UNIQUE
         );`,
 		`CREATE TABLE IF NOT EXISTS incomes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            project_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
-            source TEXT,
-            amount REAL
+            project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+            source TEXT NOT NULL,
+            amount REAL NOT NULL
         );`,
 		`CREATE TABLE IF NOT EXISTS expenses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            project_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
-            category TEXT,
-            amount REAL
+            project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+            category TEXT NOT NULL,
+            amount REAL NOT NULL
         );`,
 		`CREATE TABLE IF NOT EXISTS members (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            email TEXT,
-            join_date TEXT
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            join_date TEXT NOT NULL
         );`,
 		`CREATE INDEX IF NOT EXISTS idx_incomes_project_id ON incomes(project_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_expenses_project_id ON expenses(project_id);`,
@@ -94,19 +94,34 @@ func (s *Store) GetProject(ctx context.Context, id int64) (*Project, error) {
 	row := s.DB.QueryRowContext(ctx, `SELECT id, name FROM projects WHERE id=?`, id)
 	var p Project
 	if err := row.Scan(&p.ID, &p.Name); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("project %d: %w", id, sql.ErrNoRows)
+		}
 		return nil, err
 	}
 	return &p, nil
 }
 
 func (s *Store) UpdateProject(ctx context.Context, p *Project) error {
-	_, err := s.DB.ExecContext(ctx, `UPDATE projects SET name=? WHERE id=?`, p.Name, p.ID)
-	return err
+	res, err := s.DB.ExecContext(ctx, `UPDATE projects SET name=? WHERE id=?`, p.Name, p.ID)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return fmt.Errorf("project %d: %w", p.ID, sql.ErrNoRows)
+	}
+	return nil
 }
 
 func (s *Store) DeleteProject(ctx context.Context, id int64) error {
-	_, err := s.DB.ExecContext(ctx, `DELETE FROM projects WHERE id=?`, id)
-	return err
+	res, err := s.DB.ExecContext(ctx, `DELETE FROM projects WHERE id=?`, id)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return fmt.Errorf("project %d: %w", id, sql.ErrNoRows)
+	}
+	return nil
 }
 
 // ListProjects returns all projects ordered by id.
@@ -142,19 +157,34 @@ func (s *Store) GetIncome(ctx context.Context, id int64) (*Income, error) {
 	row := s.DB.QueryRowContext(ctx, `SELECT id, project_id, source, amount FROM incomes WHERE id=?`, id)
 	var i Income
 	if err := row.Scan(&i.ID, &i.ProjectID, &i.Source, &i.Amount); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("income %d: %w", id, sql.ErrNoRows)
+		}
 		return nil, err
 	}
 	return &i, nil
 }
 
 func (s *Store) UpdateIncome(ctx context.Context, i *Income) error {
-	_, err := s.DB.ExecContext(ctx, `UPDATE incomes SET project_id=?, source=?, amount=? WHERE id=?`, i.ProjectID, i.Source, i.Amount, i.ID)
-	return err
+	res, err := s.DB.ExecContext(ctx, `UPDATE incomes SET project_id=?, source=?, amount=? WHERE id=?`, i.ProjectID, i.Source, i.Amount, i.ID)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return fmt.Errorf("income %d: %w", i.ID, sql.ErrNoRows)
+	}
+	return nil
 }
 
 func (s *Store) DeleteIncome(ctx context.Context, id int64) error {
-	_, err := s.DB.ExecContext(ctx, `DELETE FROM incomes WHERE id=?`, id)
-	return err
+	res, err := s.DB.ExecContext(ctx, `DELETE FROM incomes WHERE id=?`, id)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return fmt.Errorf("income %d: %w", id, sql.ErrNoRows)
+	}
+	return nil
 }
 
 // ListIncomes returns all incomes for a project ordered by id.
@@ -190,19 +220,34 @@ func (s *Store) GetExpense(ctx context.Context, id int64) (*Expense, error) {
 	row := s.DB.QueryRowContext(ctx, `SELECT id, project_id, category, amount FROM expenses WHERE id=?`, id)
 	var e Expense
 	if err := row.Scan(&e.ID, &e.ProjectID, &e.Category, &e.Amount); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("expense %d: %w", id, sql.ErrNoRows)
+		}
 		return nil, err
 	}
 	return &e, nil
 }
 
 func (s *Store) UpdateExpense(ctx context.Context, e *Expense) error {
-	_, err := s.DB.ExecContext(ctx, `UPDATE expenses SET project_id=?, category=?, amount=? WHERE id=?`, e.ProjectID, e.Category, e.Amount, e.ID)
-	return err
+	res, err := s.DB.ExecContext(ctx, `UPDATE expenses SET project_id=?, category=?, amount=? WHERE id=?`, e.ProjectID, e.Category, e.Amount, e.ID)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return fmt.Errorf("expense %d: %w", e.ID, sql.ErrNoRows)
+	}
+	return nil
 }
 
 func (s *Store) DeleteExpense(ctx context.Context, id int64) error {
-	_, err := s.DB.ExecContext(ctx, `DELETE FROM expenses WHERE id=?`, id)
-	return err
+	res, err := s.DB.ExecContext(ctx, `DELETE FROM expenses WHERE id=?`, id)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return fmt.Errorf("expense %d: %w", id, sql.ErrNoRows)
+	}
+	return nil
 }
 
 // ListExpenses returns all expenses for a project ordered by id.
@@ -258,19 +303,34 @@ func (s *Store) GetMember(ctx context.Context, id int64) (*Member, error) {
 	row := s.DB.QueryRowContext(ctx, `SELECT id, name, email, join_date FROM members WHERE id=?`, id)
 	var m Member
 	if err := row.Scan(&m.ID, &m.Name, &m.Email, &m.JoinDate); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("member %d: %w", id, sql.ErrNoRows)
+		}
 		return nil, err
 	}
 	return &m, nil
 }
 
 func (s *Store) UpdateMember(ctx context.Context, m *Member) error {
-	_, err := s.DB.ExecContext(ctx, `UPDATE members SET name=?, email=?, join_date=? WHERE id=?`, m.Name, m.Email, m.JoinDate, m.ID)
-	return err
+	res, err := s.DB.ExecContext(ctx, `UPDATE members SET name=?, email=?, join_date=? WHERE id=?`, m.Name, m.Email, m.JoinDate, m.ID)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return fmt.Errorf("member %d: %w", m.ID, sql.ErrNoRows)
+	}
+	return nil
 }
 
 func (s *Store) DeleteMember(ctx context.Context, id int64) error {
-	_, err := s.DB.ExecContext(ctx, `DELETE FROM members WHERE id=?`, id)
-	return err
+	res, err := s.DB.ExecContext(ctx, `DELETE FROM members WHERE id=?`, id)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return fmt.Errorf("member %d: %w", id, sql.ErrNoRows)
+	}
+	return nil
 }
 
 func (s *Store) ListMembers(ctx context.Context) ([]Member, error) {
