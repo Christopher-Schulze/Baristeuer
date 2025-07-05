@@ -4,6 +4,7 @@ import (
 	"baristeuer/internal/data"
 	"baristeuer/internal/taxlogic"
 	"context"
+	"encoding/csv"
 	"errors"
 	"fmt"
 	"io"
@@ -197,21 +198,21 @@ func (ds *DataService) AddMember(ctx context.Context, name, email, joinDate stri
 
 // ListMembers returns all members sorted by name.
 func (ds *DataService) ListMembers(ctx context.Context) ([]data.Member, error) {
-        members, err := ds.store.ListMembers(ctx)
-        if err != nil {
-                return nil, fmt.Errorf("list members: %w", err)
-        }
-        ds.logger.Info("listed members", "count", len(members))
-        return members, nil
+	members, err := ds.store.ListMembers(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list members: %w", err)
+	}
+	ds.logger.Info("listed members", "count", len(members))
+	return members, nil
 }
 
 // DeleteMember removes a member by ID.
 func (ds *DataService) DeleteMember(ctx context.Context, id int64) error {
-        if err := ds.store.DeleteMember(ctx, id); err != nil {
-                return fmt.Errorf("delete member: %w", err)
-        }
-        ds.logger.Info("deleted member", "id", id)
-        return nil
+	if err := ds.store.DeleteMember(ctx, id); err != nil {
+		return fmt.Errorf("delete member: %w", err)
+	}
+	ds.logger.Info("deleted member", "id", id)
+	return nil
 }
 
 // CalculateProjectTaxes returns a detailed tax calculation for the given project.
@@ -246,6 +247,75 @@ func (ds *DataService) ExportDatabase(dest string) error {
 		return fmt.Errorf("copy db: %w", err)
 	}
 	ds.logger.Info("exported database", "dest", dest)
+	return nil
+}
+
+// SetLogLevel changes the active log level (debug, info, warn, error).
+func (ds *DataService) SetLogLevel(level string) {
+	SetLogLevel(level)
+	ds.logger.Info("log level changed", "level", level)
+}
+
+// RestoreDatabase replaces the current SQLite file with the one at src.
+// The service closes the datastore, copies the file and reopens the connection.
+func (ds *DataService) RestoreDatabase(src string) error {
+	destPath := ds.store.Path()
+	if err := ds.store.Close(); err != nil {
+		return fmt.Errorf("close store: %w", err)
+	}
+	in, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf("open src: %w", err)
+	}
+	defer in.Close()
+	out, err := os.Create(destPath)
+	if err != nil {
+		return fmt.Errorf("create dest: %w", err)
+	}
+	if _, err := io.Copy(out, in); err != nil {
+		out.Close()
+		return fmt.Errorf("copy db: %w", err)
+	}
+	out.Close()
+	store, err := data.NewStore(destPath)
+	if err != nil {
+		return fmt.Errorf("reopen store: %w", err)
+	}
+	ds.store = store
+	ds.logger.Info("restored database", "src", src)
+	return nil
+}
+
+// ExportProjectCSV writes all incomes and expenses of a project into a CSV file.
+func (ds *DataService) ExportProjectCSV(ctx context.Context, projectID int64, dest string) error {
+	incomes, err := ds.store.ListIncomes(ctx, projectID)
+	if err != nil {
+		return fmt.Errorf("list incomes: %w", err)
+	}
+	expenses, err := ds.store.ListExpenses(ctx, projectID)
+	if err != nil {
+		return fmt.Errorf("list expenses: %w", err)
+	}
+	f, err := os.Create(dest)
+	if err != nil {
+		return fmt.Errorf("create file: %w", err)
+	}
+	defer f.Close()
+	w := csv.NewWriter(f)
+	if err := w.Write([]string{"type", "name", "amount"}); err != nil {
+		return err
+	}
+	for _, inc := range incomes {
+		w.Write([]string{"income", inc.Source, fmt.Sprintf("%.2f", inc.Amount)})
+	}
+	for _, exp := range expenses {
+		w.Write([]string{"expense", exp.Category, fmt.Sprintf("%.2f", exp.Amount)})
+	}
+	w.Flush()
+	if err := w.Error(); err != nil {
+		return fmt.Errorf("write csv: %w", err)
+	}
+	ds.logger.Info("exported csv", "project", projectID, "dest", dest)
 	return nil
 }
 

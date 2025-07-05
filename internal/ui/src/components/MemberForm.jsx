@@ -8,11 +8,21 @@ export default function MemberForm({ onSubmit }) {
   const [email, setEmail] = useState("");
   const [joinDate, setJoinDate] = useState("2024-01-01");
   const [error, setError] = useState("");
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || !email) {
       setError(t('member.required'));
+      return;
+    }
+    if (!emailPattern.test(email)) {
+      setError(t('member.invalid_email'));
+      return;
+    }
+    if (!datePattern.test(joinDate)) {
+      setError(t('member.invalid_date'));
       return;
     }
     await onSubmit(name, email, joinDate, setError);

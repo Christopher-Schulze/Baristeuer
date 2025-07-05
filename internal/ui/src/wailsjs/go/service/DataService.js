@@ -69,3 +69,19 @@ export function ListMembers() {
 export function DeleteMember(arg1) {
   return window.go.service.DataService.DeleteMember(arg1);
 }
+
+export function ExportDatabase(arg1) {
+  return window.go.service.DataService.ExportDatabase(arg1);
+}
+
+export function RestoreDatabase(arg1) {
+  return window.go.service.DataService.RestoreDatabase(arg1);
+}
+
+export function SetLogLevel(arg1) {
+  return window.go.service.DataService.SetLogLevel(arg1);
+}
+
+export function ExportProjectCSV(arg1, arg2) {
+  return window.go.service.DataService.ExportProjectCSV(arg1, arg2);
+}

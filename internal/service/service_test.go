@@ -359,3 +359,86 @@ func TestDataService_ExportDatabase(t *testing.T) {
 		t.Fatal("expected exported file to be non-empty")
 	}
 }
+
+func TestDataService_RestoreDatabase(t *testing.T) {
+	tmpDir := t.TempDir()
+	dbPath := filepath.Join(tmpDir, "orig.db")
+	ds, err := NewDataService(dbPath, slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	ctx := context.Background()
+	proj, _ := ds.CreateProject(ctx, "One")
+	_ = proj
+
+	backup := filepath.Join(tmpDir, "backup.db")
+	if err := ds.ExportDatabase(backup); err != nil {
+		t.Fatalf("export: %v", err)
+	}
+
+	// add another project after backup
+	if _, err := ds.CreateProject(ctx, "Two"); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := ds.RestoreDatabase(backup); err != nil {
+		t.Fatalf("restore: %v", err)
+	}
+
+	list, _ := ds.ListProjects()
+	if len(list) != 1 || list[0].Name != "One" {
+		t.Fatalf("unexpected projects after restore: %+v", list)
+	}
+}
+
+func TestDataService_SetLogLevel(t *testing.T) {
+	logger, closer := NewLogger("", "info")
+	ds, err := NewDataService(":memory:", logger, closer)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	SetLogLevel("debug")
+	if logLevelVar.Level() != slog.LevelDebug {
+		t.Fatalf("expected debug level, got %v", logLevelVar.Level())
+	}
+
+	ds.SetLogLevel("error")
+	if logLevelVar.Level() != slog.LevelError {
+		t.Fatalf("expected error level, got %v", logLevelVar.Level())
+	}
+}
+
+func TestDataService_ExportProjectCSV(t *testing.T) {
+	tmpDir := t.TempDir()
+	dbPath := filepath.Join(tmpDir, "db.db")
+	ds, err := NewDataService(dbPath, slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	ctx := context.Background()
+	proj, _ := ds.CreateProject(ctx, "CSV")
+	if _, err := ds.AddIncome(ctx, proj.ID, "donation", 10); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ds.AddExpense(ctx, proj.ID, "rent", 5); err != nil {
+		t.Fatal(err)
+	}
+
+	dest := filepath.Join(tmpDir, "out.csv")
+	if err := ds.ExportProjectCSV(ctx, proj.ID, dest); err != nil {
+		t.Fatalf("ExportProjectCSV returned error: %v", err)
+	}
+	data, err := os.ReadFile(dest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(data), "income") || !strings.Contains(string(data), "expense") {
+		t.Fatalf("csv content unexpected: %s", data)
+	}
+}

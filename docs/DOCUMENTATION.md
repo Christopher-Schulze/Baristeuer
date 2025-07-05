@@ -7,11 +7,13 @@ Baristeuer is a desktop application for generating tax reports for non-profit or
 ## Technology Stack
 
 ### Backend
+
 - **Go**: Language for all backend logic.
 - **Wails**: Framework for building the desktop application.
 - **SQLite**: Lightweight database used through `database/sql`.
 
 ### Frontend
+
 - **React**: UI library for building the interface.
 - **Material UI**: Component library for styling.
 - **Vite**: Development server and build tool.
@@ -19,7 +21,7 @@ Baristeuer is a desktop application for generating tax reports for non-profit or
 ## Directory Structure
 
 - `cmd/`: Application entry point and Wails setup.
- - `docs/`: Documentation files (`Changelog.md`, `DOCUMENTATION.md`).
+- `docs/`: Documentation files (`Changelog.md`, `DOCUMENTATION.md`).
 - `internal/`: Core application logic.
   - `data/`: Data models and SQLite storage.
   - `pdf/`: PDF generation utilities.
@@ -55,6 +57,7 @@ errors. Future Go releases may support running `go test ./...` across workspace
 modules automatically.
 
 ### Frontend Tests
+
 To run the React unit tests you must install dependencies first:
 
 ```bash
@@ -76,9 +79,10 @@ application looks for `config.json` in the working directory. Example:
 }
 ```
 
-Command line flags override values from the file.
+Command line flags override values from the file. The log level can also be adjusted at runtime via the `SetLogLevel` method exposed by the `DataService`.
 
 ### Language Selection
+
 The application starts in German. Use the dropdown in the top toolbar to switch between German and English at any time.
 
 ## Key Features
@@ -89,11 +93,15 @@ The application starts in German. Use the dropdown in the top toolbar to switch 
 - **SQLite Storage**: Simple persistence layer to store project data.
 - **Member Tracking**: Manage club members with names, emails and join dates.
 - **Unit Tests**: Tests covering the tax calculation logic.
+- **Backup & Restore**: The `DataService` can export and restore the SQLite database for easy backups. Use `-exportdb <file>` to dump the database or `-restoredb <file>` to load it before the UI starts.
+- **CSV Export**: Use the `ExportProjectCSV` method to save all incomes and expenses of a project to a CSV file.
 
 ## Cross-Platform Compatibility
+
 The application is required to be fully functional on both **macOS** and **Windows** operating systems. All features must be tested and verified on both platforms to ensure a consistent user experience.
 
 ## Release Workflow
+
 The creation of a new release is automated through GitHub Actions. When a tag is
 pushed, `.github/workflows/release.yml` builds the application, signs the
 checksums and publishes a GitHub release. The workflow performs the following
@@ -112,16 +120,27 @@ To run the packaging step locally or inspect its behaviour, execute
 `./scripts/package.sh` from the repository root. The script mirrors the build
 logic used in the release workflow.
 
+## Continuous Integration
+
+Every push and pull request triggers a CI workflow defined in
+`.github/workflows/ci.yml`. This workflow installs all dependencies, runs the
+frontend linter and test suite, and executes `go vet` as well as all Go unit
+tests. The CI ensures that code quality checks pass before changes are merged.
+
 ## Final Project Assessment
 
 ### Current State
+
 The Baristeuer application is stable and covers the core features. The backend, built with Go, provides robust tax calculation and data management logic. The React-based frontend, styled with Material UI, offers an intuitive and responsive user interface. Erste Vorlagen für Steuerformulare (KSt 1, Anlage Gem/GK usw.) werden als PDF erzeugt. Die Anwendung wurde auf macOS und Windows für Basisszenarien getestet.
 
 ### Production Readiness
+
 Weitere Funktionen wie vollständige Steuerformulare und detaillierte PDF-Berichte sind noch in Arbeit. Die CI/CD-Pipeline führt Tests aus, dennoch ist das Projekt derzeit als Vorabversion zu betrachten.
 
 ### Potential Next Steps
+
 While the application is complete, future enhancements could include:
+
 - **Advanced Reporting:** Adding more detailed analytics and customizable report templates.
 - **Cloud Sync:** Implementing an optional cloud synchronization feature for backing up and sharing data across devices.
 - **Plugin System:** Developing a plugin architecture to allow for third-party extensions and integrations.
