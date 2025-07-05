@@ -12,3 +12,10 @@ Thank you for considering a contribution!
 - Keep JavaScript and React files formatted using Prettier.
 - Ensure the project builds without errors using `go build ./...` and `npm run build` for the UI.
 - Write tests for new functionality when possible.
+
+## Release Process
+- Create an annotated tag with the new version (e.g. `git tag -a v1.0.0 -m "v1.0.0"`).
+- Push the tag to GitHub.
+- The [release workflow](.github/workflows/release.yml) runs `scripts/package.sh` which builds binaries for macOS, Windows and Linux.
+- Generated ZIP files and installers are automatically attached to the GitHub release.
+
