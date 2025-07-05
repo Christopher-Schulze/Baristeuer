@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { vi, beforeEach } from 'vitest';
 import App from './App';
-import './i18n';
+import i18n from './i18n';
 
 // mock the DataService module used by App
 vi.mock('./wailsjs/go/service/DataService', () => ({
@@ -48,6 +48,7 @@ import {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  i18n.changeLanguage('de');
 });
 
 test('renders app heading', async () => {
@@ -263,4 +264,28 @@ test('deletes a member', async () => {
 
   await waitFor(() => expect(DeleteMember).toHaveBeenCalledWith(1));
   await waitFor(() => expect(screen.queryByText('Bob')).not.toBeInTheDocument());
+});
+
+test('changes language to French', async () => {
+  ListExpenses.mockResolvedValueOnce([]);
+  ListIncomes.mockResolvedValueOnce([]);
+  ListMembers.mockResolvedValueOnce([]);
+  render(<App />);
+  await screen.findByRole('heading', { name: /Baristeuer/i });
+
+  fireEvent.mouseDown(screen.getByRole('combobox'));
+  fireEvent.click(screen.getByRole('option', { name: 'FR' }));
+
+  expect(await screen.findByRole('tab', { name: 'Projets' })).toBeVisible();
+});
+
+test('updates document title on tab change', async () => {
+  ListExpenses.mockResolvedValueOnce([]);
+  ListIncomes.mockResolvedValueOnce([]);
+  ListMembers.mockResolvedValueOnce([]);
+  render(<App />);
+  await screen.findByRole('heading', { name: /Baristeuer/i });
+  expect(document.title).toContain('Einnahmen');
+  fireEvent.click(screen.getByRole('tab', { name: /Ausgaben/i }));
+  expect(document.title).toContain('Ausgaben');
 });

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { CssBaseline, Container, FormControlLabel, Switch, AppBar, Toolbar, Typography, Tabs, Tab, Paper, Select, MenuItem, Snackbar, Alert } from "@mui/material";
+import { CssBaseline, Container, FormControlLabel, Switch, AppBar, Toolbar, Typography, Tabs, Tab, Paper, Select, MenuItem, Snackbar, Alert, Breadcrumbs } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import "./i18n";
 import { ListExpenses, ListIncomes, AddIncome, UpdateIncome, DeleteIncome, AddExpense, UpdateExpense, DeleteExpense, AddMember, UpdateMember, ListMembers, DeleteMember } from "./wailsjs/go/service/DataService";
@@ -14,6 +14,8 @@ import MemberTable from "./components/MemberTable";
 import TaxPanel from "./components/TaxPanel";
 import FormsPanel from "./components/FormsPanel";
 import SettingsPanel from "./components/SettingsPanel";
+
+const tabKeys = ['tab.projects', 'tab.members', 'tab.incomes', 'tab.expenses', 'tab.forms', 'tab.taxes', 'tab.settings'];
 
 export default function App() {
   const [incomes, setIncomes] = useState([]);
@@ -68,6 +70,9 @@ export default function App() {
   useEffect(() => {
     fetchMembers();
   }, []);
+  useEffect(() => {
+    document.title = `Baristeuer - ${t(tabKeys[tab])}`;
+  }, [tab, i18n.language, t]);
 
   const submitIncome = async (source, amount, setError) => {
     try {
@@ -131,6 +136,7 @@ export default function App() {
           >
             <MenuItem value="de">DE</MenuItem>
             <MenuItem value="en">EN</MenuItem>
+            <MenuItem value="fr">FR</MenuItem>
           </Select>
           <FormControlLabel
             control={<Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} color="default" />}
@@ -148,6 +154,10 @@ export default function App() {
         </Tabs>
       </AppBar>
       <Container maxWidth="md" sx={{ py: 4 }}>
+        <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+          <Typography color="inherit">Baristeuer</Typography>
+          <Typography color="text.primary">{t(tabKeys[tab])}</Typography>
+        </Breadcrumbs>
         {tab === 0 && (
           <ProjectPanel activeId={projectId} onSelect={(id) => setProjectId(id)} />
         )}

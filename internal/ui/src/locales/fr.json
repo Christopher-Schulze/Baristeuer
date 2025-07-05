@@ -1,0 +1,108 @@
+{
+  "theme": { "dark": "Sombre", "light": "Clair" },
+  "tab": {
+    "projects": "Projets",
+    "members": "Membres",
+    "incomes": "Revenus",
+    "expenses": "Dépenses",
+    "forms": "Formulaires",
+    "taxes": "Impôts",
+    "settings": "Paramètres"
+  },
+
+  "settings": {
+    "title": "Paramètres",
+    "export": "Exporter la base",
+    "restore": "Restaurer la base",
+    "csv": "Exporter CSV projet",
+    "select_log": "Niveau de log",
+    "log_format": "Format du log",
+    "apply": "Appliquer",
+    "exported": "Base exportée",
+    "restored": "Base restaurée",
+    "csv_exported": "CSV exporté",
+    "tax_year": "Année fiscale"
+  },
+  "income": {
+    "new": "Nouveau revenu",
+    "add": "Ajouter",
+    "source": "Source",
+    "amount": "Montant (€)",
+    "table": {
+      "source": "Source",
+      "amount": "Montant (€)",
+      "actions": "Actions",
+      "empty": "Aucun revenu"
+    }
+  },
+  "expense": {
+    "new": "Nouvelle dépense",
+    "add": "Ajouter",
+    "description": "Description",
+    "amount": "Montant (€)",
+    "table": {
+      "description": "Description",
+      "amount": "Montant (€)",
+      "actions": "Actions",
+      "empty": "Aucune dépense"
+    }
+  },
+  "project": {
+    "new": "Nouveau projet",
+    "create": "Créer",
+    "error": "Erreur lors de la création",
+    "delete": "Supprimer"
+  },
+  "member": {
+    "new": "Nouveau membre",
+    "add": "Ajouter",
+    "name": "Nom",
+    "email": "E-mail",
+    "joinDate": "Date d\u2019adhésion",
+    "table": {
+      "name": "Nom",
+      "email": "E-mail",
+      "joinDate": "Date d\u2019adhésion",
+      "actions": "Actions",
+      "empty": "Aucun membre"
+    }
+  },
+  "forms": {
+    "generate_all": "Générer tous les formulaires",
+    "error": "Erreur de génération"
+  },
+  "form": {
+    "generate": "Générer",
+    "kst1": "KSt 1",
+    "anlageGem": "Anlage Gem",
+    "anlageGK": "Anlage GK",
+    "kst1f": "KSt 1F",
+    "anlageSport": "Anlage Sport",
+    "detailedReport": "Rapport détaillé"
+  },
+  "tax": {
+    "calculate": "Calculer les impôts",
+    "revenue": "Revenus : {{value}} €",
+    "expenses": "Dépenses : {{value}} €",
+    "taxableIncome": "Revenu imposable : {{value}} €",
+    "totalTax": "Impôt total : {{value}} €",
+    "year": "Année",
+    "error": "Erreur de calcul"
+  },
+  "language": "Langue",
+  "language_de": "Allemand",
+  "language_en": "Anglais",
+  "language_fr": "Français",
+  "edit": "Éditer",
+  "delete": "Supprimer",
+  "errors": {
+    "income_required": "Source et montant requis",
+    "income_positive": "Le montant doit être positif",
+    "expense_required": "Description et montant requis",
+    "expense_positive": "Le montant doit être positif",
+    "member_required": "Nom et e-mail requis",
+    "member_invalid_email": "Adresse e-mail invalide",
+    "member_invalid_date": "Date invalide",
+    "add": "Erreur lors de l\u2019ajout"
+  }
+}
