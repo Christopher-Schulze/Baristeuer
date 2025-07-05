@@ -98,8 +98,19 @@ func main() {
 	datasvc := service.NewDataServiceFromStore(store, logger, logCloser)
 	defer datasvc.Close()
 
-	// Load optional runtime plugins from ./plugins if available.
-	loadPlugins("plugins", datasvc)
+	// Load optional runtime plugins from a "plugins" directory located next
+	// to the executable. The BARISTEUER_PLUGINS environment variable can
+	// override the directory.
+	pluginDir := os.Getenv("BARISTEUER_PLUGINS")
+	if pluginDir == "" {
+		exe, err := os.Executable()
+		if err == nil {
+			pluginDir = filepath.Join(filepath.Dir(exe), "plugins")
+		} else {
+			pluginDir = "plugins"
+		}
+	}
+	loadPlugins(pluginDir, datasvc)
 
 	if *exportPath != "" {
 		if err := datasvc.ExportDatabase(*exportPath); err != nil {

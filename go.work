@@ -4,4 +4,5 @@ use (
 	./cmd
 	./internal
 	./internal/pdf
+	./plugins/example
 )

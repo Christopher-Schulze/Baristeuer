@@ -133,6 +133,9 @@ type Plugin interface {
 register additional functionality. If the `plugins/` directory does not exist,
 the application starts normally without loading any extensions.
 
+See [Plugin Development Guide](plugin-development.md) for instructions on
+writing and building your own plugins.
+
 ## Cross-Platform Compatibility
 
 Die Anwendung wurde erfolgreich unter **macOS** und **Windows** getestet. Alle Funktionen stehen auf beiden Plattformen ohne Einschränkungen zur Verfügung.
