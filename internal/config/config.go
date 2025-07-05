@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 // Config holds application configuration values.
@@ -18,6 +19,14 @@ type Config struct {
 	FormAddress   string `json:"formAddress"`
 }
 
+// DefaultConfig provides sensible defaults for a new configuration file.
+var DefaultConfig = Config{
+	DBPath:   "baristeuer.db",
+	PDFDir:   filepath.Join(".", "internal", "data", "reports"),
+	LogFile:  "baristeuer.log",
+	LogLevel: "info",
+}
+
 // Load reads configuration from the given file path. If the file does not exist,
 // default values are returned and no error is raised.
 func Load(path string) (Config, error) {
@@ -25,6 +34,10 @@ func Load(path string) (Config, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		if os.IsNotExist(err) {
+			cfg = DefaultConfig
+			if err := Save(path, cfg); err != nil {
+				return cfg, nil
+			}
 			return cfg, nil
 		}
 		return cfg, fmt.Errorf("open config: %w", err)

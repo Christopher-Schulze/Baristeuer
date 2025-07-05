@@ -42,8 +42,11 @@ func TestLoadMissingFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Load returned error: %v", err)
 	}
-	if cfg != (Config{}) {
-		t.Fatalf("expected zero config, got %+v", cfg)
+	if cfg != DefaultConfig {
+		t.Fatalf("expected default config, got %+v", cfg)
+	}
+	if _, err := os.Stat(path); err != nil {
+		t.Fatalf("config file not created: %v", err)
 	}
 }
 
