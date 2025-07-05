@@ -9,22 +9,28 @@ import (
 
 // Config holds application configuration values.
 type Config struct {
-	DBPath        string `json:"dbPath"`
-	PDFDir        string `json:"pdfDir"`
-	LogFile       string `json:"logFile"`
-	LogLevel      string `json:"logLevel"`
-	TaxYear       int    `json:"taxYear"`
-	FormName      string `json:"formName"`
-	FormTaxNumber string `json:"formTaxNumber"`
-	FormAddress   string `json:"formAddress"`
+	DBPath          string `json:"dbPath"`
+	PDFDir          string `json:"pdfDir"`
+	LogFile         string `json:"logFile"`
+	LogLevel        string `json:"logLevel"`
+	TaxYear         int    `json:"taxYear"`
+	FormName        string `json:"formName"`
+	FormTaxNumber   string `json:"formTaxNumber"`
+	FormAddress     string `json:"formAddress"`
+	FormCity        string `json:"formCity"`
+	FormBankAccount string `json:"formBankAccount"`
+	FormActivity    string `json:"formActivity"`
 }
 
 // DefaultConfig provides sensible defaults for a new configuration file.
 var DefaultConfig = Config{
-	DBPath:   "baristeuer.db",
-	PDFDir:   filepath.Join(".", "internal", "data", "reports"),
-	LogFile:  "baristeuer.log",
-	LogLevel: "info",
+	DBPath:          "baristeuer.db",
+	PDFDir:          filepath.Join(".", "internal", "data", "reports"),
+	LogFile:         "baristeuer.log",
+	LogLevel:        "info",
+	FormCity:        "",
+	FormBankAccount: "",
+	FormActivity:    "",
 }
 
 // Load reads configuration from the given file path. If the file does not exist,

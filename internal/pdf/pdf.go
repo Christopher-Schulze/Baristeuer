@@ -88,10 +88,13 @@ func (g *Generator) SetTaxYear(year int) {
 
 func (g *Generator) formInfo() FormInfo {
 	return FormInfo{
-		Name:       g.cfg.FormName,
-		TaxNumber:  g.cfg.FormTaxNumber,
-		Address:    g.cfg.FormAddress,
-		FiscalYear: fmt.Sprintf("%d", g.cfg.TaxYear),
+		Name:        g.cfg.FormName,
+		TaxNumber:   g.cfg.FormTaxNumber,
+		Address:     g.cfg.FormAddress,
+		City:        g.cfg.FormCity,
+		BankAccount: g.cfg.FormBankAccount,
+		Activity:    g.cfg.FormActivity,
+		FiscalYear:  fmt.Sprintf("%d", g.cfg.TaxYear),
 	}
 }
 
@@ -198,7 +201,6 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	if err := info.Validate(); err != nil {
 		return "", err
 	}
-
 
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {
@@ -338,7 +340,6 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	if err := info.Validate(); err != nil {
 		return "", err
 	}
-
 
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {

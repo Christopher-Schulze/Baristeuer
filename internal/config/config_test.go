@@ -18,7 +18,10 @@ func TestLoadFromFile(t *testing.T) {
         "taxYear": 2026,
         "formName": "Club",
         "formTaxNumber": "11/111/11111",
-        "formAddress": "Street 1"
+        "formAddress": "Street 1",
+        "formCity": "Town",
+        "formBankAccount": "DE00",
+        "formActivity": "Sport"
     }`
 	if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
 		t.Fatal(err)
@@ -29,7 +32,8 @@ func TestLoadFromFile(t *testing.T) {
 		t.Fatalf("Load returned error: %v", err)
 	}
 	if cfg.DBPath != "db.sqlite" || cfg.PDFDir != "./pdfs" || cfg.LogFile != "app.log" || cfg.LogLevel != "debug" ||
-		cfg.TaxYear != 2026 || cfg.FormName != "Club" || cfg.FormTaxNumber != "11/111/11111" || cfg.FormAddress != "Street 1" {
+		cfg.TaxYear != 2026 || cfg.FormName != "Club" || cfg.FormTaxNumber != "11/111/11111" || cfg.FormAddress != "Street 1" ||
+		cfg.FormCity != "Town" || cfg.FormBankAccount != "DE00" || cfg.FormActivity != "Sport" {
 		t.Fatalf("unexpected config: %+v", cfg)
 	}
 }
@@ -53,7 +57,7 @@ func TestLoadMissingFile(t *testing.T) {
 func TestSaveAndVerify(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "out.json")
-	expected := Config{DBPath: "db", PDFDir: "pdf", LogFile: "log", LogLevel: "info", TaxYear: 2025, FormName: "Org", FormTaxNumber: "12/222/22222", FormAddress: "Main"}
+	expected := Config{DBPath: "db", PDFDir: "pdf", LogFile: "log", LogLevel: "info", TaxYear: 2025, FormName: "Org", FormTaxNumber: "12/222/22222", FormAddress: "Main", FormCity: "Town", FormBankAccount: "DE00", FormActivity: "Sport"}
 
 	if err := Save(path, expected); err != nil {
 		t.Fatalf("Save returned error: %v", err)
