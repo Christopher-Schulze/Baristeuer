@@ -19,7 +19,8 @@
     "apply": "Apply",
     "exported": "Database exported",
     "restored": "Database restored",
-    "csv_exported": "CSV exported"
+    "csv_exported": "CSV exported",
+    "tax_year": "Tax Year"
   },
   "income": {
     "new": "New Income",

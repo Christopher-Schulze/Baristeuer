@@ -19,7 +19,8 @@
     "apply": "Anwenden",
     "exported": "Datenbank exportiert",
     "restored": "Datenbank wiederhergestellt",
-    "csv_exported": "CSV exportiert"
+    "csv_exported": "CSV exportiert",
+    "tax_year": "Steuerjahr"
   },
   "income": {
     "new": "Neue Einnahme",
