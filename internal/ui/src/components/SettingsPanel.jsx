@@ -3,6 +3,7 @@ import {
   Box,
   TextField,
   Button,
+  CircularProgress,
   Select,
   MenuItem,
   Typography,
@@ -24,32 +25,42 @@ export default function SettingsPanel({ projectId }) {
   const [level, setLevel] = useState("info");
   const [taxYear, setTaxYear] = useState(2025);
   const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const doExport = async () => {
     try {
+      setLoading(true);
+      setMsg(t("settings.processing"));
       await ExportDatabase(exportPath);
       setMsg(t("settings.exported"));
     } catch (e) {
       setMsg(String(e));
     }
+    setLoading(false);
   };
 
   const doRestore = async () => {
     try {
+      setLoading(true);
+      setMsg(t("settings.processing"));
       await RestoreDatabase(restorePath);
       setMsg(t("settings.restored"));
     } catch (e) {
       setMsg(String(e));
     }
+    setLoading(false);
   };
 
   const doExportCSV = async () => {
     try {
+      setLoading(true);
+      setMsg(t("settings.processing"));
       await ExportProjectCSV(projectId, csvPath);
       setMsg(t("settings.csv_exported"));
     } catch (e) {
       setMsg(String(e));
     }
+    setLoading(false);
   };
 
   const changeLevel = () => {
@@ -127,10 +138,11 @@ export default function SettingsPanel({ projectId }) {
           {t("settings.apply")}
         </Button>
       </Box>
-      {msg && (
-        <Typography color="primary" sx={{ mt: 2 }}>
-          {msg}
-        </Typography>
+      {(msg || loading) && (
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
+          {loading && <CircularProgress size={20} />}
+          <Typography color="primary">{msg}</Typography>
+        </Box>
       )}
     </Box>
   );

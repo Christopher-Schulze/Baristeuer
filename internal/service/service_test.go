@@ -4,12 +4,15 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"baristeuer/internal/data"
 )
 
 func TestDataService_AddIncome(t *testing.T) {
@@ -358,6 +361,14 @@ func TestDataService_ExportDatabase(t *testing.T) {
 	if info.Size() == 0 {
 		t.Fatal("expected exported file to be non-empty")
 	}
+	metaPath := dest + ".meta.json"
+	metaData, err := os.ReadFile(metaPath)
+	if err != nil {
+		t.Fatalf("meta file: %v", err)
+	}
+	if !bytes.Contains(metaData, []byte("version")) {
+		t.Fatalf("expected version in meta: %s", metaData)
+	}
 }
 
 func TestDataService_RestoreDatabase(t *testing.T) {
@@ -377,6 +388,15 @@ func TestDataService_RestoreDatabase(t *testing.T) {
 	if err := ds.ExportDatabase(backup); err != nil {
 		t.Fatalf("export: %v", err)
 	}
+
+	// corrupt version
+	os.WriteFile(backup+".meta.json", []byte(`{"version":999}`), 0644)
+	if err := ds.RestoreDatabase(backup); err == nil {
+		t.Fatalf("expected version error")
+	}
+
+	// fix version
+	os.WriteFile(backup+".meta.json", []byte(fmt.Sprintf(`{"version":%d}`, data.DatabaseVersion)), 0644)
 
 	// add another project after backup
 	if _, err := ds.CreateProject(ctx, "Two"); err != nil {

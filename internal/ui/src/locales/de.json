@@ -20,6 +20,7 @@
     "exported": "Datenbank exportiert",
     "restored": "Datenbank wiederhergestellt",
     "csv_exported": "CSV exportiert",
+    "processing": "Verarbeite...",
     "tax_year": "Steuerjahr"
   },
   "income": {

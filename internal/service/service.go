@@ -5,6 +5,7 @@ import (
 	"baristeuer/internal/taxlogic"
 	"context"
 	"encoding/csv"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -242,10 +243,24 @@ func (ds *DataService) ExportDatabase(dest string) error {
 	if err != nil {
 		return fmt.Errorf("create dest: %w", err)
 	}
-	defer out.Close()
 	if _, err := io.Copy(out, in); err != nil {
+		out.Close()
 		return fmt.Errorf("copy db: %w", err)
 	}
+	out.Close()
+	metaPath := dest + ".meta.json"
+	mf, err := os.Create(metaPath)
+	if err != nil {
+		return fmt.Errorf("create meta: %w", err)
+	}
+	meta := struct {
+		Version int `json:"version"`
+	}{Version: data.DatabaseVersion}
+	if err := json.NewEncoder(mf).Encode(&meta); err != nil {
+		mf.Close()
+		return fmt.Errorf("write meta: %w", err)
+	}
+	mf.Close()
 	ds.logger.Info("exported database", "dest", dest)
 	return nil
 }
@@ -259,6 +274,23 @@ func (ds *DataService) SetLogLevel(level string) {
 // RestoreDatabase replaces the current SQLite file with the one at src.
 // The service closes the datastore, copies the file and reopens the connection.
 func (ds *DataService) RestoreDatabase(src string) error {
+	metaPath := src + ".meta.json"
+	mf, err := os.Open(metaPath)
+	if err != nil {
+		return fmt.Errorf("open meta: %w", err)
+	}
+	var meta struct {
+		Version int `json:"version"`
+	}
+	if err := json.NewDecoder(mf).Decode(&meta); err != nil {
+		mf.Close()
+		return fmt.Errorf("decode meta: %w", err)
+	}
+	mf.Close()
+	if meta.Version != data.DatabaseVersion {
+		return fmt.Errorf("incompatible database version %d", meta.Version)
+	}
+
 	destPath := ds.store.Path()
 	if err := ds.store.Close(); err != nil {
 		return fmt.Errorf("close store: %w", err)
