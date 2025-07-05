@@ -37,3 +37,12 @@ test('shows submit error', async () => {
   fireEvent.click(screen.getByRole('button', { name: /Hinzufügen/i }));
   expect(await screen.findByText('fail')).toBeInTheDocument();
 });
+
+test('prefills data when editing', () => {
+  const item = { id: 1, name: 'Eve', email: 'eve@example.com', joinDate: '2024-01-05' };
+  render(<MemberForm onSubmit={onSubmit} editItem={item} />);
+  expect(screen.getByDisplayValue('Eve')).toBeInTheDocument();
+  expect(screen.getByDisplayValue('eve@example.com')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: /Hinzufügen/i }));
+  expect(onSubmit).toHaveBeenCalled();
+});

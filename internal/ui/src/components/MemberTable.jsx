@@ -1,7 +1,7 @@
 import { Table, TableHead, TableBody, TableRow, TableCell, Button } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
-export default function MemberTable({ members, onDelete }) {
+export default function MemberTable({ members, onEdit, onDelete }) {
   const { t } = useTranslation();
   return (
     <Table>
@@ -21,6 +21,11 @@ export default function MemberTable({ members, onDelete }) {
               <TableCell>{m.email}</TableCell>
               <TableCell>{m.joinDate}</TableCell>
               <TableCell>
+                {onEdit && (
+                  <Button size="small" onClick={() => onEdit(m)}>
+                    {t('edit')}
+                  </Button>
+                )}
                 <Button size="small" color="error" onClick={() => onDelete(m.id)}>
                   {t('delete')}
                 </Button>

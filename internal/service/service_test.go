@@ -211,6 +211,39 @@ func TestDataService_MemberOperations(t *testing.T) {
 	}
 }
 
+func TestDataService_UpdateDeleteMember(t *testing.T) {
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	ctx := context.Background()
+
+	m, err := ds.AddMember(ctx, "Bob", "bob@example.com", "2024-01-10")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := ds.UpdateMember(ctx, m.ID, "Bobby", "bob@example.com", "2024-02-01"); err != nil {
+		t.Fatalf("UpdateMember failed: %v", err)
+	}
+
+	members, _ := ds.ListMembers(ctx)
+	if len(members) != 1 || members[0].Name != "Bobby" || members[0].JoinDate != "2024-02-01" {
+		t.Fatalf("update failed: %+v", members)
+	}
+
+	if err := ds.DeleteMember(ctx, m.ID); err != nil {
+		t.Fatalf("DeleteMember failed: %v", err)
+	}
+
+	members, _ = ds.ListMembers(ctx)
+	if len(members) != 0 {
+		t.Fatalf("expected empty list, got %+v", members)
+	}
+}
+
 func TestDataService_AddIncome_LogOutput(t *testing.T) {
 	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
 	if err != nil {

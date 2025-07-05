@@ -3,7 +3,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { CssBaseline, Container, FormControlLabel, Switch, AppBar, Toolbar, Typography, Tabs, Tab, Paper, Select, MenuItem, Snackbar, Alert } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import "./i18n";
-import { ListExpenses, ListIncomes, AddIncome, UpdateIncome, DeleteIncome, AddExpense, UpdateExpense, DeleteExpense, AddMember, ListMembers, DeleteMember } from "./wailsjs/go/service/DataService";
+import { ListExpenses, ListIncomes, AddIncome, UpdateIncome, DeleteIncome, AddExpense, UpdateExpense, DeleteExpense, AddMember, UpdateMember, ListMembers, DeleteMember } from "./wailsjs/go/service/DataService";
 import ProjectPanel from "./components/ProjectPanel";
 import IncomeForm from "./components/IncomeForm";
 import IncomeTable from "./components/IncomeTable";
@@ -19,6 +19,7 @@ export default function App() {
   const [incomes, setIncomes] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [members, setMembers] = useState([]);
+  const [editMember, setEditMember] = useState(null);
   const [editIncome, setEditIncome] = useState(null);
   const [editExpense, setEditExpense] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
@@ -100,7 +101,12 @@ export default function App() {
 
   const submitMember = async (name, email, joinDate, setError) => {
     try {
-      await AddMember(name, email, joinDate);
+      if (editMember) {
+        await UpdateMember(editMember.id, name, email, joinDate);
+        setEditMember(null);
+      } else {
+        await AddMember(name, email, joinDate);
+      }
       setError("");
       fetchMembers();
     } catch (err) {
@@ -151,11 +157,12 @@ export default function App() {
               <Typography variant="h6" component="h2" gutterBottom>
                 {t('member.new')}
               </Typography>
-              <MemberForm onSubmit={submitMember} />
+              <MemberForm onSubmit={submitMember} editItem={editMember} />
             </Paper>
             <Paper>
               <MemberTable
                 members={members}
+                onEdit={(m) => setEditMember(m)}
                 onDelete={async (id) => {
                   await DeleteMember(id);
                   fetchMembers();
