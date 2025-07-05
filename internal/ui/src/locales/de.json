@@ -7,6 +7,7 @@
     "expenses": "Ausgaben",
     "forms": "Formulare",
     "taxes": "Steuern",
+    "reports": "Berichte",
     "settings": "Einstellungen"
   },
 
@@ -88,6 +89,12 @@
     "totalTax": "Gesamtsteuer: {{value}} €",
     "year": "Jahr",
     "error": "Fehler bei Berechnung"
+  },
+  "reports": {
+    "average": "Durchschnitt",
+    "avgIncome": "Ø Einnahmen",
+    "avgExpense": "Ø Ausgaben",
+    "trend": "Trend: {{value}}"
   },
   "language": "Sprache",
   "language_de": "Deutsch",

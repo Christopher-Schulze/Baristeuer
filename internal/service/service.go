@@ -2,6 +2,7 @@ package service
 
 import (
 	"baristeuer/internal/data"
+	"baristeuer/internal/report"
 	syncsvc "baristeuer/internal/sync"
 	"baristeuer/internal/taxlogic"
 	"context"
@@ -242,6 +243,29 @@ func (ds *DataService) CalculateProjectTaxes(ctx context.Context, projectID int6
 	result := taxlogic.CalculateTaxes(revenue, expenses, year)
 	ds.logger.Info("calculated taxes", "project", projectID, "total", result.TotalTax)
 	return result, nil
+}
+
+// GenerateStatistics returns basic statistics for the given project and year.
+func (ds *DataService) GenerateStatistics(ctx context.Context, projectID int64, year int) (report.Statistics, error) {
+	incomes, err := ds.store.ListIncomes(ctx, projectID)
+	if err != nil {
+		return report.Statistics{}, fmt.Errorf("list incomes: %w", err)
+	}
+	expenses, err := ds.store.ListExpenses(ctx, projectID)
+	if err != nil {
+		return report.Statistics{}, fmt.Errorf("list expenses: %w", err)
+	}
+	incVals := make([]float64, len(incomes))
+	for i, in := range incomes {
+		incVals[i] = in.Amount
+	}
+	expVals := make([]float64, len(expenses))
+	for i, ex := range expenses {
+		expVals[i] = ex.Amount
+	}
+	stats := report.Calculate(incVals, expVals, year)
+	ds.logger.Info("generated statistics", "project", projectID)
+	return stats, nil
 }
 
 // ExportDatabase copies the underlying SQLite file to the given path.
