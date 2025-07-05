@@ -39,7 +39,7 @@ func Load(path string) (Config, error) {
 		if os.IsNotExist(err) {
 			cfg = DefaultConfig
 			if err := Save(path, cfg); err != nil {
-				return cfg, nil
+				return cfg, fmt.Errorf("save config: %w", err)
 			}
 			return cfg, nil
 		}

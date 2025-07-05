@@ -72,3 +72,12 @@ func TestSaveAndVerify(t *testing.T) {
 		t.Fatalf("written config mismatch: %+v vs %+v", got, expected)
 	}
 }
+
+func TestLoadSaveError(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "missing", "config.json")
+
+	if _, err := Load(path); err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
