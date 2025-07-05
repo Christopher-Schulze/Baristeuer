@@ -139,6 +139,15 @@ func (g *Generator) GenerateKSt1(projectID int64, info FormInfo) (string, error)
 		info.FiscalYear = "2025"
 	}
 
+	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
+	if err != nil {
+		return "", fmt.Errorf("fetch revenue: %w", err)
+	}
+	expenses, err := g.store.SumExpenseByProject(ctx, projectID)
+	if err != nil {
+		return "", fmt.Errorf("fetch expenses: %w", err)
+	}
+
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
 		return "", fmt.Errorf("failed to create directory: %w", err)
 	}
@@ -225,6 +234,20 @@ func (g *Generator) GenerateKSt1(projectID int64, info FormInfo) (string, error)
 	pdf.Cell(0, 8, "____________________")
 	pdf.Ln(10)
 
+	pdf.SetFont("Arial", "B", 12)
+	pdf.Cell(0, 8, "3. Finanz\xC3\xBCbersicht")
+	pdf.Ln(8)
+	pdf.SetFont("Arial", "", 12)
+	pdf.Cell(60, 8, "Einnahmen gesamt:")
+	pdf.Cell(0, 8, fmt.Sprintf("%.2f EUR", revenue))
+	pdf.Ln(8)
+	pdf.Cell(60, 8, "Ausgaben gesamt:")
+	pdf.Cell(0, 8, fmt.Sprintf("%.2f EUR", expenses))
+	pdf.Ln(8)
+	pdf.Cell(60, 8, "Jahres\xC3\xBCberschuss:")
+	pdf.Cell(0, 8, fmt.Sprintf("%.2f EUR", revenue-expenses))
+	pdf.Ln(10)
+
 	pdf.MultiCell(0, 6, "Alle Angaben sind gem\xC3\xA4\xC3\x9F den Vorgaben der Finanzverwaltung zu machen.", "", "L", false)
 
 	if err := pdf.OutputFileAndClose(filePath); err != nil {
@@ -244,6 +267,20 @@ func (g *Generator) GenerateAnlageGem(projectID int64, info FormInfo) (string, e
 	if info.FiscalYear == "" {
 		info.FiscalYear = "2025"
 	}
+
+	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
+	if err != nil {
+		return "", fmt.Errorf("fetch revenue: %w", err)
+	}
+	expenses, err := g.store.SumExpenseByProject(ctx, projectID)
+	if err != nil {
+		return "", fmt.Errorf("fetch expenses: %w", err)
+	}
+	members, err := g.store.ListMembers(ctx)
+	if err != nil {
+		return "", fmt.Errorf("fetch members: %w", err)
+	}
+	memberCount := len(members)
 
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
 		return "", fmt.Errorf("failed to create directory: %w", err)
@@ -315,6 +352,24 @@ func (g *Generator) GenerateAnlageGem(projectID int64, info FormInfo) (string, e
 	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
 	pdf.SetXY(70, y)
 	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Mitglieder:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, fmt.Sprintf("%d", memberCount), "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Einnahmen:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", revenue), "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ausgaben:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", expenses), "1", 0, "", false, 0, "")
 	y += h + 4
 	pdf.SetY(y)
 
@@ -333,6 +388,15 @@ func (g *Generator) GenerateAnlageGK(projectID int64, info FormInfo) (string, er
 	p, _ := g.store.GetProject(ctx, projectID)
 	if info.Name == "" && p != nil {
 		info.Name = p.Name
+	}
+
+	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
+	if err != nil {
+		return "", fmt.Errorf("fetch revenue: %w", err)
+	}
+	expenses, err := g.store.SumExpenseByProject(ctx, projectID)
+	if err != nil {
+		return "", fmt.Errorf("fetch expenses: %w", err)
 	}
 
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
@@ -384,6 +448,18 @@ func (g *Generator) GenerateAnlageGK(projectID int64, info FormInfo) (string, er
 	pdf.CellFormat(50, h, "Umsatz des Vorjahres:", "1", 0, "", false, 0, "")
 	pdf.SetXY(70, y)
 	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Gesamte Einnahmen:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", revenue), "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Gesamte Ausgaben:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", expenses), "1", 0, "", false, 0, "")
 	y += h + 4
 	pdf.SetY(y)
 
@@ -402,6 +478,15 @@ func (g *Generator) GenerateKSt1F(projectID int64, info FormInfo) (string, error
 	p, _ := g.store.GetProject(ctx, projectID)
 	if info.Name == "" && p != nil {
 		info.Name = p.Name
+	}
+
+	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
+	if err != nil {
+		return "", fmt.Errorf("fetch revenue: %w", err)
+	}
+	expenses, err := g.store.SumExpenseByProject(ctx, projectID)
+	if err != nil {
+		return "", fmt.Errorf("fetch expenses: %w", err)
 	}
 
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
@@ -453,6 +538,18 @@ func (g *Generator) GenerateKSt1F(projectID int64, info FormInfo) (string, error
 	pdf.CellFormat(50, h, "Erhaltene F\xC3\xB6rdermittel:", "1", 0, "", false, 0, "")
 	pdf.SetXY(70, y)
 	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Gesamteinnahmen:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", revenue), "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Gesamtausgaben:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", expenses), "1", 0, "", false, 0, "")
 	y += h + 4
 	pdf.SetY(y)
 
@@ -472,6 +569,16 @@ func (g *Generator) GenerateAnlageSport(projectID int64, info FormInfo) (string,
 	if info.Name == "" && p != nil {
 		info.Name = p.Name
 	}
+
+	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
+	if err != nil {
+		return "", fmt.Errorf("fetch revenue: %w", err)
+	}
+	members, err := g.store.ListMembers(ctx)
+	if err != nil {
+		return "", fmt.Errorf("fetch members: %w", err)
+	}
+	memberCount := len(members)
 
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
 		return "", fmt.Errorf("failed to create directory: %w", err)
@@ -509,13 +616,13 @@ func (g *Generator) GenerateAnlageSport(projectID int64, info FormInfo) (string,
 	pdf.SetXY(20, y)
 	pdf.CellFormat(50, h, "Mitgliederzahl:", "1", 0, "", false, 0, "")
 	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
+	pdf.CellFormat(120, h, fmt.Sprintf("%d", memberCount), "1", 0, "", false, 0, "")
 	y += h
 
 	pdf.SetXY(20, y)
 	pdf.CellFormat(50, h, "Einnahmen aus Sportbetrieb:", "1", 0, "", false, 0, "")
 	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
+	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", revenue), "1", 0, "", false, 0, "")
 	y += h
 
 	pdf.SetXY(20, y)
