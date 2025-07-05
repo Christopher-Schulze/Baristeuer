@@ -10,6 +10,7 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"path/filepath"
 )
 
 func main() {
@@ -39,6 +40,10 @@ func main() {
 	}
 	if *logLevel != "" {
 		cfg.LogLevel = *logLevel
+	}
+
+	if cfg.PDFDir == "" {
+		cfg.PDFDir = filepath.Join(".", config.DefaultPDFDir)
 	}
 
 	if cfg.DBPath == "" {
