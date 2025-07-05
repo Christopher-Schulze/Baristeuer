@@ -8,7 +8,7 @@ Thank you for considering a contribution!
 - Open a pull request targeting `main` when your work is ready for review.
 
 ## Coding Conventions
-- Format Go code with `go fmt` before committing.
+- Format Go code with `gofmt -w` before committing. The CI will fail if formatting changes are detected.
 - Keep JavaScript and React files formatted using Prettier.
 - Ensure the project builds without errors using `go build ./...` and `npm run build` for the UI.
 - Write tests for new functionality when possible.
