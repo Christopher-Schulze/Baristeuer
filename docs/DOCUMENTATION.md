@@ -29,6 +29,18 @@ Baristeuer is a desktop application for generating tax reports for non-profit or
   - `ui/`: React frontend source code.
 - `scripts/`: Helper scripts for development.
 
+## Installing Dependencies
+
+Install all Go modules and Node packages after cloning the repository:
+
+```bash
+go work sync
+npm ci --prefix internal/ui
+```
+
+These commands set up the workspace modules and fetch the UI dependencies.
+Run `make vet` and `make test` afterward to verify everything works locally.
+
 ## Workspace Setup and Running Tests
 
 The repository uses a Go **workspace** (`go.work`) to manage multiple modules.
