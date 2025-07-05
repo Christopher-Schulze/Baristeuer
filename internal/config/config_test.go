@@ -30,7 +30,8 @@ func TestLoadFromFile(t *testing.T) {
 		t.Fatalf("Load returned error: %v", err)
 	}
 	if cfg.DBPath != "db.sqlite" || cfg.PDFDir != "./pdfs" || cfg.LogFile != "app.log" || cfg.LogLevel != "debug" || cfg.LogFormat != "json" ||
-		cfg.TaxYear != 2026 || cfg.FormName != "Club" || cfg.FormTaxNumber != "11/111/11111" || cfg.FormAddress != "Street 1" {
+		cfg.TaxYear != 2026 || cfg.FormName != "Club" || cfg.FormTaxNumber != "11/111/11111" || cfg.FormAddress != "Street 1" ||
+		cfg.CloudUploadURL != "" || cfg.CloudDownloadURL != "" || cfg.CloudToken != "" {
 		t.Fatalf("unexpected config: %+v", cfg)
 	}
 }
@@ -55,6 +56,9 @@ func TestSaveAndVerify(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "out.json")
 	expected := Config{DBPath: "db", PDFDir: "pdf", LogFile: "log", LogLevel: "info", LogFormat: "json", TaxYear: 2025, FormName: "Org", FormTaxNumber: "12/222/22222", FormAddress: "Main"}
+	expected.CloudUploadURL = ""
+	expected.CloudDownloadURL = ""
+	expected.CloudToken = ""
 
 	if err := Save(path, expected); err != nil {
 		t.Fatalf("Save returned error: %v", err)
