@@ -11,6 +11,7 @@ import (
 
 	"github.com/jung-kurt/gofpdf"
 
+	"baristeuer/internal/config"
 	"baristeuer/internal/data"
 	"baristeuer/internal/taxlogic"
 )
@@ -22,6 +23,7 @@ var ErrWritePDF = errors.New("write PDF")
 type Generator struct {
 	BasePath string
 	store    *data.Store
+	cfg      *config.Config
 }
 
 // FormInfo contains data to fill the various tax forms.
@@ -65,7 +67,7 @@ func (f FormInfo) Validate() error {
 }
 
 // NewGenerator returns a new Generator for storing reports.
-func NewGenerator(basePath string, store *data.Store) *Generator {
+func NewGenerator(basePath string, store *data.Store, cfg *config.Config) *Generator {
 	if basePath == "" {
 		if env := os.Getenv("BARISTEUER_PDFDIR"); env != "" {
 			basePath = env
@@ -73,7 +75,24 @@ func NewGenerator(basePath string, store *data.Store) *Generator {
 			basePath = filepath.Join(".", "internal", "data", "reports")
 		}
 	}
-	return &Generator{BasePath: basePath, store: store}
+	if cfg == nil {
+		cfg = &config.Config{}
+	}
+	return &Generator{BasePath: basePath, store: store, cfg: cfg}
+}
+
+// SetTaxYear updates the active tax year used for calculations and forms.
+func (g *Generator) SetTaxYear(year int) {
+	g.cfg.TaxYear = year
+}
+
+func (g *Generator) formInfo() FormInfo {
+	return FormInfo{
+		Name:       g.cfg.FormName,
+		TaxNumber:  g.cfg.FormTaxNumber,
+		Address:    g.cfg.FormAddress,
+		FiscalYear: fmt.Sprintf("%d", g.cfg.TaxYear),
+	}
 }
 
 // GenerateReport creates a tax report PDF for the given project.
@@ -87,7 +106,11 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("fetch expenses: %w", err)
 	}
-	taxResult := taxlogic.CalculateTaxes(revenue, expenses, 2025)
+	year := g.cfg.TaxYear
+	if year == 0 {
+		year = 2025
+	}
+	taxResult := taxlogic.CalculateTaxes(revenue, expenses, year)
 
 	// Ensure the directory exists
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
@@ -101,7 +124,7 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 	pdf.SetCompression(false)
 	pdf.AddPage()
 	pdf.SetFont("Arial", "B", 16)
-	pdf.Cell(0, 10, "Steuerbericht 2025 (Gemeinnützige Organisation)")
+	pdf.Cell(0, 10, fmt.Sprintf("Steuerbericht %d (Gemeinnützige Organisation)", year))
 	pdf.Ln(20)
 
 	// Summary Section
@@ -162,9 +185,10 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 // GenerateKSt1 creates a simplified "KSt 1" form for the given project with
 // layout similar to the official template. The content here is intentionally
 // generic but demonstrates how fields would be positioned in a real form.
-func (g *Generator) GenerateKSt1(projectID int64, info FormInfo) (string, error) {
+func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	ctx := context.Background()
 	p, _ := g.store.GetProject(ctx, projectID)
+	info := g.formInfo()
 	if info.Name == "" && p != nil {
 		info.Name = p.Name
 	}
@@ -174,6 +198,7 @@ func (g *Generator) GenerateKSt1(projectID int64, info FormInfo) (string, error)
 	if err := info.Validate(); err != nil {
 		return "", err
 	}
+
 
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {
@@ -300,9 +325,10 @@ func (g *Generator) GenerateKSt1(projectID int64, info FormInfo) (string, error)
 
 // GenerateAnlageGem creates a simplified "Anlage Gem" form. It mirrors the
 // structure of the official form but uses generic placeholder fields.
-func (g *Generator) GenerateAnlageGem(projectID int64, info FormInfo) (string, error) {
+func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	ctx := context.Background()
 	p, _ := g.store.GetProject(ctx, projectID)
+	info := g.formInfo()
 	if info.Name == "" && p != nil {
 		info.Name = p.Name
 	}
@@ -312,6 +338,7 @@ func (g *Generator) GenerateAnlageGem(projectID int64, info FormInfo) (string, e
 	if err := info.Validate(); err != nil {
 		return "", err
 	}
+
 
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {
@@ -714,9 +741,10 @@ func (g *Generator) GenerateAnlageGem(projectID int64, info FormInfo) (string, e
 }
 
 // GenerateAnlageGK creates a placeholder "Anlage GK" form for the given project.
-func (g *Generator) GenerateAnlageGK(projectID int64, info FormInfo) (string, error) {
+func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
 	ctx := context.Background()
 	p, _ := g.store.GetProject(ctx, projectID)
+	info := g.formInfo()
 	if info.Name == "" && p != nil {
 		info.Name = p.Name
 	}
@@ -831,9 +859,10 @@ func (g *Generator) GenerateAnlageGK(projectID int64, info FormInfo) (string, er
 }
 
 // GenerateKSt1F creates a placeholder "KSt 1F" form for the given project.
-func (g *Generator) GenerateKSt1F(projectID int64, info FormInfo) (string, error) {
+func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
 	ctx := context.Background()
 	p, _ := g.store.GetProject(ctx, projectID)
+	info := g.formInfo()
 	if info.Name == "" && p != nil {
 		info.Name = p.Name
 	}
@@ -921,9 +950,10 @@ func (g *Generator) GenerateKSt1F(projectID int64, info FormInfo) (string, error
 }
 
 // GenerateAnlageSport creates a placeholder "Anlage Sport" form for the given project.
-func (g *Generator) GenerateAnlageSport(projectID int64, info FormInfo) (string, error) {
+func (g *Generator) GenerateAnlageSport(projectID int64) (string, error) {
 	ctx := context.Background()
 	p, _ := g.store.GetProject(ctx, projectID)
+	info := g.formInfo()
 	if info.Name == "" && p != nil {
 		info.Name = p.Name
 	}
@@ -1003,7 +1033,7 @@ func (g *Generator) GenerateAnlageSport(projectID int64, info FormInfo) (string,
 }
 
 // GenerateAllForms creates all available forms for the given project and returns their paths.
-func (g *Generator) GenerateAllForms(projectID int64, info FormInfo) ([]string, error) {
+func (g *Generator) GenerateAllForms(projectID int64) ([]string, error) {
 	var paths []string
 
 	report, err := g.GenerateReport(projectID)
@@ -1012,7 +1042,7 @@ func (g *Generator) GenerateAllForms(projectID int64, info FormInfo) ([]string, 
 	}
 	paths = append(paths, report)
 
-	forms := []func(int64, FormInfo) (string, error){
+	forms := []func(int64) (string, error){
 		g.GenerateKSt1,
 		g.GenerateAnlageGem,
 		g.GenerateAnlageGK,
@@ -1020,7 +1050,7 @@ func (g *Generator) GenerateAllForms(projectID int64, info FormInfo) ([]string, 
 		g.GenerateAnlageSport,
 	}
 	for _, f := range forms {
-		p, err := f(projectID, info)
+		p, err := f(projectID)
 		if err != nil {
 			return nil, err
 		}

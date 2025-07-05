@@ -68,7 +68,9 @@ npm test --prefix internal/ui
 ## Configuration
 
 Runtime options can be provided via a JSON configuration file. By default the
-application looks for `config.json` in the working directory. Example:
+application looks for `config.json` in the working directory. Copy
+`config.example.json` to `config.json` when running the application for the first
+time. Example:
 
 ```json
 {

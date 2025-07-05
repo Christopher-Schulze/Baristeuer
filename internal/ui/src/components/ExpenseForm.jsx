@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, TextField, Button, Typography } from "@mui/material";
+import { Box, TextField, Button, Snackbar, Alert } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 export default function ExpenseForm({ onSubmit, editItem }) {
@@ -12,11 +12,11 @@ export default function ExpenseForm({ onSubmit, editItem }) {
     e.preventDefault();
     const value = parseFloat(amount);
     if (!description || !amount) {
-      setError(t('expense.required'));
+      setError(t('errors.expense_required'));
       return;
     }
     if (Number.isNaN(value) || value <= 0) {
-      setError(t('expense.positive'));
+      setError(t('errors.expense_positive'));
       return;
     }
     await onSubmit(description, value, setError);
@@ -33,11 +33,11 @@ export default function ExpenseForm({ onSubmit, editItem }) {
       <Button type="submit" variant="contained">
         {t('expense.add')}
       </Button>
-      {error && (
-        <Typography color="error" sx={{ mt: 2 }}>
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError('')}>
+        <Alert severity="error" onClose={() => setError('')}>
           {error}
-        </Typography>
-      )}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

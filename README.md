@@ -60,6 +60,8 @@ To restore a previously exported database before launching the UI, use `-restore
 
 You can export all incomes and expenses of a project to CSV via the service method `ExportProjectCSV` or by using the UI settings panel.
 
+For the first start, copy the provided `config.example.json` to `config.json` and adjust the paths if needed.
+
 A minimal `config.json` might look like:
 
 ```json

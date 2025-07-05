@@ -25,3 +25,7 @@ export function GenerateAnlageSport(projectID) {
 export function GenerateAllForms(projectID) {
   return window.go.pdf.Generator.GenerateAllForms(projectID);
 }
+
+export function SetTaxYear(year) {
+  return window.go.pdf.Generator.SetTaxYear(year);
+}
