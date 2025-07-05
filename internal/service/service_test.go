@@ -465,3 +465,71 @@ func TestDataService_ContextCancellation(t *testing.T) {
 		t.Fatalf("expected context canceled error, got %v", err)
 	}
 }
+
+func TestDataService_ExportRestoreCycle(t *testing.T) {
+	tmpDir := t.TempDir()
+	dbPath := filepath.Join(tmpDir, "db.db")
+	ds, err := NewDataService(dbPath, slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	ctx := context.Background()
+
+	proj, err := ds.CreateProject(ctx, "Cycle")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ds.AddIncome(ctx, proj.ID, "donation", 12); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ds.AddExpense(ctx, proj.ID, "rent", 7); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ds.AddMember(ctx, "Alice", "alice@example.com", "2024-01-02"); err != nil {
+		t.Fatal(err)
+	}
+
+	exportPath := filepath.Join(tmpDir, "backup.db")
+	if err := ds.ExportDatabase(exportPath); err != nil {
+		t.Fatalf("export: %v", err)
+	}
+
+	if err := os.Remove(dbPath); err != nil {
+		t.Fatalf("remove db: %v", err)
+	}
+
+	if err := ds.RestoreDatabase(exportPath); err != nil {
+		t.Fatalf("restore: %v", err)
+	}
+
+	projects, err := ds.ListProjects()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(projects) != 1 || projects[0].Name != "Cycle" {
+		t.Fatalf("unexpected projects: %+v", projects)
+	}
+	incomes, err := ds.ListIncomes(ctx, proj.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(incomes) != 1 || incomes[0].Amount != 12 {
+		t.Fatalf("unexpected incomes: %+v", incomes)
+	}
+	expenses, err := ds.ListExpenses(ctx, proj.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(expenses) != 1 || expenses[0].Amount != 7 {
+		t.Fatalf("unexpected expenses: %+v", expenses)
+	}
+	members, err := ds.ListMembers(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(members) != 1 || members[0].Email != "alice@example.com" {
+		t.Fatalf("unexpected members: %+v", members)
+	}
+}
