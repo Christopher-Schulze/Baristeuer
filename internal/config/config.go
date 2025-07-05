@@ -8,10 +8,14 @@ import (
 
 // Config holds application configuration values.
 type Config struct {
-	DBPath   string `json:"dbPath"`
-	PDFDir   string `json:"pdfDir"`
-	LogFile  string `json:"logFile"`
-	LogLevel string `json:"logLevel"`
+	DBPath        string `json:"dbPath"`
+	PDFDir        string `json:"pdfDir"`
+	LogFile       string `json:"logFile"`
+	LogLevel      string `json:"logLevel"`
+	TaxYear       int    `json:"taxYear"`
+	FormName      string `json:"formName"`
+	FormTaxNumber string `json:"formTaxNumber"`
+	FormAddress   string `json:"formAddress"`
 }
 
 // Load reads configuration from the given file path. If the file does not exist,

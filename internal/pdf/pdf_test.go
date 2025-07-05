@@ -7,13 +7,14 @@ import (
 	"strings"
 	"testing"
 
+	"baristeuer/internal/config"
 	"baristeuer/internal/data"
 )
 
 func TestNewGeneratorEnvVar(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("BARISTEUER_PDFDIR", dir)
-	g := NewGenerator("", nil)
+	g := NewGenerator("", nil, &config.Config{})
 	if g.BasePath != dir {
 		t.Fatalf("expected %s, got %s", dir, g.BasePath)
 	}
@@ -40,7 +41,8 @@ func TestGenerateReport(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	g := NewGenerator(dir, store)
+	cfg := config.Config{TaxYear: 2026}
+	g := NewGenerator(dir, store, &cfg)
 	path, err := g.GenerateReport(proj.ID)
 	if err != nil {
 		t.Fatalf("GenerateReport failed: %v", err)
@@ -49,7 +51,7 @@ func TestGenerateReport(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read %s failed: %v", path, err)
 	}
-	expect := []string{"100.00 EUR", "20.00 EUR", "80.00 EUR"}
+	expect := []string{"100.00 EUR", "20.00 EUR", "80.00 EUR", "2026"}
 	for _, e := range expect {
 		if !strings.Contains(string(data), e) {
 			t.Fatalf("missing %s in pdf", e)
@@ -84,21 +86,21 @@ func TestFormGeneration(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	g := NewGenerator(dir, store)
-	info := FormInfo{Name: "Testverein", TaxNumber: "11/111/11111", Address: "Hauptstr. 1", FiscalYear: "2025"}
+	cfg := config.Config{TaxYear: 2026, FormName: "Testverein", FormTaxNumber: "11/111/11111", FormAddress: "Hauptstr. 1"}
+	g := NewGenerator(dir, store, &cfg)
 	files := []struct {
 		name     string
-		fn       func(int64, FormInfo) (string, error)
+		fn       func(int64) (string, error)
 		expected []string
 	}{
-		{"kst1", g.GenerateKSt1, []string{"Einnahmen gesamt", "100.00", "Ausgaben gesamt"}},
+		{"kst1", g.GenerateKSt1, []string{"Einnahmen gesamt", "100.00", "Ausgaben gesamt", "2026"}},
 		{"gem", g.GenerateAnlageGem, []string{"Mitglieder:", "1", "Einnahmen:", "100.00"}},
 		{"gk", g.GenerateAnlageGK, []string{"Gesamte Einnahmen", "100.00"}},
 		{"kst1f", g.GenerateKSt1F, []string{"Gesamteinnahmen", "100.00"}},
 		{"sport", g.GenerateAnlageSport, []string{"Mitgliederzahl", "1", "Einnahmen aus Sportbetrieb"}},
 	}
 	for _, f := range files {
-		path, err := f.fn(proj.ID, info)
+		path, err := f.fn(proj.ID)
 		if err != nil {
 			t.Fatalf("%s failed: %v", f.name, err)
 		}
@@ -114,7 +116,7 @@ func TestFormGeneration(t *testing.T) {
 	}
 
 	// test GenerateAllForms
-	paths, err := g.GenerateAllForms(proj.ID, info)
+	paths, err := g.GenerateAllForms(proj.ID)
 	if err != nil {
 		t.Fatalf("GenerateAllForms failed: %v", err)
 	}
@@ -160,7 +162,7 @@ func TestGenerateReportCombinations(t *testing.T) {
 				}
 			}
 
-			g := NewGenerator(dir, store)
+			g := NewGenerator(dir, store, &config.Config{})
 			path, err := g.GenerateReport(proj.ID)
 			if err != nil {
 				t.Fatalf("GenerateReport failed: %v", err)

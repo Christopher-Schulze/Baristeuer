@@ -14,6 +14,7 @@ import {
   SetLogLevel,
   ExportProjectCSV,
 } from "../wailsjs/go/service/DataService";
+import { SetTaxYear } from "../wailsjs/go/pdf/Generator";
 
 export default function SettingsPanel({ projectId }) {
   const { t } = useTranslation();
@@ -21,6 +22,7 @@ export default function SettingsPanel({ projectId }) {
   const [restorePath, setRestorePath] = useState("");
   const [csvPath, setCsvPath] = useState("");
   const [level, setLevel] = useState("info");
+  const [taxYear, setTaxYear] = useState(2025);
   const [msg, setMsg] = useState("");
 
   const doExport = async () => {
@@ -52,6 +54,11 @@ export default function SettingsPanel({ projectId }) {
 
   const changeLevel = () => {
     SetLogLevel(level);
+    setMsg(t("settings.applied"));
+  };
+
+  const applyYear = () => {
+    SetTaxYear(parseInt(taxYear));
     setMsg(t("settings.applied"));
   };
 
@@ -105,6 +112,18 @@ export default function SettingsPanel({ projectId }) {
           <MenuItem value="error">error</MenuItem>
         </Select>
         <Button variant="outlined" onClick={changeLevel}>
+          {t("settings.apply")}
+        </Button>
+      </Box>
+      <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <TextField
+          label={t("settings.tax_year") || "Tax Year"}
+          type="number"
+          value={taxYear}
+          onChange={(e) => setTaxYear(e.target.value)}
+          size="small"
+        />
+        <Button variant="outlined" onClick={applyYear}>
           {t("settings.apply")}
         </Button>
       </Box>

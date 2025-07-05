@@ -52,7 +52,7 @@ func main() {
 	}
 
 	logger, logCloser := service.NewLogger(cfg.LogFile, cfg.LogLevel)
-	generator := pdf.NewGenerator(cfg.PDFDir, store)
+	generator := pdf.NewGenerator(cfg.PDFDir, store, &cfg)
 	datasvc := service.NewDataServiceFromStore(store, logger, logCloser)
 	defer datasvc.Close()
 
