@@ -11,6 +11,7 @@
   }
   [
     'GenerateReport',
+    'GenerateDetailedReport',
     'GenerateKSt1',
     'GenerateAnlageGem',
     'GenerateAnlageGK',

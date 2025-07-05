@@ -72,6 +72,42 @@ func TestGenerateReport(t *testing.T) {
 	}
 }
 
+func TestGenerateDetailedReport(t *testing.T) {
+	dir := t.TempDir()
+	store, err := data.NewStore(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Close()
+
+	ctx := context.Background()
+	proj := &data.Project{Name: "Det"}
+	if err := store.CreateProject(ctx, proj); err != nil {
+		t.Fatal(err)
+	}
+	store.CreateIncome(ctx, &data.Income{ProjectID: proj.ID, Source: "a", Amount: 100})
+	store.CreateIncome(ctx, &data.Income{ProjectID: proj.ID, Source: "b", Amount: 50})
+	store.CreateExpense(ctx, &data.Expense{ProjectID: proj.ID, Category: "x", Amount: 20})
+	store.CreateExpense(ctx, &data.Expense{ProjectID: proj.ID, Category: "y", Amount: 10})
+
+	g := NewGenerator(dir, store, &config.Config{TaxYear: 2026})
+	path, err := g.GenerateDetailedReport(ctx, proj.ID)
+	if err != nil {
+		t.Fatalf("GenerateDetailedReport failed: %v", err)
+	}
+	dataBytes, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read %s failed: %v", path, err)
+	}
+	expect := []string{"150.00 EUR", "30.00 EUR", "120.00 EUR", "75.00 EUR", "15.00 EUR"}
+	for _, e := range expect {
+		if !strings.Contains(string(dataBytes), e) {
+			t.Fatalf("missing %s in pdf", e)
+		}
+	}
+	os.Remove(path)
+}
+
 func TestFormGeneration(t *testing.T) {
 	dir := t.TempDir()
 	store, err := data.NewStore(":memory:")

@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   GenerateAllForms,
+  GenerateDetailedReport,
   GenerateAnlageGem,
   GenerateAnlageGK,
   GenerateAnlageSport,
@@ -42,6 +43,19 @@ export default function FormsPanel({ projectId }) {
           >
             {t('forms.generate_all')}
           </Button>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Card>
+            <CardContent>
+              <Typography gutterBottom>{t('form.detailedReport')}</Typography>
+              <Button
+                variant="outlined"
+                onClick={() => handleGenerate(GenerateDetailedReport)}
+              >
+                {t('form.generate')}
+              </Button>
+            </CardContent>
+          </Card>
         </Grid>
         <Grid item xs={12} sm={6}>
           <Card>
