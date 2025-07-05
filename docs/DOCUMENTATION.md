@@ -81,6 +81,8 @@ time. Example:
 }
 ```
 
+If `pdfDir` is omitted, generated PDFs are stored in `./internal/data/reports`.
+
 Command line flags override values from the file. The log level can also be adjusted at runtime via the `SetLogLevel` method exposed by the `DataService`.
 
 ### Language Selection

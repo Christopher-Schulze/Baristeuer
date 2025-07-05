@@ -48,15 +48,6 @@ func (f FormInfo) Validate() error {
 	if f.Address == "" {
 		return fmt.Errorf("address is required")
 	}
-	if f.City == "" {
-		return fmt.Errorf("city is required")
-	}
-	if f.BankAccount == "" {
-		return fmt.Errorf("bank account is required")
-	}
-	if f.Activity == "" {
-		return fmt.Errorf("activity is required")
-	}
 	if f.FiscalYear != "" {
 		year, err := strconv.Atoi(f.FiscalYear)
 		if err != nil || year < 1900 || year > 2100 {
@@ -68,15 +59,15 @@ func (f FormInfo) Validate() error {
 
 // NewGenerator returns a new Generator for storing reports.
 func NewGenerator(basePath string, store *data.Store, cfg *config.Config) *Generator {
-	if basePath == "" {
-		if env := os.Getenv("BARISTEUER_PDFDIR"); env != "" {
-			basePath = env
-		} else {
-			basePath = filepath.Join(".", "internal", "data", "reports")
-		}
-	}
 	if cfg == nil {
 		cfg = &config.Config{}
+	}
+	if basePath == "" {
+		if cfg.PDFDir != "" {
+			basePath = cfg.PDFDir
+		} else {
+			basePath = config.DefaultConfig.PDFDir
+		}
 	}
 	return &Generator{BasePath: basePath, store: store, cfg: cfg}
 }
@@ -198,7 +189,6 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	if err := info.Validate(); err != nil {
 		return "", err
 	}
-
 
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {
@@ -338,7 +328,6 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	if err := info.Validate(); err != nil {
 		return "", err
 	}
-
 
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {

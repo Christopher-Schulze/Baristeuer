@@ -7,6 +7,9 @@ import (
 	"path/filepath"
 )
 
+// DefaultPDFDir defines the fallback directory for generated reports.
+const DefaultPDFDir = "internal/data/reports"
+
 // Config holds application configuration values.
 type Config struct {
 	DBPath        string `json:"dbPath"`
@@ -22,7 +25,7 @@ type Config struct {
 // DefaultConfig provides sensible defaults for a new configuration file.
 var DefaultConfig = Config{
 	DBPath:   "baristeuer.db",
-	PDFDir:   filepath.Join(".", "internal", "data", "reports"),
+	PDFDir:   filepath.Join(".", DefaultPDFDir),
 	LogFile:  "baristeuer.log",
 	LogLevel: "info",
 }
