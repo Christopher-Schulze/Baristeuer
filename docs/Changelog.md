@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.7.2025] - Build and Configuration Improvements
+
+### Added
+
+- `Dockerfile` für den containerisierten Build.
+- `BARISTEUER_PDFDIR` Umgebungsvariable, um das PDF-Ausgabeverzeichnis zu überschreiben.
+- Zusätzliche Komponenten- und Servicetests.
+- Go-Format-Prüfung innerhalb der CI.
+- Fehlerweitergabe beim automatischen Erstellen der Konfigurationsdatei.
+
+### Changed
+
+- Hilfsfunktionen zur Erstellung von PDF-Formularzeilen wurden eingeführt.
+
 ## [5.7.2025] - CSV Export
 
 ### Added
