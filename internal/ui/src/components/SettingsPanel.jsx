@@ -23,6 +23,7 @@ export default function SettingsPanel({ projectId }) {
   const [restorePath, setRestorePath] = useState("");
   const [csvPath, setCsvPath] = useState("");
   const [level, setLevel] = useState("info");
+  const [format, setFormat] = useState("text");
   const [taxYear, setTaxYear] = useState(2025);
   const [feedback, setFeedback] = useState({ type: "", text: "" });
 
@@ -56,6 +57,10 @@ export default function SettingsPanel({ projectId }) {
   const changeLevel = () => {
     SetLogLevel(level);
     setFeedback({ type: "success", text: t("settings.applied") });
+  };
+
+  const changeFormat = () => {
+    setMsg(t("settings.applied"));
   };
 
   const applyYear = () => {
@@ -113,6 +118,19 @@ export default function SettingsPanel({ projectId }) {
           <MenuItem value="error">error</MenuItem>
         </Select>
         <Button variant="outlined" onClick={changeLevel}>
+          {t("settings.apply")}
+        </Button>
+      </Box>
+      <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <Select
+          value={format}
+          onChange={(e) => setFormat(e.target.value)}
+          size="small"
+        >
+          <MenuItem value="text">text</MenuItem>
+          <MenuItem value="json">json</MenuItem>
+        </Select>
+        <Button variant="outlined" onClick={changeFormat}>
           {t("settings.apply")}
         </Button>
       </Box>

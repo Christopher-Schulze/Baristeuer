@@ -35,7 +35,7 @@ func NewDataService(dsn string, logger *slog.Logger, closer io.Closer) (*DataSer
 		return nil, fmt.Errorf("create store: %w", err)
 	}
 	if logger == nil {
-		logger, closer = NewLogger("", "info")
+		logger, closer = NewLogger("", "info", "text")
 	}
 	return &DataService{store: s, logger: logger, logCloser: closer}, nil
 }
@@ -43,7 +43,7 @@ func NewDataService(dsn string, logger *slog.Logger, closer io.Closer) (*DataSer
 // NewDataServiceFromStore wraps an existing store.
 func NewDataServiceFromStore(store *data.Store, logger *slog.Logger, closer io.Closer) *DataService {
 	if logger == nil {
-		logger, closer = NewLogger("", "info")
+		logger, closer = NewLogger("", "info", "text")
 	}
 	return &DataService{store: store, logger: logger, logCloser: closer}
 }

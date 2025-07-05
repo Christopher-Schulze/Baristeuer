@@ -16,6 +16,7 @@ type Config struct {
 	PDFDir        string `json:"pdfDir"`
 	LogFile       string `json:"logFile"`
 	LogLevel      string `json:"logLevel"`
+	LogFormat     string `json:"logFormat"`
 	TaxYear       int    `json:"taxYear"`
 	FormName      string `json:"formName"`
 	FormTaxNumber string `json:"formTaxNumber"`
@@ -24,10 +25,11 @@ type Config struct {
 
 // DefaultConfig provides sensible defaults for a new configuration file.
 var DefaultConfig = Config{
-	DBPath:   "baristeuer.db",
-	PDFDir:   filepath.Join(".", DefaultPDFDir),
-	LogFile:  "baristeuer.log",
-	LogLevel: "info",
+	DBPath:    "baristeuer.db",
+	PDFDir:    filepath.Join(".", DefaultPDFDir),
+	LogFile:   "baristeuer.log",
+	LogLevel:  "info",
+	LogFormat: "text",
 }
 
 // Load reads configuration from the given file path. If the file does not exist,
