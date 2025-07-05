@@ -8,3 +8,7 @@ Die Repository-Richtlinien sehen vor, dass große oder binäre Dateien (z. B. Be
 4. Große Dateien sollten nach Möglichkeit komprimiert (ZIP) und mit einer kurzen Erläuterung versehen werden.
 
 So bleiben die Versionskontrolle und der Repository-Umfang schlank, während trotzdem alle notwendigen Daten verfügbar sind.
+
+## Offizielle Formulare einbinden
+
+Im Verzeichnis `internal/pdf/templates` befinden sich nur Platzhalterdateien. Um die amtlichen PDF-Formulare zu verwenden, kopieren Sie die Originale mit dem gleichen Dateinamen (z. B. `kst1.pdf`) in dieses Verzeichnis. Beim Erzeugen der Formulare greift der Generator automatisch auf diese Vorlagen zurück.
