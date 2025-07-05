@@ -116,6 +116,23 @@ The application starts in German. Use the dropdown in the top toolbar to switch 
 - **CSV Export**: Use the `ExportProjectCSV` method to save all incomes and expenses of a project to a CSV file.
 - **Docker-Unterstützung**: Ein `Dockerfile` ermöglicht den containerisierten Build des Projekts.
 
+## Optional Plugins
+
+At startup the application scans the `plugins/` directory in the working
+directory. All files with the `.so` extension are loaded as Go plugins. Each
+plugin must export a `New` function returning a value that implements the
+following interface:
+
+```go
+type Plugin interface {
+    Init(*service.DataService) error
+}
+```
+
+`Init` is called after the `DataService` is initialized, allowing the plugin to
+register additional functionality. If the `plugins/` directory does not exist,
+the application starts normally without loading any extensions.
+
 ## Cross-Platform Compatibility
 
 Die Anwendung wurde erfolgreich unter **macOS** und **Windows** getestet. Alle Funktionen stehen auf beiden Plattformen ohne Einschränkungen zur Verfügung.
