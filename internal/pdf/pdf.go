@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/jung-kurt/gofpdf"
@@ -27,10 +28,42 @@ type Generator struct {
 
 // FormInfo contains data to fill the various tax forms.
 type FormInfo struct {
-	Name       string
-	TaxNumber  string
-	Address    string
-	FiscalYear string
+	Name        string
+	TaxNumber   string
+	Address     string
+	City        string
+	BankAccount string
+	Activity    string
+	FiscalYear  string
+}
+
+// Validate checks if the required fields are set and values are plausible.
+func (f FormInfo) Validate() error {
+	if f.Name == "" {
+		return fmt.Errorf("name is required")
+	}
+	if f.TaxNumber == "" {
+		return fmt.Errorf("tax number is required")
+	}
+	if f.Address == "" {
+		return fmt.Errorf("address is required")
+	}
+	if f.City == "" {
+		return fmt.Errorf("city is required")
+	}
+	if f.BankAccount == "" {
+		return fmt.Errorf("bank account is required")
+	}
+	if f.Activity == "" {
+		return fmt.Errorf("activity is required")
+	}
+	if f.FiscalYear != "" {
+		year, err := strconv.Atoi(f.FiscalYear)
+		if err != nil || year < 1900 || year > 2100 {
+			return fmt.Errorf("invalid fiscal year")
+		}
+	}
+	return nil
 }
 
 // NewGenerator returns a new Generator for storing reports.
@@ -159,6 +192,13 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	if info.Name == "" && p != nil {
 		info.Name = p.Name
 	}
+	if info.FiscalYear == "" {
+		info.FiscalYear = "2025"
+	}
+	if err := info.Validate(); err != nil {
+		return "", err
+	}
+
 
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {
@@ -224,7 +264,13 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	pdf.SetXY(20, startY)
 	pdf.CellFormat(50, lineH, "PLZ, Ort:", "1", 0, "", false, 0, "")
 	pdf.SetXY(70, startY)
-	pdf.CellFormat(120, lineH, "", "1", 0, "", false, 0, "")
+	pdf.CellFormat(120, lineH, info.City, "1", 0, "", false, 0, "")
+	startY += lineH
+
+	pdf.SetXY(20, startY)
+	pdf.CellFormat(50, lineH, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, startY)
+	pdf.CellFormat(120, lineH, info.BankAccount, "1", 0, "", false, 0, "")
 	startY += lineH
 
 	pdf.SetXY(20, startY)
@@ -249,7 +295,7 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	pdf.Cell(0, 8, "____________________")
 	pdf.Ln(8)
 	pdf.Cell(60, 8, "T\xC3\xA4tigkeitsbereich:")
-	pdf.Cell(0, 8, "____________________")
+	pdf.Cell(0, 8, info.Activity)
 	pdf.Ln(8)
 	pdf.Cell(60, 8, "Satzungsdatum:")
 	pdf.Cell(0, 8, "____________________")
@@ -286,6 +332,13 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	if info.Name == "" && p != nil {
 		info.Name = p.Name
 	}
+	if info.FiscalYear == "" {
+		info.FiscalYear = "2025"
+	}
+	if err := info.Validate(); err != nil {
+		return "", err
+	}
+
 
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {
@@ -338,15 +391,301 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	y += h
 
 	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Tätigkeitsbereich:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Tätigkeitsbereich:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
+	y += h
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
+	y += h
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
+	y += h
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
+	y += h
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Tätigkeitsbereich:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
+	y += h
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
+	y += h
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
+	y += h
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
+	y += h
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Tätigkeitsbereich:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Tätigkeitsbereich:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
 	pdf.CellFormat(50, h, "Anschrift des Vereins:", "1", 0, "", false, 0, "")
 	pdf.SetXY(70, y)
 	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
 	y += h
 
 	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
 	pdf.CellFormat(50, h, "T\xC3\xA4tigkeit des Vereins:", "1", 0, "", false, 0, "")
 	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
+	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
 	y += h
 
 	pdf.SetXY(20, y)
@@ -370,7 +709,7 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	pdf.SetXY(20, y)
 	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
 	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
+	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
 	y += h
 
 	pdf.SetXY(20, y)
@@ -408,6 +747,9 @@ func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
 	info := g.formInfo()
 	if info.Name == "" && p != nil {
 		info.Name = p.Name
+	}
+	if err := info.Validate(); err != nil {
+		return "", err
 	}
 
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
@@ -450,6 +792,30 @@ func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
 	pdf.CellFormat(50, h, "Steuernummer:", "1", 0, "", false, 0, "")
 	pdf.SetXY(70, y)
 	pdf.CellFormat(120, h, info.TaxNumber, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
+	y += h
+
+	pdf.SetXY(20, y)
+	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
+	pdf.SetXY(70, y)
+	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
 	y += h
 
 	pdf.SetXY(20, y)
@@ -590,6 +956,9 @@ func (g *Generator) GenerateAnlageSport(projectID int64) (string, error) {
 	info := g.formInfo()
 	if info.Name == "" && p != nil {
 		info.Name = p.Name
+	}
+	if err := info.Validate(); err != nil {
+		return "", err
 	}
 
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
