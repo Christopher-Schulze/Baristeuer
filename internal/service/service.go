@@ -69,8 +69,8 @@ func (ds *DataService) ListProjects() ([]data.Project, error) {
 }
 
 // GetProject fetches a project by ID.
-func (ds *DataService) GetProject(id int64) (*data.Project, error) {
-	p, err := ds.store.GetProject(context.Background(), id)
+func (ds *DataService) GetProject(ctx context.Context, id int64) (*data.Project, error) {
+	p, err := ds.store.GetProject(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("get project: %w", err)
 	}
@@ -78,9 +78,9 @@ func (ds *DataService) GetProject(id int64) (*data.Project, error) {
 }
 
 // UpdateProject updates a project name.
-func (ds *DataService) UpdateProject(id int64, name string) error {
+func (ds *DataService) UpdateProject(ctx context.Context, id int64, name string) error {
 	p := &data.Project{ID: id, Name: name}
-	if err := ds.store.UpdateProject(context.Background(), p); err != nil {
+	if err := ds.store.UpdateProject(ctx, p); err != nil {
 		return fmt.Errorf("update project: %w", err)
 	}
 	ds.logger.Info("updated project", "id", id)
@@ -88,8 +88,8 @@ func (ds *DataService) UpdateProject(id int64, name string) error {
 }
 
 // DeleteProject removes a project by ID.
-func (ds *DataService) DeleteProject(id int64) error {
-	if err := ds.store.DeleteProject(context.Background(), id); err != nil {
+func (ds *DataService) DeleteProject(ctx context.Context, id int64) error {
+	if err := ds.store.DeleteProject(ctx, id); err != nil {
 		return fmt.Errorf("delete project: %w", err)
 	}
 	ds.logger.Info("deleted project", "id", id)

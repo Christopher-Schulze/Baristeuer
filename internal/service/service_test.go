@@ -261,18 +261,18 @@ func TestDataService_ProjectOperations(t *testing.T) {
 	if err != nil || len(list) == 0 {
 		t.Fatalf("ListProjects failed: %v", err)
 	}
-	got, err := ds.GetProject(p.ID)
+	got, err := ds.GetProject(ctx, p.ID)
 	if err != nil || got.ID != p.ID {
 		t.Fatalf("GetProject failed: %v", err)
 	}
-	if err := ds.UpdateProject(p.ID, "New"); err != nil {
+	if err := ds.UpdateProject(ctx, p.ID, "New"); err != nil {
 		t.Fatalf("UpdateProject failed: %v", err)
 	}
-	updated, _ := ds.GetProject(p.ID)
+	updated, _ := ds.GetProject(ctx, p.ID)
 	if updated.Name != "New" {
 		t.Fatalf("update did not persist")
 	}
-	if err := ds.DeleteProject(p.ID); err != nil {
+	if err := ds.DeleteProject(ctx, p.ID); err != nil {
 		t.Fatalf("DeleteProject failed: %v", err)
 	}
 	list, _ = ds.ListProjects()
@@ -440,5 +440,28 @@ func TestDataService_ExportProjectCSV(t *testing.T) {
 	}
 	if !strings.Contains(string(data), "income") || !strings.Contains(string(data), "expense") {
 		t.Fatalf("csv content unexpected: %s", data)
+	}
+}
+
+func TestDataService_ContextCancellation(t *testing.T) {
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	ctx := context.Background()
+	proj, _ := ds.CreateProject(ctx, "Cancel")
+
+	cctx, cancel := context.WithCancel(ctx)
+	cancel()
+	if _, err := ds.AddIncome(cctx, proj.ID, "donation", 1); err == nil || !errors.Is(err, context.Canceled) {
+		t.Fatalf("expected context canceled error, got %v", err)
+	}
+
+	cctx2, cancel2 := context.WithCancel(ctx)
+	cancel2()
+	if _, err := ds.GetProject(cctx2, proj.ID); err == nil || !errors.Is(err, context.Canceled) {
+		t.Fatalf("expected context canceled error, got %v", err)
 	}
 }
