@@ -412,6 +412,30 @@ func TestDataService_SetLogLevel(t *testing.T) {
 	}
 }
 
+func TestDataService_SetLogFormat(t *testing.T) {
+	tmpDir := t.TempDir()
+	logPath := filepath.Join(tmpDir, "app.log")
+	logger, closer := NewLogger(logPath, "info", "text")
+	ds, err := NewDataService(":memory:", logger, closer)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	ds.SetLogFormat("json")
+	if closer != nil {
+		closer.Close()
+	}
+
+	data, err := os.ReadFile(logPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Contains(data, []byte("\"format\"")) && !bytes.Contains(data, []byte("\"level\"")) {
+		t.Fatalf("expected json log, got %s", data)
+	}
+}
+
 func TestDataService_ExportProjectCSV(t *testing.T) {
 	tmpDir := t.TempDir()
 	dbPath := filepath.Join(tmpDir, "db.db")

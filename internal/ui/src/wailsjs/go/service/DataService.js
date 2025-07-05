@@ -82,6 +82,10 @@ export function SetLogLevel(arg1) {
   return window.go.service.DataService.SetLogLevel(arg1);
 }
 
+export function SetLogFormat(arg1) {
+  return window.go.service.DataService.SetLogFormat(arg1);
+}
+
 export function ExportProjectCSV(arg1, arg2) {
   return window.go.service.DataService.ExportProjectCSV(arg1, arg2);
 }
