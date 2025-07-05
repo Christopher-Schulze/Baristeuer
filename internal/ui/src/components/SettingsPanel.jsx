@@ -60,7 +60,7 @@ export default function SettingsPanel({ projectId }) {
   };
 
   const changeFormat = () => {
-    setMsg(t("settings.applied"));
+    setFeedback({ type: "success", text: t("settings.applied") });
   };
 
   const applyYear = () => {
