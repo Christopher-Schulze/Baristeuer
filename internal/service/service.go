@@ -2,6 +2,7 @@ package service
 
 import (
 	"baristeuer/internal/data"
+	syncsvc "baristeuer/internal/sync"
 	"baristeuer/internal/taxlogic"
 	"context"
 	"encoding/csv"
@@ -23,9 +24,10 @@ func validateAmount(amount float64) error {
 
 // DataService provides application methods used by the UI.
 type DataService struct {
-	store     *data.Store
-	logger    *slog.Logger
-	logCloser io.Closer
+	store      *data.Store
+	logger     *slog.Logger
+	logCloser  io.Closer
+	syncClient syncsvc.Client
 }
 
 // NewDataService creates a new service with the given datastore location.
@@ -37,7 +39,8 @@ func NewDataService(dsn string, logger *slog.Logger, closer io.Closer) (*DataSer
 	if logger == nil {
 		logger, closer = NewLogger("", "info", "text")
 	}
-	return &DataService{store: s, logger: logger, logCloser: closer}, nil
+	client := syncsvc.NewLocalClient("")
+	return &DataService{store: s, logger: logger, logCloser: closer, syncClient: client}, nil
 }
 
 // NewDataServiceFromStore wraps an existing store.
@@ -45,7 +48,8 @@ func NewDataServiceFromStore(store *data.Store, logger *slog.Logger, closer io.C
 	if logger == nil {
 		logger, closer = NewLogger("", "info", "text")
 	}
-	return &DataService{store: store, logger: logger, logCloser: closer}
+	client := syncsvc.NewLocalClient("")
+	return &DataService{store: store, logger: logger, logCloser: closer, syncClient: client}
 }
 
 // CreateProject creates a project by name.
@@ -290,6 +294,39 @@ func (ds *DataService) RestoreDatabase(src string) error {
 	}
 	ds.store = store
 	ds.logger.Info("restored database", "src", src)
+	return nil
+}
+
+// SyncUpload uploads the current database using the configured sync client.
+func (ds *DataService) SyncUpload(ctx context.Context) error {
+	if ds.syncClient == nil {
+		return fmt.Errorf("no sync client configured")
+	}
+	if err := ds.syncClient.Upload(ctx, ds.store.Path()); err != nil {
+		return fmt.Errorf("sync upload: %w", err)
+	}
+	ds.logger.Info("sync upload complete")
+	return nil
+}
+
+// SyncDownload downloads the database and replaces the local file.
+func (ds *DataService) SyncDownload(ctx context.Context) error {
+	if ds.syncClient == nil {
+		return fmt.Errorf("no sync client configured")
+	}
+	destPath := ds.store.Path()
+	if err := ds.store.Close(); err != nil {
+		return fmt.Errorf("close store: %w", err)
+	}
+	if err := ds.syncClient.Download(ctx, destPath); err != nil {
+		return fmt.Errorf("sync download: %w", err)
+	}
+	store, err := data.NewStore(destPath)
+	if err != nil {
+		return fmt.Errorf("reopen store: %w", err)
+	}
+	ds.store = store
+	ds.logger.Info("sync download complete")
 	return nil
 }
 
