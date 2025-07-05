@@ -113,6 +113,18 @@ in versioned directories under `build/bin`:
 The script uses `wails build` internally and names the output directory after the
 current Git tag or commit hash.
 
+## Docker
+
+You can also build Bari$teuer inside a container. Example commands:
+
+```bash
+# Build the image
+docker build -t baristeuer .
+
+# Run the resulting binary
+docker run --rm baristeuer
+```
+
 ---
 
 _This project is for internal use and is not open for contributions._
