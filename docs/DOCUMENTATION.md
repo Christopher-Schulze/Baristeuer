@@ -94,6 +94,7 @@ time. Example:
 ```
 
 If `pdfDir` is omitted, generated PDFs are stored in `./internal/data/reports`.
+Alternatively the environment variable `BARISTEUER_PDFDIR` can override the output directory at runtime.
 
 Command line flags override values from the file. The log level can also be adjusted at runtime via the `SetLogLevel` method exposed by the `DataService`.
 
@@ -106,11 +107,14 @@ The application starts in German. Use the dropdown in the top toolbar to switch 
 - **React + Material UI Interface**: UI built with React components styled using Material UI.
 - **Multi-language Support**: Interface available in German and English. Change the language via the toolbar dropdown.
 - **PDF Generation**: Creates detailed tax reports in PDF format for submission to the German tax office.
+- **Formularerstellung**: Erzeugt vereinfachte Ausgaben der Formblätter KSt 1, Anlage Gem/GK, KSt 1F und Anlage Sport als PDF.
+- **Konfigurierbares PDF-Verzeichnis**: Das Ausgabeziel lässt sich über `pdfDir` in der Konfiguration oder die Umgebungsvariable `BARISTEUER_PDFDIR` steuern.
 - **SQLite Storage**: Simple persistence layer to store project data.
 - **Member Tracking**: Manage club members with names, emails and join dates.
 - **Unit Tests**: Tests covering the tax calculation logic.
 - **Backup & Restore**: The `DataService` can export and restore the SQLite database for easy backups. Use `-exportdb <file>` to dump the database or `-restoredb <file>` to load it before the UI starts.
 - **CSV Export**: Use the `ExportProjectCSV` method to save all incomes and expenses of a project to a CSV file.
+- **Docker-Unterstützung**: Ein `Dockerfile` ermöglicht den containerisierten Build des Projekts.
 
 ## Cross-Platform Compatibility
 
@@ -147,11 +151,11 @@ tests. The CI ensures that code quality checks pass before changes are merged.
 
 ### Current State
 
-The Baristeuer application is stable and covers the core features. The backend, built with Go, provides robust tax calculation and data management logic. The React-based frontend, styled with Material UI, offers an intuitive and responsive user interface. Erste Vorlagen für Steuerformulare (KSt 1, Anlage Gem/GK usw.) werden als PDF erzeugt. Die Anwendung wurde auf macOS und Windows für Basisszenarien getestet.
+The Baristeuer application is stable and covers the core features. The backend, built with Go, provides robust tax calculation and data management logic. The React-based frontend, styled with Material UI, offers an intuitive and responsive user interface. Für Steuerformulare stehen inzwischen einfache PDF-Layouts für KSt 1, Anlage Gem/GK, KSt 1F und Anlage Sport bereit. Die Anwendung wurde auf macOS und Windows für Basisszenarien getestet.
 
 ### Production Readiness
 
-Weitere Funktionen wie vollständige Steuerformulare und detaillierte PDF-Berichte sind noch in Arbeit. Die CI/CD-Pipeline führt Tests aus, dennoch ist das Projekt derzeit als Vorabversion zu betrachten.
+Offizielle Layouts und umfangreichere PDF-Berichte sind noch in Arbeit. Die CI/CD-Pipeline führt Tests aus, dennoch ist das Projekt derzeit als Vorabversion zu betrachten.
 
 ### Potential Next Steps
 
