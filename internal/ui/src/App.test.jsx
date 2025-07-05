@@ -91,7 +91,26 @@ test('shows error when adding income fails', async () => {
   fireEvent.change(screen.getByLabelText(/Betrag/i), { target: { value: '5' } });
   fireEvent.click(screen.getByRole('button', { name: /Hinzufügen/i }));
 
-  expect(await screen.findByText('fail')).toBeInTheDocument();
+  const alert = await screen.findByRole('alert');
+  expect(alert).toHaveTextContent('fail');
+});
+
+test('shows error when adding member fails', async () => {
+  ListExpenses.mockResolvedValueOnce([]);
+  ListIncomes.mockResolvedValueOnce([]);
+  ListMembers.mockResolvedValueOnce([]);
+  AddMember.mockRejectedValueOnce(new Error('oops'));
+  render(<App />);
+  await screen.findByRole('heading', { name: /Baristeuer/i });
+
+  fireEvent.click(screen.getByRole('tab', { name: /Mitglieder/i }));
+  fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: 'A' } });
+  fireEvent.change(screen.getByLabelText(/E-Mail/i), { target: { value: 'a@example.com' } });
+  fireEvent.change(screen.getByLabelText(/Beitrittsdatum/i), { target: { value: '2024-01-10' } });
+  fireEvent.click(screen.getByRole('button', { name: /Hinzufügen/i }));
+
+  const alertMember = await screen.findByRole('alert');
+  expect(alertMember).toHaveTextContent('oops');
 });
 
 // Edit Income

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { CssBaseline, Container, FormControlLabel, Switch, AppBar, Toolbar, Typography, Tabs, Tab, Paper, Select, MenuItem } from "@mui/material";
+import { CssBaseline, Container, FormControlLabel, Switch, AppBar, Toolbar, Typography, Tabs, Tab, Paper, Select, MenuItem, Snackbar, Alert } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import "./i18n";
 import { ListExpenses, ListIncomes, AddIncome, UpdateIncome, DeleteIncome, AddExpense, UpdateExpense, DeleteExpense, AddMember, ListMembers, DeleteMember } from "./wailsjs/go/service/DataService";
@@ -26,6 +26,10 @@ export default function App() {
   const [projectId, setProjectId] = useState(1);
   const { t, i18n } = useTranslation();
   const [language, setLanguage] = useState(i18n.language);
+  const [error, setError] = useState("");
+  const handleError = (err, key = 'errors.add') => {
+    setError(err.message || t(key));
+  };
 
   const theme = createTheme({
     palette: {
@@ -73,7 +77,7 @@ export default function App() {
       setError("");
       fetchIncomes();
     } catch (err) {
-      setError(err.message || t('add_error'));
+      handleError(err);
     }
   };
 
@@ -88,7 +92,7 @@ export default function App() {
       setError("");
       fetchExpenses();
     } catch (err) {
-      setError(err.message || t('add_error'));
+      handleError(err);
     }
   };
 
@@ -98,7 +102,7 @@ export default function App() {
       setError("");
       fetchMembers();
     } catch (err) {
-      setError(err.message || t('add_error'));
+      handleError(err);
     }
   };
 
@@ -210,6 +214,11 @@ export default function App() {
           </Paper>
         )}
       </Container>
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError('')}>
+        <Alert severity="error" onClose={() => setError('')}>
+          {error}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   );
 }

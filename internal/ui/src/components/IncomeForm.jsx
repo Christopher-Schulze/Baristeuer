@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, TextField, Button, Typography } from "@mui/material";
+import { Box, TextField, Button, Snackbar, Alert } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 export default function IncomeForm({ onSubmit, editItem }) {
@@ -12,11 +12,11 @@ export default function IncomeForm({ onSubmit, editItem }) {
     e.preventDefault();
     const value = parseFloat(amount);
     if (!source || !amount) {
-      setError(t('income.required'));
+      setError(t('errors.income_required'));
       return;
     }
     if (Number.isNaN(value) || value <= 0) {
-      setError(t('income.positive'));
+      setError(t('errors.income_positive'));
       return;
     }
     await onSubmit(source, value, setError);
@@ -33,11 +33,11 @@ export default function IncomeForm({ onSubmit, editItem }) {
       <Button type="submit" variant="contained">
         {t('income.add')}
       </Button>
-      {error && (
-        <Typography color="error" sx={{ mt: 2 }}>
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError('')}>
+        <Alert severity="error" onClose={() => setError('')}>
           {error}
-        </Typography>
-      )}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

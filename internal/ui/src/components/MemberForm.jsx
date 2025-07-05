@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, TextField, Button, Typography } from "@mui/material";
+import { Box, TextField, Button, Snackbar, Alert } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 export default function MemberForm({ onSubmit }) {
@@ -14,15 +14,15 @@ export default function MemberForm({ onSubmit }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || !email) {
-      setError(t('member.required'));
+      setError(t('errors.member_required'));
       return;
     }
     if (!emailPattern.test(email)) {
-      setError(t('member.invalid_email'));
+      setError(t('errors.member_invalid_email'));
       return;
     }
     if (!datePattern.test(joinDate)) {
-      setError(t('member.invalid_date'));
+      setError(t('errors.member_invalid_date'));
       return;
     }
     await onSubmit(name, email, joinDate, setError);
@@ -44,11 +44,11 @@ export default function MemberForm({ onSubmit }) {
       <Button type="submit" variant="contained">
         {t('member.add')}
       </Button>
-      {error && (
-        <Typography color="error" sx={{ mt: 2 }}>
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError('')}>
+        <Alert severity="error" onClose={() => setError('')}>
           {error}
-        </Typography>
-      )}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
