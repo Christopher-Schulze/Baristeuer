@@ -18,6 +18,7 @@ func main() {
 	pdfDir := flag.String("pdfdir", "", "directory for generated PDFs")
 	logFile := flag.String("logfile", "", "log file path")
 	logLevel := flag.String("loglevel", "", "log level")
+	exportPath := flag.String("exportdb", "", "export database to path and exit")
 	flag.Parse()
 
 	cfg, err := config.Load(*cfgPath)
@@ -53,6 +54,13 @@ func main() {
 	generator := pdf.NewGenerator(cfg.PDFDir, store)
 	datasvc := service.NewDataServiceFromStore(store, logger, logCloser)
 	defer datasvc.Close()
+
+	if *exportPath != "" {
+		if err := datasvc.ExportDatabase(*exportPath); err != nil {
+			fmt.Println("Error exporting database:", err)
+		}
+		return
+	}
 
 	err = wails.Run(&options.App{
 		Title:       "Baristeuer",
