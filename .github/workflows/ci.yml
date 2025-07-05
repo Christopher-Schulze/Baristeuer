@@ -13,6 +13,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+      - name: Check formatting
+        run: |
+          gofmt -w $(git ls-files '*.go')
+          git diff --exit-code
 
       - name: Setup Go
         uses: actions/setup-go@v5
