@@ -63,6 +63,15 @@ func TestFormGeneration(t *testing.T) {
 	if err := store.CreateProject(ctx, proj); err != nil {
 		t.Fatal(err)
 	}
+	if err := store.CreateIncome(ctx, &data.Income{ProjectID: proj.ID, Source: "donation", Amount: 100}); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.CreateExpense(ctx, &data.Expense{ProjectID: proj.ID, Category: "supplies", Amount: 20}); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.CreateMember(ctx, &data.Member{Name: "Max", Email: "max@example.com", JoinDate: "2024-01-01"}); err != nil {
+		t.Fatal(err)
+	}
 
 	g := NewGenerator(dir, store)
 	info := FormInfo{Name: "Testverein", TaxNumber: "11/111/11111", Address: "Hauptstr. 1", FiscalYear: "2025"}
@@ -71,11 +80,11 @@ func TestFormGeneration(t *testing.T) {
 		fn       func(int64, FormInfo) (string, error)
 		expected []string
 	}{
-		{"kst1", g.GenerateKSt1, []string{"KSt 1 - K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung", "Steuernummer", "Finanzamt", "Veranlagungszeitraum"}},
-		{"gem", g.GenerateAnlageGem, []string{"Anlage Gem", "Anschrift des Vereins", "T\xC3\xA4tigkeit des Vereins", "Bankverbindung"}},
-		{"gk", g.GenerateAnlageGK, []string{"Anlage GK", "Bezeichnung Gesch\xC3\xA4ftsbetrieb", "Umsatz des Vorjahres"}},
-		{"kst1f", g.GenerateKSt1F, []string{"KSt 1F", "Beteiligungen", "F\xC3\xB6rdermittel"}},
-		{"sport", g.GenerateAnlageSport, []string{"Anlage Sport", "Mitgliederzahl", "\xC3\x9Cbungsleiter"}},
+		{"kst1", g.GenerateKSt1, []string{"Einnahmen gesamt", "100.00", "Ausgaben gesamt"}},
+		{"gem", g.GenerateAnlageGem, []string{"Mitglieder:", "1", "Einnahmen:", "100.00"}},
+		{"gk", g.GenerateAnlageGK, []string{"Gesamte Einnahmen", "100.00"}},
+		{"kst1f", g.GenerateKSt1F, []string{"Gesamteinnahmen", "100.00"}},
+		{"sport", g.GenerateAnlageSport, []string{"Mitgliederzahl", "1", "Einnahmen aus Sportbetrieb"}},
 	}
 	for _, f := range files {
 		path, err := f.fn(proj.ID, info)
