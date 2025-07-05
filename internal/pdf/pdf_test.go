@@ -71,11 +71,11 @@ func TestFormGeneration(t *testing.T) {
 		fn       func(int64, FormInfo) (string, error)
 		expected []string
 	}{
-		{"kst1", g.GenerateKSt1, []string{"KSt 1 - K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung", "Steuernummer", "Veranlagungszeitraum"}},
-		{"gem", g.GenerateAnlageGem, []string{"Anlage Gem", "Anschrift des Vereins", "Bankverbindung"}},
-		{"gk", g.GenerateAnlageGK, []string{"Anlage GK", "Umsatz des Vorjahres"}},
-		{"kst1f", g.GenerateKSt1F, []string{"KSt 1F", "Beteiligungen"}},
-		{"sport", g.GenerateAnlageSport, []string{"Anlage Sport", "\xC3\x9Cbungsleiter"}},
+		{"kst1", g.GenerateKSt1, []string{"KSt 1 - K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung", "Steuernummer", "Finanzamt", "Veranlagungszeitraum"}},
+		{"gem", g.GenerateAnlageGem, []string{"Anlage Gem", "Anschrift des Vereins", "T\xC3\xA4tigkeit des Vereins", "Bankverbindung"}},
+		{"gk", g.GenerateAnlageGK, []string{"Anlage GK", "Bezeichnung Gesch\xC3\xA4ftsbetrieb", "Umsatz des Vorjahres"}},
+		{"kst1f", g.GenerateKSt1F, []string{"KSt 1F", "Beteiligungen", "F\xC3\xB6rdermittel"}},
+		{"sport", g.GenerateAnlageSport, []string{"Anlage Sport", "Mitgliederzahl", "\xC3\x9Cbungsleiter"}},
 	}
 	for _, f := range files {
 		path, err := f.fn(proj.ID, info)
