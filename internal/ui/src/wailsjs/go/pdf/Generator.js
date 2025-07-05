@@ -2,6 +2,10 @@ export function GenerateReport(projectID) {
   return window.go.pdf.Generator.GenerateReport(projectID);
 }
 
+export function GenerateDetailedReport(projectID) {
+  return window.go.pdf.Generator.GenerateDetailedReport(projectID);
+}
+
 export function GenerateKSt1(projectID) {
   return window.go.pdf.Generator.GenerateKSt1(projectID);
 }

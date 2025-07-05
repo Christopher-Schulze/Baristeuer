@@ -8,6 +8,7 @@ vi.mock('../wailsjs/go/service/DataService', () => ({
   ExportDatabase: vi.fn(),
   RestoreDatabase: vi.fn(),
   SetLogLevel: vi.fn(),
+  SetLogFormat: vi.fn(),
   ExportProjectCSV: vi.fn(),
 }), { virtual: true });
 

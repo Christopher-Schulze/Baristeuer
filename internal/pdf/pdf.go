@@ -201,6 +201,109 @@ func (g *Generator) GenerateReport(ctx context.Context, projectID int64) (string
 	return filePath, nil
 }
 
+// GenerateDetailedReport creates a tax report with additional statistics like average income and expenses.
+func (g *Generator) GenerateDetailedReport(ctx context.Context, projectID int64) (string, error) {
+	incomes, err := g.store.ListIncomes(ctx, projectID)
+	if err != nil {
+		return "", fmt.Errorf("fetch incomes: %w", err)
+	}
+	expensesList, err := g.store.ListExpenses(ctx, projectID)
+	if err != nil {
+		return "", fmt.Errorf("fetch expenses: %w", err)
+	}
+
+	var revenue, expenses float64
+	for _, inc := range incomes {
+		revenue += inc.Amount
+	}
+	for _, exp := range expensesList {
+		expenses += exp.Amount
+	}
+	var avgIncome, avgExpense float64
+	if len(incomes) > 0 {
+		avgIncome = revenue / float64(len(incomes))
+	}
+	if len(expensesList) > 0 {
+		avgExpense = expenses / float64(len(expensesList))
+	}
+
+	year := g.cfg.TaxYear
+	if year == 0 {
+		year = 2025
+	}
+	taxResult := taxlogic.CalculateTaxes(revenue, expenses, year)
+
+	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
+		return "", fmt.Errorf("failed to create directory: %w", err)
+	}
+	fileName := fmt.Sprintf("tax_detailed_report_%d.pdf", taxResult.Timestamp)
+	filePath := filepath.Join(g.BasePath, fileName)
+
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.SetCompression(false)
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 16)
+	pdf.Cell(0, 10, fmt.Sprintf("Detaillierter Steuerbericht %d", year))
+	pdf.Ln(20)
+
+	pdf.SetFont("Arial", "B", 12)
+	pdf.Cell(0, 10, "1. Zusammenfassung der Finanzen")
+	pdf.Ln(10)
+	pdf.SetFont("Arial", "", 12)
+	pdf.Cell(60, 10, "Einnahmen:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.Revenue))
+	pdf.Ln(8)
+	pdf.Cell(60, 10, "Ausgaben:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.Expenses))
+	pdf.Ln(8)
+	pdf.Cell(60, 10, "Gewinn:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.Profit))
+	pdf.Ln(8)
+	pdf.Cell(60, 10, "Ø Einnahmen pro Eintrag:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", avgIncome))
+	pdf.Ln(8)
+	pdf.Cell(60, 10, "Ø Ausgaben pro Eintrag:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", avgExpense))
+	pdf.Ln(15)
+
+	pdf.SetFont("Arial", "B", 12)
+	pdf.Cell(0, 10, "2. Steuerliche Prüfung und Berechnung")
+	pdf.Ln(10)
+	pdf.SetFont("Arial", "", 12)
+	pdf.Cell(60, 10, "Umsatzfreigrenze:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.RevenueExemptionLimit))
+	pdf.Ln(8)
+	pdf.Cell(60, 10, "Steuerpflicht aktiv:")
+	pdf.Cell(0, 10, fmt.Sprintf("%t", taxResult.IsTaxable))
+	pdf.Ln(8)
+	pdf.Cell(60, 10, "Gewinnfreibetrag:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.ProfitAllowance))
+	pdf.Ln(8)
+	pdf.Cell(60, 10, "Steuerpflichtiges Einkommen:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.TaxableIncome))
+	pdf.Ln(15)
+
+	pdf.SetFont("Arial", "B", 12)
+	pdf.Cell(0, 10, "3. Finale Steuerlast")
+	pdf.Ln(10)
+	pdf.SetFont("Arial", "", 12)
+	pdf.Cell(60, 10, "Körperschaftsteuer (15%):")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.CorporateTax))
+	pdf.Ln(8)
+	pdf.Cell(60, 10, "Solidaritätszuschlag (5.5%):")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.SolidaritySurcharge))
+	pdf.Ln(8)
+	pdf.SetFont("Arial", "B", 12)
+	pdf.Cell(60, 10, "Gesamtsteuer:")
+	pdf.Cell(0, 10, fmt.Sprintf("%.2f EUR", taxResult.TotalTax))
+	pdf.Ln(10)
+
+	if err := pdf.OutputFileAndClose(filePath); err != nil {
+		return "", fmt.Errorf("%w: %v", ErrWritePDF, err)
+	}
+	return filePath, nil
+}
+
 // GenerateKSt1 creates a simplified "KSt 1" form for the given project with
 // layout similar to the official template. The content here is intentionally
 // generic but demonstrates how fields would be positioned in a real form.
