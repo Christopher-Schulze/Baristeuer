@@ -6,6 +6,7 @@ import {
   Select,
   MenuItem,
   Typography,
+  Alert,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import {
@@ -23,43 +24,43 @@ export default function SettingsPanel({ projectId }) {
   const [csvPath, setCsvPath] = useState("");
   const [level, setLevel] = useState("info");
   const [taxYear, setTaxYear] = useState(2025);
-  const [msg, setMsg] = useState("");
+  const [feedback, setFeedback] = useState({ type: "", text: "" });
 
   const doExport = async () => {
     try {
       await ExportDatabase(exportPath);
-      setMsg(t("settings.exported"));
+      setFeedback({ type: "success", text: t("settings.exported") });
     } catch (e) {
-      setMsg(String(e));
+      setFeedback({ type: "error", text: String(e) });
     }
   };
 
   const doRestore = async () => {
     try {
       await RestoreDatabase(restorePath);
-      setMsg(t("settings.restored"));
+      setFeedback({ type: "success", text: t("settings.restored") });
     } catch (e) {
-      setMsg(String(e));
+      setFeedback({ type: "error", text: String(e) });
     }
   };
 
   const doExportCSV = async () => {
     try {
       await ExportProjectCSV(projectId, csvPath);
-      setMsg(t("settings.csv_exported"));
+      setFeedback({ type: "success", text: t("settings.csv_exported") });
     } catch (e) {
-      setMsg(String(e));
+      setFeedback({ type: "error", text: String(e) });
     }
   };
 
   const changeLevel = () => {
     SetLogLevel(level);
-    setMsg(t("settings.applied"));
+    setFeedback({ type: "success", text: t("settings.applied") });
   };
 
   const applyYear = () => {
     SetTaxYear(parseInt(taxYear));
-    setMsg(t("settings.applied"));
+    setFeedback({ type: "success", text: t("settings.applied") });
   };
 
   return (
@@ -127,10 +128,10 @@ export default function SettingsPanel({ projectId }) {
           {t("settings.apply")}
         </Button>
       </Box>
-      {msg && (
-        <Typography color="primary" sx={{ mt: 2 }}>
-          {msg}
-        </Typography>
+      {feedback.text && (
+        <Alert severity={feedback.type} sx={{ mt: 2 }}>
+          {feedback.text}
+        </Alert>
       )}
     </Box>
   );

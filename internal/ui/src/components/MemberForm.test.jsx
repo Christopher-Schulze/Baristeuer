@@ -26,3 +26,14 @@ test('submits valid data', async () => {
   fireEvent.click(screen.getByRole('button', { name: /Hinzufügen/i }));
   expect(onSubmit).toHaveBeenCalled();
 });
+
+test('shows submit error', async () => {
+  onSubmit.mockImplementation(async (_n, _e, _d, setErr) => {
+    setErr('fail');
+  });
+  render(<MemberForm onSubmit={onSubmit} />);
+  fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: 'Bob' } });
+  fireEvent.change(screen.getByLabelText(/E-Mail/i), { target: { value: 'bob@example.com' } });
+  fireEvent.click(screen.getByRole('button', { name: /Hinzufügen/i }));
+  expect(await screen.findByText('fail')).toBeInTheDocument();
+});
