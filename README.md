@@ -72,6 +72,18 @@ Follow the official documentation for platform specific details.
 
 See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for more details.
 
+## Makefile
+
+Common development commands are collected in a small Makefile:
+
+```bash
+make vet       # run go vet
+make go-test   # run Go tests
+make lint      # lint the UI
+make ui-test   # run frontend tests
+make test      # run Go and UI tests
+```
+
 ## Packaging
 
 Run the packaging script to build binaries for macOS, Windows and Linux and place them
