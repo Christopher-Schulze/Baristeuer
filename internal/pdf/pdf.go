@@ -86,6 +86,23 @@ func (g *Generator) formInfo() FormInfo {
 	}
 }
 
+// addField writes a single label/value row at the current Y position and
+// advances the cursor for the next line.
+func addField(pdf *gofpdf.Fpdf, label, value string) {
+	const (
+		labelX = 20.0
+		valueX = 70.0
+		lineH  = 8.0
+	)
+
+	y := pdf.GetY()
+	pdf.SetXY(labelX, y)
+	pdf.CellFormat(50, lineH, label, "1", 0, "", false, 0, "")
+	pdf.SetXY(valueX, y)
+	pdf.CellFormat(120, lineH, value, "1", 0, "", false, 0, "")
+	pdf.SetY(y + lineH)
+}
+
 // GenerateReport creates a tax report PDF for the given project.
 func (g *Generator) GenerateReport(projectID int64) (string, error) {
 	ctx := context.Background()
@@ -218,63 +235,17 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	pdf.CellFormat(0, 8, "1. Angaben zur K\xC3\xB6rperschaft", "", 1, "", false, 0, "")
 	pdf.SetFont("Arial", "", 12)
 
-	startY := pdf.GetY() + 2
-	lineH := 8.0
-
-	pdf.SetXY(20, startY)
-	pdf.CellFormat(50, lineH, "Name des Vereins:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, startY)
-	pdf.CellFormat(120, lineH, name, "1", 0, "", false, 0, "")
-	startY += lineH
-
-	pdf.SetXY(20, startY)
-	pdf.CellFormat(50, lineH, "Rechtsform:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, startY)
-	pdf.CellFormat(120, lineH, "", "1", 0, "", false, 0, "")
-	startY += lineH
-
-	pdf.SetXY(20, startY)
-	pdf.CellFormat(50, lineH, "Steuernummer:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, startY)
-	pdf.CellFormat(120, lineH, info.TaxNumber, "1", 0, "", false, 0, "")
-	startY += lineH
-
-	pdf.SetXY(20, startY)
-	pdf.CellFormat(50, lineH, "Finanzamt:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, startY)
-	pdf.CellFormat(120, lineH, "", "1", 0, "", false, 0, "")
-	startY += lineH
-
-	pdf.SetXY(20, startY)
-	pdf.CellFormat(50, lineH, "Straße, Hausnummer:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, startY)
-	pdf.CellFormat(120, lineH, info.Address, "1", 0, "", false, 0, "")
-	startY += lineH
-
-	pdf.SetXY(20, startY)
-	pdf.CellFormat(50, lineH, "PLZ, Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, startY)
-	pdf.CellFormat(120, lineH, info.City, "1", 0, "", false, 0, "")
-	startY += lineH
-
-	pdf.SetXY(20, startY)
-	pdf.CellFormat(50, lineH, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, startY)
-	pdf.CellFormat(120, lineH, info.BankAccount, "1", 0, "", false, 0, "")
-	startY += lineH
-
-	pdf.SetXY(20, startY)
-	pdf.CellFormat(50, lineH, "Vertreten durch:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, startY)
-	pdf.CellFormat(120, lineH, "", "1", 0, "", false, 0, "")
-	startY += lineH
-
-	pdf.SetXY(20, startY)
-	pdf.CellFormat(50, lineH, "Veranlagungszeitraum:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, startY)
-	pdf.CellFormat(120, lineH, info.FiscalYear, "1", 0, "", false, 0, "")
-	startY += lineH + 4
-	pdf.SetY(startY)
+	pdf.Ln(2)
+	addField(pdf, "Name des Vereins:", name)
+	addField(pdf, "Rechtsform:", "")
+	addField(pdf, "Steuernummer:", info.TaxNumber)
+	addField(pdf, "Finanzamt:", "")
+	addField(pdf, "Straße, Hausnummer:", info.Address)
+	addField(pdf, "PLZ, Ort:", info.City)
+	addField(pdf, "Bankverbindung:", info.BankAccount)
+	addField(pdf, "Vertreten durch:", "")
+	addField(pdf, "Veranlagungszeitraum:", info.FiscalYear)
+	pdf.Ln(4)
 	pdf.Ln(12)
 
 	pdf.SetFont("Arial", "B", 12)
@@ -315,6 +286,7 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 
 // GenerateAnlageGem creates a simplified "Anlage Gem" form. It mirrors the
 // structure of the official form but uses generic placeholder fields.
+
 func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	ctx := context.Background()
 	p, _ := g.store.GetProject(ctx, projectID)
@@ -364,361 +336,24 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	pdf.Ln(12)
 
 	pdf.SetFont("Arial", "", 12)
-	y := pdf.GetY()
-	h := 8.0
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Name des Vereins:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, name, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Steuernummer:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.TaxNumber, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Tätigkeitsbereich:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Tätigkeitsbereich:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Tätigkeitsbereich:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Tätigkeitsbereich:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Tätigkeitsbereich:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift des Vereins:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "T\xC3\xA4tigkeit des Vereins:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Steuerbeg\xC3\xBCnstigte Zwecke:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Vertreten durch:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Verwendung der Mittel:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Mitglieder:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%d", memberCount), "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Einnahmen:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", revenue), "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ausgaben:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", expenses), "1", 0, "", false, 0, "")
-	y += h + 4
-	pdf.SetY(y)
+	pdf.Ln(2)
+	addField(pdf, "Name des Vereins:", name)
+	addField(pdf, "Steuernummer:", info.TaxNumber)
+	addField(pdf, "Anschrift:", info.Address)
+	addField(pdf, "Ort:", info.City)
+	addField(pdf, "Bankverbindung:", info.BankAccount)
+	addField(pdf, "T\xC3\xA4tigkeitsbereich:", info.Activity)
+	addField(pdf, "Anschrift des Vereins:", info.Address)
+	addField(pdf, "Ort:", info.City)
+	addField(pdf, "T\xC3\xA4tigkeit des Vereins:", info.Activity)
+	addField(pdf, "Steuerbeg\xC3\xBCnstigte Zwecke:", "")
+	addField(pdf, "Vertreten durch:", "")
+	addField(pdf, "Verwendung der Mittel:", "")
+	addField(pdf, "Bankverbindung:", info.BankAccount)
+	addField(pdf, "Mitglieder:", fmt.Sprintf("%d", memberCount))
+	addField(pdf, "Einnahmen:", fmt.Sprintf("%.2f EUR", revenue))
+	addField(pdf, "Ausgaben:", fmt.Sprintf("%.2f EUR", expenses))
+	pdf.Ln(4)
 
 	pdf.Ln(10)
 	pdf.MultiCell(0, 6, "Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen und dem KSt 1 beif\xC3\xBCgen.", "", "L", false)
@@ -767,76 +402,19 @@ func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
 	pdf.SetFont("Arial", "B", 14)
 	pdf.CellFormat(0, 10, title, "", 1, "", false, 0, "")
 	pdf.SetFont("Arial", "", 12)
-
-	y := pdf.GetY()
-	h := 8.0
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Name des Vereins:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Name, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Steuernummer:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.TaxNumber, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bezeichnung Gesch\xC3\xA4ftsbetrieb:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Gewinne/Verluste:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Umsatz des Vorjahres:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Gesamte Einnahmen:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", revenue), "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Gesamte Ausgaben:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", expenses), "1", 0, "", false, 0, "")
-	y += h + 4
-	pdf.SetY(y)
+	pdf.Ln(2)
+	addField(pdf, "Name des Vereins:", info.Name)
+	addField(pdf, "Steuernummer:", info.TaxNumber)
+	addField(pdf, "Anschrift:", info.Address)
+	addField(pdf, "Ort:", info.City)
+	addField(pdf, "Bankverbindung:", info.BankAccount)
+	addField(pdf, "T\xC3\xA4tigkeitsbereich:", info.Activity)
+	addField(pdf, "Bezeichnung Gesch\xC3\xA4ftsbetrieb:", "")
+	addField(pdf, "Gewinne/Verluste:", "")
+	addField(pdf, "Umsatz des Vorjahres:", "")
+	addField(pdf, "Gesamte Einnahmen:", fmt.Sprintf("%.2f EUR", revenue))
+	addField(pdf, "Gesamte Ausgaben:", fmt.Sprintf("%.2f EUR", expenses))
+	pdf.Ln(4)
 
 	pdf.Ln(8)
 	pdf.MultiCell(0, 6, "(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)", "", "L", false)
@@ -882,52 +460,15 @@ func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
 	pdf.SetFont("Arial", "B", 14)
 	pdf.CellFormat(0, 10, title, "", 1, "", false, 0, "")
 	pdf.SetFont("Arial", "", 12)
-
-	y := pdf.GetY()
-	h := 8.0
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Name des Vereins:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Name, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Steuernummer:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.TaxNumber, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Angaben zu Beteiligungen:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Beteiligungen an Kapitalgesellschaften:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Erhaltene F\xC3\xB6rdermittel:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Gesamteinnahmen:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", revenue), "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Gesamtausgaben:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", expenses), "1", 0, "", false, 0, "")
-	y += h + 4
-	pdf.SetY(y)
+	pdf.Ln(2)
+	addField(pdf, "Name des Vereins:", info.Name)
+	addField(pdf, "Steuernummer:", info.TaxNumber)
+	addField(pdf, "Angaben zu Beteiligungen:", "")
+	addField(pdf, "Beteiligungen an Kapitalgesellschaften:", "")
+	addField(pdf, "Erhaltene F\xC3\xB6rdermittel:", "")
+	addField(pdf, "Gesamteinnahmen:", fmt.Sprintf("%.2f EUR", revenue))
+	addField(pdf, "Gesamtausgaben:", fmt.Sprintf("%.2f EUR", expenses))
+	pdf.Ln(4)
 
 	pdf.Ln(8)
 	pdf.MultiCell(0, 6, "(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)", "", "L", false)
@@ -977,40 +518,13 @@ func (g *Generator) GenerateAnlageSport(projectID int64) (string, error) {
 	pdf.SetFont("Arial", "B", 14)
 	pdf.CellFormat(0, 10, title, "", 1, "", false, 0, "")
 	pdf.SetFont("Arial", "", 12)
-
-	y := pdf.GetY()
-	h := 8.0
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Name des Vereins:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Name, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Steuernummer:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.TaxNumber, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Mitgliederzahl:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%d", memberCount), "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Einnahmen aus Sportbetrieb:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", revenue), "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anzahl der Übungsleiter:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h + 4
-	pdf.SetY(y)
+	pdf.Ln(2)
+	addField(pdf, "Name des Vereins:", info.Name)
+	addField(pdf, "Steuernummer:", info.TaxNumber)
+	addField(pdf, "Mitgliederzahl:", fmt.Sprintf("%d", memberCount))
+	addField(pdf, "Einnahmen aus Sportbetrieb:", fmt.Sprintf("%.2f EUR", revenue))
+	addField(pdf, "Anzahl der Übungsleiter:", "")
+	pdf.Ln(4)
 
 	pdf.Ln(8)
 	pdf.MultiCell(0, 6, "(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)", "", "L", false)
