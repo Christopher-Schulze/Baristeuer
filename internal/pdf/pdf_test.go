@@ -105,7 +105,7 @@ func TestFormGeneration(t *testing.T) {
 		expected []string
 	}{
 		{"kst1", g.GenerateKSt1, []string{"Einnahmen gesamt", "100.00", "Ausgaben gesamt", "2026"}},
-		{"gem", g.GenerateAnlageGem, []string{"Mitglieder:", "1", "Einnahmen:", "100.00"}},
+		{"gem", g.GenerateAnlageGem, []string{"Mitglieder", "1", "Einnahmen", "100.00"}},
 		{"gk", g.GenerateAnlageGK, []string{"Gesamte Einnahmen", "100.00"}},
 		{"kst1f", g.GenerateKSt1F, []string{"Gesamteinnahmen", "100.00"}},
 		{"sport", g.GenerateAnlageSport, []string{"Mitgliederzahl", "1", "Einnahmen aus Sportbetrieb"}},
@@ -123,6 +123,13 @@ func TestFormGeneration(t *testing.T) {
 			if !strings.Contains(string(data), expect) {
 				t.Fatalf("%s form missing %s in %s", f.name, expect, string(data))
 			}
+		}
+		// ensure ordering of mandatory fields
+		txt := string(data)
+		nameIdx := strings.Index(txt, "Name des Vereins")
+		taxIdx := strings.Index(txt, "Steuernummer")
+		if nameIdx == -1 || taxIdx == -1 || nameIdx > taxIdx {
+			t.Fatalf("%s form fields out of order", f.name)
 		}
 	}
 
