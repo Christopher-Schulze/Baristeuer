@@ -12,7 +12,11 @@ OUTPUT_DIR="$ROOT_DIR/build/bin/$VERSION"
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
-PLATFORMS=("darwin/universal" "windows/amd64" "linux/amd64" "linux/arm64")
+if [[ -z "${PLATFORMS:-}" ]]; then
+    PLATFORMS=("darwin/universal" "windows/amd64" "linux/amd64" "linux/arm64")
+else
+    read -ra PLATFORMS <<< "$PLATFORMS"
+fi
 
 for PLATFORM in "${PLATFORMS[@]}"; do
     echo "==> Building for $PLATFORM"

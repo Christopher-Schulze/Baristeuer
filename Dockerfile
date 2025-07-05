@@ -1,7 +1,11 @@
 FROM golang:1.22-bullseye AS build
 
-# Install Node.js and npm
-RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists/*
+# Install Node.js from official binaries
+ARG NODE_VERSION=20.19.3
+RUN curl -fsSL https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz \
+    | tar -xJf - -C /usr/local --strip-components=1 \
+    && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
+    && npm install -g npm@latest
 
 WORKDIR /app
 
