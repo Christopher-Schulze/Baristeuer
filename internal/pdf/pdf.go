@@ -23,6 +23,14 @@ type Generator struct {
 	store    *data.Store
 }
 
+// FormInfo contains data to fill the various tax forms.
+type FormInfo struct {
+	Name       string
+	TaxNumber  string
+	Address    string
+	FiscalYear string
+}
+
 // NewGenerator returns a new Generator for storing reports.
 func NewGenerator(basePath string, store *data.Store) *Generator {
 	if basePath == "" {
@@ -121,9 +129,15 @@ func (g *Generator) GenerateReport(projectID int64) (string, error) {
 // GenerateKSt1 creates a simplified "KSt 1" form for the given project with
 // layout similar to the official template. The content here is intentionally
 // generic but demonstrates how fields would be positioned in a real form.
-func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
+func (g *Generator) GenerateKSt1(projectID int64, info FormInfo) (string, error) {
 	ctx := context.Background()
 	p, _ := g.store.GetProject(ctx, projectID)
+	if info.Name == "" && p != nil {
+		info.Name = p.Name
+	}
+	if info.FiscalYear == "" {
+		info.FiscalYear = "2025"
+	}
 
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
 		return "", fmt.Errorf("failed to create directory: %w", err)
@@ -138,39 +152,28 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	pdf.Cell(0, 10, "KSt 1 - K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung")
 	pdf.Ln(12)
 
-	name := "____________________"
-	if p != nil {
-		name = p.Name
-	}
+	name := info.Name
 
 	pdf.SetFont("Arial", "B", 12)
-	pdf.Cell(0, 8, "1. Angaben zur K\xC3\xB6rperschaft")
-	pdf.Ln(8)
+	pdf.CellFormat(0, 8, "1. Angaben zur K\xC3\xB6rperschaft", "", 1, "", false, 0, "")
 	pdf.SetFont("Arial", "", 12)
 
-	pdf.Cell(60, 8, "Name des Vereins:")
-	pdf.Cell(0, 8, name)
-	pdf.Ln(8)
-	pdf.Cell(60, 8, "Rechtsform:")
-	pdf.Cell(0, 8, "____________________")
-	pdf.Ln(8)
-	pdf.Cell(60, 8, "Steuernummer:")
-	pdf.Cell(0, 8, "____________________")
-	pdf.Ln(8)
-	pdf.Cell(60, 8, "Finanzamt:")
-	pdf.Cell(0, 8, "____________________")
-	pdf.Ln(8)
-	pdf.Cell(60, 8, "Straße, Hausnummer:")
-	pdf.Cell(0, 8, "____________________")
-	pdf.Ln(8)
-	pdf.Cell(60, 8, "PLZ, Ort:")
-	pdf.Cell(0, 8, "____________________")
-	pdf.Ln(8)
-	pdf.Cell(60, 8, "Vertreten durch:")
-	pdf.Cell(0, 8, "____________________")
-	pdf.Ln(8)
-	pdf.Cell(60, 8, "Veranlagungszeitraum:")
-	pdf.Cell(0, 8, "2025")
+	pdf.CellFormat(60, 8, "Name des Vereins:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, name, "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Rechtsform:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Steuernummer:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, info.TaxNumber, "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Finanzamt:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Straße, Hausnummer:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, info.Address, "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "PLZ, Ort:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Vertreten durch:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Veranlagungszeitraum:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, info.FiscalYear, "1", 1, "", false, 0, "")
 	pdf.Ln(12)
 
 	pdf.SetFont("Arial", "B", 12)
@@ -197,9 +200,15 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 
 // GenerateAnlageGem creates a simplified "Anlage Gem" form. It mirrors the
 // structure of the official form but uses generic placeholder fields.
-func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
+func (g *Generator) GenerateAnlageGem(projectID int64, info FormInfo) (string, error) {
 	ctx := context.Background()
 	p, _ := g.store.GetProject(ctx, projectID)
+	if info.Name == "" && p != nil {
+		info.Name = p.Name
+	}
+	if info.FiscalYear == "" {
+		info.FiscalYear = "2025"
+	}
 
 	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
 		return "", fmt.Errorf("failed to create directory: %w", err)
@@ -212,10 +221,7 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 		title = fmt.Sprintf("Anlage Gem - %s", p.Name)
 	}
 
-	name := "____________________"
-	if p != nil {
-		name = p.Name
-	}
+	name := info.Name
 
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.SetCompression(false)
@@ -225,29 +231,23 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	pdf.Ln(12)
 
 	pdf.SetFont("Arial", "", 12)
-	pdf.Cell(60, 8, "Name des Vereins:")
-	pdf.Cell(0, 8, name)
-	pdf.Ln(8)
-	pdf.Cell(60, 8, "Anschrift des Vereins:")
-	pdf.Cell(0, 8, "____________________")
-	pdf.Ln(8)
+	pdf.CellFormat(60, 8, "Name des Vereins:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, name, "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Steuernummer:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, info.TaxNumber, "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Anschrift des Vereins:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, info.Address, "1", 1, "", false, 0, "")
 
-	pdf.Cell(60, 8, "T\xC3\xA4tigkeit des Vereins:")
-	pdf.Cell(0, 8, "____________________")
-	pdf.Ln(8)
-
-	pdf.Cell(60, 8, "Steuerbeg\xC3\xBCnstigte Zwecke:")
-	pdf.Cell(0, 8, "____________________")
-	pdf.Ln(8)
-	pdf.Cell(60, 8, "Vertreten durch:")
-	pdf.Cell(0, 8, "____________________")
-	pdf.Ln(8)
-
-	pdf.Cell(60, 8, "Verwendung der Mittel:")
-	pdf.Cell(0, 8, "____________________")
-	pdf.Ln(8)
-	pdf.Cell(60, 8, "Bankverbindung:")
-	pdf.Cell(0, 8, "____________________")
+	pdf.CellFormat(60, 8, "T\xC3\xA4tigkeit des Vereins:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Steuerbeg\xC3\xBCnstigte Zwecke:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Vertreten durch:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Verwendung der Mittel:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Bankverbindung:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
 
 	pdf.Ln(10)
 	pdf.MultiCell(0, 6, "Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen und dem KSt 1 beif\xC3\xBCgen.", "", "L", false)
@@ -259,72 +259,162 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 }
 
 // GenerateAnlageGK creates a placeholder "Anlage GK" form for the given project.
-func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
+func (g *Generator) GenerateAnlageGK(projectID int64, info FormInfo) (string, error) {
 	ctx := context.Background()
 	p, _ := g.store.GetProject(ctx, projectID)
+	if info.Name == "" && p != nil {
+		info.Name = p.Name
+	}
+
+	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
+		return "", fmt.Errorf("failed to create directory: %w", err)
+	}
+	fileName := fmt.Sprintf("Anlage_GK_%d.pdf", projectID)
+	filePath := filepath.Join(g.BasePath, fileName)
+
 	title := "Anlage GK - Angaben zu Gesch\xC3\xA4ftsbetrieben"
 	if p != nil {
 		title = fmt.Sprintf("Anlage GK - %s", p.Name)
 	}
-	lines := []string{
-		title,
-		"Bezeichnung des wirtschaftlichen Gesch\xC3\xA4ftsbetriebs: ____________________",
-		"Gewinne/Verluste: ____________________",
-		"Umsatz des Vorjahres: ____________________",
-		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",
+
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.SetCompression(false)
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 14)
+	pdf.CellFormat(0, 10, title, "", 1, "", false, 0, "")
+	pdf.SetFont("Arial", "", 12)
+
+	pdf.CellFormat(60, 8, "Name des Vereins:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, info.Name, "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Steuernummer:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, info.TaxNumber, "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Bezeichnung Gesch\xC3\xA4ftsbetrieb:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Gewinne/Verluste:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Umsatz des Vorjahres:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+
+	pdf.Ln(8)
+	pdf.MultiCell(0, 6, "(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)", "", "L", false)
+
+	if err := pdf.OutputFileAndClose(filePath); err != nil {
+		return "", fmt.Errorf("%w: %v", ErrWritePDF, err)
 	}
-	return g.createForm(projectID, "Anlage GK", lines)
+	return filePath, nil
 }
 
 // GenerateKSt1F creates a placeholder "KSt 1F" form for the given project.
-func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
+func (g *Generator) GenerateKSt1F(projectID int64, info FormInfo) (string, error) {
 	ctx := context.Background()
 	p, _ := g.store.GetProject(ctx, projectID)
+	if info.Name == "" && p != nil {
+		info.Name = p.Name
+	}
+
+	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
+		return "", fmt.Errorf("failed to create directory: %w", err)
+	}
+	fileName := fmt.Sprintf("KSt_1F_%d.pdf", projectID)
+	filePath := filepath.Join(g.BasePath, fileName)
+
 	title := "KSt 1F - Erweiterte K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung"
 	if p != nil {
 		title = fmt.Sprintf("KSt 1F - %s", p.Name)
 	}
-	lines := []string{
-		title, // "KSt 1F - Erweiterte Körperschaftsteuererklärung"
-		"Angaben zu Beteiligungen: ____________________",
-		"Beteiligungen an Kapitalgesellschaften: ____________________",
-		"Erhaltene F\xC3\xB6rdermittel: ____________________",
-		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",
+
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.SetCompression(false)
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 14)
+	pdf.CellFormat(0, 10, title, "", 1, "", false, 0, "")
+	pdf.SetFont("Arial", "", 12)
+
+	pdf.CellFormat(60, 8, "Name des Vereins:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, info.Name, "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Steuernummer:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, info.TaxNumber, "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Angaben zu Beteiligungen:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Beteiligungen an Kapitalgesellschaften:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Erhaltene F\xC3\xB6rdermittel:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+
+	pdf.Ln(8)
+	pdf.MultiCell(0, 6, "(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)", "", "L", false)
+
+	if err := pdf.OutputFileAndClose(filePath); err != nil {
+		return "", fmt.Errorf("%w: %v", ErrWritePDF, err)
 	}
-	return g.createForm(projectID, "KSt 1F", lines)
+	return filePath, nil
 }
 
 // GenerateAnlageSport creates a placeholder "Anlage Sport" form for the given project.
-func (g *Generator) GenerateAnlageSport(projectID int64) (string, error) {
+func (g *Generator) GenerateAnlageSport(projectID int64, info FormInfo) (string, error) {
 	ctx := context.Background()
 	p, _ := g.store.GetProject(ctx, projectID)
+	if info.Name == "" && p != nil {
+		info.Name = p.Name
+	}
+
+	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
+		return "", fmt.Errorf("failed to create directory: %w", err)
+	}
+	fileName := fmt.Sprintf("Anlage_Sport_%d.pdf", projectID)
+	filePath := filepath.Join(g.BasePath, fileName)
+
 	title := "Anlage Sport - Sportvereine"
 	if p != nil {
 		title = fmt.Sprintf("Anlage Sport - %s", p.Name)
 	}
-	lines := []string{
-		title, // heading
-		"Mitgliederzahl: ____________________",
-		"Einnahmen aus Sportbetrieb: ____________________",
-		"Anzahl der Übungsleiter: ____________________",
-		"(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)",
+
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.SetCompression(false)
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 14)
+	pdf.CellFormat(0, 10, title, "", 1, "", false, 0, "")
+	pdf.SetFont("Arial", "", 12)
+
+	pdf.CellFormat(60, 8, "Name des Vereins:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, info.Name, "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Steuernummer:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, info.TaxNumber, "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Mitgliederzahl:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Einnahmen aus Sportbetrieb:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+	pdf.CellFormat(60, 8, "Anzahl der Übungsleiter:", "1", 0, "", false, 0, "")
+	pdf.CellFormat(0, 8, "", "1", 1, "", false, 0, "")
+
+	pdf.Ln(8)
+	pdf.MultiCell(0, 6, "(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)", "", "L", false)
+
+	if err := pdf.OutputFileAndClose(filePath); err != nil {
+		return "", fmt.Errorf("%w: %v", ErrWritePDF, err)
 	}
-	return g.createForm(projectID, "Anlage Sport", lines)
+	return filePath, nil
 }
 
 // GenerateAllForms creates all available forms for the given project and returns their paths.
-func (g *Generator) GenerateAllForms(projectID int64) ([]string, error) {
-	forms := []func(int64) (string, error){
-		g.GenerateReport,
+func (g *Generator) GenerateAllForms(projectID int64, info FormInfo) ([]string, error) {
+	var paths []string
+
+	report, err := g.GenerateReport(projectID)
+	if err != nil {
+		return nil, err
+	}
+	paths = append(paths, report)
+
+	forms := []func(int64, FormInfo) (string, error){
 		g.GenerateKSt1,
 		g.GenerateAnlageGem,
 		g.GenerateAnlageGK,
 		g.GenerateKSt1F,
 		g.GenerateAnlageSport,
 	}
-	var paths []string
 	for _, f := range forms {
-		p, err := f(projectID)
+		p, err := f(projectID, info)
 		if err != nil {
 			return nil, err
 		}

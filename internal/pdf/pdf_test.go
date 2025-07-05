@@ -65,19 +65,20 @@ func TestFormGeneration(t *testing.T) {
 	}
 
 	g := NewGenerator(dir, store)
+	info := FormInfo{Name: "Testverein", TaxNumber: "11/111/11111", Address: "Hauptstr. 1", FiscalYear: "2025"}
 	files := []struct {
 		name     string
-		fn       func(int64) (string, error)
+		fn       func(int64, FormInfo) (string, error)
 		expected []string
 	}{
-		{"kst1", g.GenerateKSt1, []string{"KSt 1 - K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung", "Rechtsform", "Satzungsdatum"}},
+		{"kst1", g.GenerateKSt1, []string{"KSt 1 - K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung", "Steuernummer", "Veranlagungszeitraum"}},
 		{"gem", g.GenerateAnlageGem, []string{"Anlage Gem", "Anschrift des Vereins", "Bankverbindung"}},
 		{"gk", g.GenerateAnlageGK, []string{"Anlage GK", "Umsatz des Vorjahres"}},
-		{"kst1f", g.GenerateKSt1F, []string{"KSt 1F", "Kapitalgesellschaften"}},
+		{"kst1f", g.GenerateKSt1F, []string{"KSt 1F", "Beteiligungen"}},
 		{"sport", g.GenerateAnlageSport, []string{"Anlage Sport", "\xC3\x9Cbungsleiter"}},
 	}
 	for _, f := range files {
-		path, err := f.fn(proj.ID)
+		path, err := f.fn(proj.ID, info)
 		if err != nil {
 			t.Fatalf("%s failed: %v", f.name, err)
 		}
@@ -93,7 +94,7 @@ func TestFormGeneration(t *testing.T) {
 	}
 
 	// test GenerateAllForms
-	paths, err := g.GenerateAllForms(proj.ID)
+	paths, err := g.GenerateAllForms(proj.ID, info)
 	if err != nil {
 		t.Fatalf("GenerateAllForms failed: %v", err)
 	}
