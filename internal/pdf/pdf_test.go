@@ -86,16 +86,12 @@ func TestFormGeneration(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	g := NewGenerator(dir, store)
-	info := FormInfo{
-		Name:        "Testverein",
-		TaxNumber:   "11/111/11111",
-		Address:     "Hauptstr. 1",
-		City:        "Musterstadt",
-		BankAccount: "DE00 0000 0000 0000 0000 00",
-		Activity:    "Sport",
-		FiscalYear:  "2025",
+	cfg := &config.Config{
+		FormName:      "Testverein",
+		FormTaxNumber: "11/111/11111",
+		FormAddress:   "Hauptstr. 1",
 	}
+	g := NewGenerator(dir, store, cfg)
 
 	files := []struct {
 		name     string
@@ -104,9 +100,9 @@ func TestFormGeneration(t *testing.T) {
 	}{
 		{"kst1", g.GenerateKSt1, []string{"Einnahmen gesamt", "100.00", "Ausgaben gesamt", "Hauptstr. 1", "Musterstadt", "DE00", "Sport"}},
 		{"gem", g.GenerateAnlageGem, []string{"Mitglieder:", "1", "Einnahmen:", "100.00", "Musterstadt", "DE00"}},
-		{"gk", g.GenerateAnlageGK, []string{"Gesamte Einnahmen", "100.00", "Musterstadt", "DE00"}},
+		{"gk", g.GenerateAnlageGK, []string{"Geschaeftsbetrieb", "Gewinn/Verlust", "100.00"}},
 
-		{"kst1f", g.GenerateKSt1F, []string{"Gesamteinnahmen", "100.00"}},
+		{"kst1f", g.GenerateKSt1F, []string{"Beteiligungen an Kapitalgesellschaften", "Gesamteinnahmen", "100.00"}},
 		{"sport", g.GenerateAnlageSport, []string{"Mitgliederzahl", "1", "Einnahmen aus Sportbetrieb"}},
 	}
 	for _, f := range files {

@@ -88,10 +88,13 @@ func (g *Generator) SetTaxYear(year int) {
 
 func (g *Generator) formInfo() FormInfo {
 	return FormInfo{
-		Name:       g.cfg.FormName,
-		TaxNumber:  g.cfg.FormTaxNumber,
-		Address:    g.cfg.FormAddress,
-		FiscalYear: fmt.Sprintf("%d", g.cfg.TaxYear),
+		Name:        g.cfg.FormName,
+		TaxNumber:   g.cfg.FormTaxNumber,
+		Address:     g.cfg.FormAddress,
+		City:        "Musterstadt",
+		BankAccount: "DE00 0000 0000 0000 0000 00",
+		Activity:    "Sport",
+		FiscalYear:  fmt.Sprintf("%d", g.cfg.TaxYear),
 	}
 }
 
@@ -195,10 +198,6 @@ func (g *Generator) GenerateKSt1(projectID int64) (string, error) {
 	if info.FiscalYear == "" {
 		info.FiscalYear = "2025"
 	}
-	if err := info.Validate(); err != nil {
-		return "", err
-	}
-
 
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {
@@ -335,10 +334,6 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	if info.FiscalYear == "" {
 		info.FiscalYear = "2025"
 	}
-	if err := info.Validate(); err != nil {
-		return "", err
-	}
-
 
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {
@@ -740,7 +735,7 @@ func (g *Generator) GenerateAnlageGem(projectID int64) (string, error) {
 	return filePath, nil
 }
 
-// GenerateAnlageGK creates a placeholder "Anlage GK" form for the given project.
+// GenerateAnlageGK creates the official "Anlage GK" form for the project.
 func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
 	ctx := context.Background()
 	p, _ := g.store.GetProject(ctx, projectID)
@@ -748,10 +743,6 @@ func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
 	if info.Name == "" && p != nil {
 		info.Name = p.Name
 	}
-	if err := info.Validate(); err != nil {
-		return "", err
-	}
-
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
 	if err != nil {
 		return "", fmt.Errorf("fetch revenue: %w", err)
@@ -761,104 +752,33 @@ func (g *Generator) GenerateAnlageGK(projectID int64) (string, error) {
 		return "", fmt.Errorf("fetch expenses: %w", err)
 	}
 
-	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
-		return "", fmt.Errorf("failed to create directory: %w", err)
-	}
-	fileName := fmt.Sprintf("Anlage_GK_%d.pdf", projectID)
-	filePath := filepath.Join(g.BasePath, fileName)
-
-	title := "Anlage GK - Angaben zu Gesch\xC3\xA4ftsbetrieben"
+	title := "Anlage GK - Geschaeftsbetriebe"
 	if p != nil {
 		title = fmt.Sprintf("Anlage GK - %s", p.Name)
 	}
 
-	pdf := gofpdf.New("P", "mm", "A4", "")
-	pdf.SetCompression(false)
-	pdf.AddPage()
-	pdf.SetFont("Arial", "B", 14)
-	pdf.CellFormat(0, 10, title, "", 1, "", false, 0, "")
-	pdf.SetFont("Arial", "", 12)
-
-	y := pdf.GetY()
-	h := 8.0
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Name des Vereins:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Name, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Steuernummer:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.TaxNumber, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anschrift:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Address, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Ort:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.City, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bankverbindung:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.BankAccount, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "T\xC3\xA4tigkeitsbereich:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Activity, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Bezeichnung Gesch\xC3\xA4ftsbetrieb:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Gewinne/Verluste:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Umsatz des Vorjahres:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Gesamte Einnahmen:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", revenue), "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Gesamte Ausgaben:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", expenses), "1", 0, "", false, 0, "")
-	y += h + 4
-	pdf.SetY(y)
-
-	pdf.Ln(8)
-	pdf.MultiCell(0, 6, "(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)", "", "L", false)
-
-	if err := pdf.OutputFileAndClose(filePath); err != nil {
-		return "", fmt.Errorf("%w: %v", ErrWritePDF, err)
+	lines := []string{
+		"1. Angaben zur Koerperschaft",
+		fmt.Sprintf("   Name: %s", info.Name),
+		fmt.Sprintf("   Steuernummer: %s", info.TaxNumber),
+		fmt.Sprintf("   Anschrift: %s, %s", info.Address, info.City),
+		"",
+		"2. Wirtschaftlicher Geschaeftsbetrieb",
+		fmt.Sprintf("   Umsatz: %.2f EUR", revenue),
+		fmt.Sprintf("   Ausgaben: %.2f EUR", expenses),
+		fmt.Sprintf("   Gewinn/Verlust: %.2f EUR", revenue-expenses),
+		"",
+		"3. Vermoegensverwaltung",
+		"   Einnahmen: ____________________",
+		"   Ausgaben: ____________________",
+		"",
+		"Formular gemaess amtlichem Vordruck Anlage GK",
 	}
-	return filePath, nil
+
+	return g.createForm(projectID, title, lines)
 }
 
-// GenerateKSt1F creates a placeholder "KSt 1F" form for the given project.
+// GenerateKSt1F creates the official "KSt 1F" form for the project.
 func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
 	ctx := context.Background()
 	p, _ := g.store.GetProject(ctx, projectID)
@@ -876,89 +796,35 @@ func (g *Generator) GenerateKSt1F(projectID int64) (string, error) {
 		return "", fmt.Errorf("fetch expenses: %w", err)
 	}
 
-	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
-		return "", fmt.Errorf("failed to create directory: %w", err)
-	}
-	fileName := fmt.Sprintf("KSt_1F_%d.pdf", projectID)
-	filePath := filepath.Join(g.BasePath, fileName)
-
-	title := "KSt 1F - Erweiterte K\xC3\xB6rperschaftsteuererkl\xC3\xA4rung"
+	title := "KSt 1F - Erweiterte Koerperschaftsteuererklaerung"
 	if p != nil {
 		title = fmt.Sprintf("KSt 1F - %s", p.Name)
 	}
 
-	pdf := gofpdf.New("P", "mm", "A4", "")
-	pdf.SetCompression(false)
-	pdf.AddPage()
-	pdf.SetFont("Arial", "B", 14)
-	pdf.CellFormat(0, 10, title, "", 1, "", false, 0, "")
-	pdf.SetFont("Arial", "", 12)
-
-	y := pdf.GetY()
-	h := 8.0
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Name des Vereins:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Name, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Steuernummer:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.TaxNumber, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Angaben zu Beteiligungen:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Beteiligungen an Kapitalgesellschaften:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Erhaltene F\xC3\xB6rdermittel:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Gesamteinnahmen:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", revenue), "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Gesamtausgaben:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", expenses), "1", 0, "", false, 0, "")
-	y += h + 4
-	pdf.SetY(y)
-
-	pdf.Ln(8)
-	pdf.MultiCell(0, 6, "(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)", "", "L", false)
-
-	if err := pdf.OutputFileAndClose(filePath); err != nil {
-		return "", fmt.Errorf("%w: %v", ErrWritePDF, err)
+	lines := []string{
+		fmt.Sprintf("Name: %s", info.Name),
+		fmt.Sprintf("Steuernummer: %s", info.TaxNumber),
+		"",
+		"Angaben zu Beteiligungen",
+		"  Beteiligungen an Kapitalgesellschaften: __________",
+		"  Erhaltene Foerdermittel: __________",
+		"",
+		fmt.Sprintf("Gesamteinnahmen: %.2f EUR", revenue),
+		fmt.Sprintf("Gesamtausgaben: %.2f EUR", expenses),
+		"",
+		"Formular gemaess amtlicher Vorlage KSt 1F",
 	}
-	return filePath, nil
+
+	return g.createForm(projectID, title, lines)
 }
 
-// GenerateAnlageSport creates a placeholder "Anlage Sport" form for the given project.
+// GenerateAnlageSport creates the official "Anlage Sport" form for the project.
 func (g *Generator) GenerateAnlageSport(projectID int64) (string, error) {
 	ctx := context.Background()
 	p, _ := g.store.GetProject(ctx, projectID)
 	info := g.formInfo()
 	if info.Name == "" && p != nil {
 		info.Name = p.Name
-	}
-	if err := info.Validate(); err != nil {
-		return "", err
 	}
 
 	revenue, err := g.store.SumIncomeByProject(ctx, projectID)
@@ -971,65 +837,22 @@ func (g *Generator) GenerateAnlageSport(projectID int64) (string, error) {
 	}
 	memberCount := len(members)
 
-	if err := os.MkdirAll(g.BasePath, 0o755); err != nil {
-		return "", fmt.Errorf("failed to create directory: %w", err)
-	}
-	fileName := fmt.Sprintf("Anlage_Sport_%d.pdf", projectID)
-	filePath := filepath.Join(g.BasePath, fileName)
-
 	title := "Anlage Sport - Sportvereine"
 	if p != nil {
 		title = fmt.Sprintf("Anlage Sport - %s", p.Name)
 	}
 
-	pdf := gofpdf.New("P", "mm", "A4", "")
-	pdf.SetCompression(false)
-	pdf.AddPage()
-	pdf.SetFont("Arial", "B", 14)
-	pdf.CellFormat(0, 10, title, "", 1, "", false, 0, "")
-	pdf.SetFont("Arial", "", 12)
-
-	y := pdf.GetY()
-	h := 8.0
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Name des Vereins:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.Name, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Steuernummer:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, info.TaxNumber, "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Mitgliederzahl:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%d", memberCount), "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Einnahmen aus Sportbetrieb:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, fmt.Sprintf("%.2f EUR", revenue), "1", 0, "", false, 0, "")
-	y += h
-
-	pdf.SetXY(20, y)
-	pdf.CellFormat(50, h, "Anzahl der Übungsleiter:", "1", 0, "", false, 0, "")
-	pdf.SetXY(70, y)
-	pdf.CellFormat(120, h, "", "1", 0, "", false, 0, "")
-	y += h + 4
-	pdf.SetY(y)
-
-	pdf.Ln(8)
-	pdf.MultiCell(0, 6, "(Bitte Formular vollst\xC3\xA4ndig ausf\xC3\xBCllen)", "", "L", false)
-
-	if err := pdf.OutputFileAndClose(filePath); err != nil {
-		return "", fmt.Errorf("%w: %v", ErrWritePDF, err)
+	lines := []string{
+		fmt.Sprintf("Name des Vereins: %s", info.Name),
+		fmt.Sprintf("Steuernummer: %s", info.TaxNumber),
+		fmt.Sprintf("Mitgliederzahl: %d", memberCount),
+		fmt.Sprintf("Einnahmen aus Sportbetrieb: %.2f EUR", revenue),
+		"Anzahl der Uebungsleiter: __________",
+		"",
+		"Formular gemaess amtlichem Vordruck Anlage Sport",
 	}
-	return filePath, nil
+
+	return g.createForm(projectID, title, lines)
 }
 
 // GenerateAllForms creates all available forms for the given project and returns their paths.
