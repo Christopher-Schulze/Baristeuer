@@ -113,6 +113,29 @@ in versioned directories under `build/bin`:
 The script uses `wails build` internally and names the output directory after the
 current Git tag or commit hash.
 
+## Benchmarking & Profiling
+
+Benchmarks cover mass insertion of incomes and expenses. Run them with:
+
+```bash
+go test ./internal/service -bench=Mass -benchmem
+```
+
+For CPU and memory profiles execute:
+
+```bash
+./scripts/profile_service.sh
+```
+
+Sample results on a linux/amd64 machine:
+
+```
+BenchmarkAddIncomeMass1e2-5    1132   996966 ns/op   55223 B/op   1500 allocs/op
+BenchmarkAddIncomeMass1e3-5     100  11604405 ns/op  552316 B/op  15001 allocs/op
+BenchmarkAddExpenseMass1e2-5   1230   968092 ns/op   55227 B/op   1500 allocs/op
+BenchmarkAddExpenseMass1e3-5    127  9727703 ns/op  552305 B/op  15001 allocs/op
+```
+
 ## Docker
 
 You can also build Bari$teuer inside a container. Example commands:
