@@ -256,6 +256,13 @@ func (ds *DataService) SetLogLevel(level string) {
 	ds.logger.Info("log level changed", "level", level)
 }
 
+// SetLogFormat updates the log output format (text or json).
+func (ds *DataService) SetLogFormat(format string) {
+	SetLogFormat(format)
+	ds.logger = Logger()
+	ds.logger.Info("log format changed", "format", format)
+}
+
 // RestoreDatabase replaces the current SQLite file with the one at src.
 // The service closes the datastore, copies the file and reopens the connection.
 func (ds *DataService) RestoreDatabase(src string) error {

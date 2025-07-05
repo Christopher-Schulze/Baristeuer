@@ -13,6 +13,7 @@ import {
   ExportDatabase,
   RestoreDatabase,
   SetLogLevel,
+  SetLogFormat,
   ExportProjectCSV,
 } from "../wailsjs/go/service/DataService";
 import { SetTaxYear } from "../wailsjs/go/pdf/Generator";
@@ -60,6 +61,7 @@ export default function SettingsPanel({ projectId }) {
   };
 
   const changeFormat = () => {
+    SetLogFormat(format);
     setFeedback({ type: "success", text: t("settings.applied") });
   };
 

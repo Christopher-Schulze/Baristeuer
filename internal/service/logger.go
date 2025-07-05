@@ -9,7 +9,15 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-var logLevelVar = new(slog.LevelVar)
+func init() {
+	stdLogger = slog.New(slog.NewTextHandler(logWriter, &slog.HandlerOptions{Level: logLevelVar}))
+}
+
+var (
+	logLevelVar           = new(slog.LevelVar)
+	logWriter   io.Writer = os.Stdout
+	stdLogger   *slog.Logger
+)
 
 func parseLevel(level string) slog.Level {
 	switch strings.ToLower(level) {
@@ -39,17 +47,35 @@ func NewLogger(logFile, level, format string) (*slog.Logger, io.Closer) {
 		w = lj
 		c = lj
 	}
+	logWriter = w
 	logLevelVar.Set(parseLevel(level))
 	var h slog.Handler
 	if strings.ToLower(format) == "json" {
-		h = slog.NewJSONHandler(w, &slog.HandlerOptions{Level: logLevelVar})
+		h = slog.NewJSONHandler(logWriter, &slog.HandlerOptions{Level: logLevelVar})
 	} else {
-		h = slog.NewTextHandler(w, &slog.HandlerOptions{Level: logLevelVar})
+		h = slog.NewTextHandler(logWriter, &slog.HandlerOptions{Level: logLevelVar})
 	}
-	return slog.New(h), c
+	stdLogger = slog.New(h)
+	return stdLogger, c
 }
 
 // SetLogLevel updates the global log level used by all loggers.
 func SetLogLevel(level string) {
 	logLevelVar.Set(parseLevel(level))
+}
+
+// SetLogFormat replaces the handler of the global logger with the given format.
+func SetLogFormat(format string) {
+	var h slog.Handler
+	if strings.ToLower(format) == "json" {
+		h = slog.NewJSONHandler(logWriter, &slog.HandlerOptions{Level: logLevelVar})
+	} else {
+		h = slog.NewTextHandler(logWriter, &slog.HandlerOptions{Level: logLevelVar})
+	}
+	stdLogger = slog.New(h)
+}
+
+// Logger returns the currently configured global logger.
+func Logger() *slog.Logger {
+	return stdLogger
 }
