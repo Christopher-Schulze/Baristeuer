@@ -136,6 +136,18 @@ BenchmarkAddExpenseMass1e2-5   1230   968092 ns/op   55227 B/op   1500 allocs/op
 BenchmarkAddExpenseMass1e3-5    127  9727703 ns/op  552305 B/op  15001 allocs/op
 ```
 
+The `profile_service.sh` script now also benchmarks the React frontend. It writes
+build size, build time and page load metrics to files in `bench_profiles/`:
+
+```
+frontend_build_size.txt     # size of the dist directory
+frontend_build_seconds.txt  # seconds spent in `npm run build`
+frontend_load_seconds.txt   # page load time measured via curl
+```
+
+Inspect CPU or memory profiles with `go tool pprof bench_profiles/cpu.out`. Build
+and load metrics help track regressions in the bundle size and initial render.
+
 ## Docker
 
 You can also build Bari$teuer inside a container. Example commands:
