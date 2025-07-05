@@ -3,6 +3,8 @@ package taxlogic
 import (
 	"fmt"
 	"math"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -13,7 +15,7 @@ func floatEquals(a, b float64) bool {
 }
 
 func TestCalculateTaxes(t *testing.T) {
-	years := []int{2025, 2026}
+	years := []int{2025, 2026, 2027}
 	testCases := []struct {
 		name     string
 		revenue  float64
@@ -152,5 +154,27 @@ func TestCalculateTaxes(t *testing.T) {
 				}
 			})
 		}
+	}
+}
+
+func TestLoadConfig(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "tax.json")
+	data := `{
+               "RevenueExemptionLimit": 100,
+               "ProfitAllowance": 10,
+               "CorporateTaxRate": 0.2,
+               "SolidaritySurchargeRate": 0.1
+       }`
+	if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := LoadConfig(path)
+	if err != nil {
+		t.Fatalf("LoadConfig failed: %v", err)
+	}
+	if cfg.RevenueExemptionLimit != 100 || cfg.ProfitAllowance != 10 || cfg.CorporateTaxRate != 0.2 || cfg.SolidaritySurchargeRate != 0.1 {
+		t.Fatalf("config mismatch: %+v", cfg)
 	}
 }
