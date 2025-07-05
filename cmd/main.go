@@ -4,14 +4,51 @@ import (
 	"baristeuer/internal/config"
 	"baristeuer/internal/data"
 	"baristeuer/internal/pdf"
+	"baristeuer/internal/plugins"
 	"baristeuer/internal/service"
 	"flag"
 	"fmt"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"os"
 	"path/filepath"
+	"plugin"
 )
+
+// loadPlugins attempts to load all Go plugins from the given directory.
+// Each plugin must export a `New` function returning a plugins.Plugin
+// implementation. Any errors are printed but do not stop startup.
+func loadPlugins(dir string, svc *service.DataService) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return
+	}
+	for _, e := range entries {
+		if e.IsDir() || filepath.Ext(e.Name()) != ".so" {
+			continue
+		}
+		p, err := plugin.Open(filepath.Join(dir, e.Name()))
+		if err != nil {
+			fmt.Println("load plugin", e.Name(), "error:", err)
+			continue
+		}
+		sym, err := p.Lookup("New")
+		if err != nil {
+			fmt.Println("plugin", e.Name(), "missing New symbol:", err)
+			continue
+		}
+		newFunc, ok := sym.(func() plugins.Plugin)
+		if !ok {
+			fmt.Println("plugin", e.Name(), "has invalid New signature")
+			continue
+		}
+		plg := newFunc()
+		if err := plg.Init(svc); err != nil {
+			fmt.Println("plugin", e.Name(), "init error:", err)
+		}
+	}
+}
 
 func main() {
 	cfgPath := flag.String("config", "config.json", "configuration file")
@@ -60,6 +97,9 @@ func main() {
 	generator := pdf.NewGenerator(cfg.PDFDir, store, &cfg)
 	datasvc := service.NewDataServiceFromStore(store, logger, logCloser)
 	defer datasvc.Close()
+
+	// Load optional runtime plugins from ./plugins if available.
+	loadPlugins("plugins", datasvc)
 
 	if *exportPath != "" {
 		if err := datasvc.ExportDatabase(*exportPath); err != nil {
