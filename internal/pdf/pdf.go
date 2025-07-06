@@ -30,9 +30,15 @@ func addTemplate(pdf *gofpdf.Fpdf, name string) {
 		imp.UseImportedTemplate(pdf, tpl, 0, 0, 210, 297)
 		return
 	}
+	pdf.SetFont("Arial", "", 8)
+	pdf.SetTextColor(200, 0, 0)
+	pdf.MultiCell(0, 4,
+		fmt.Sprintf("Vorlage %s.pdf nicht gefunden. Bitte Original in %s ablegen.", name, templatesDir),
+		"", "L", false)
+	pdf.SetTextColor(0, 0, 0)
 	metaPath := filepath.Join(templatesDir, name+".txt")
 	if b, err := os.ReadFile(metaPath); err == nil {
-		pdf.SetFont("Arial", "", 8)
+		pdf.Ln(2)
 		pdf.MultiCell(0, 4, string(b), "", "L", false)
 		pdf.Ln(4)
 	}

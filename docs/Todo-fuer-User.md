@@ -11,6 +11,14 @@ So bleiben die Versionskontrolle und der Repository-Umfang schlank, während tro
 
 ## Offizielle Formulare einbinden
 
-Im Verzeichnis `internal/pdf/templates` befinden sich nur Platzhalterdateien. Um die amtlichen PDF-Formulare zu verwenden, kopieren Sie die Originale mit dem gleichen Dateinamen (z. B. `kst1.pdf`) in dieses Verzeichnis. Beim Erzeugen der Formulare greift der Generator automatisch auf diese Vorlagen zurück.
+Im Verzeichnis `internal/pdf/templates` befinden sich lediglich Platzhalterdateien. 
+Laden Sie daher die amtlichen PDF-Formulare von der Finanzverwaltung oder aus ELSTER
+herunter und speichern Sie sie **lokal** unter dem gleichen Dateinamen in diesem
+Ordner. Die Dateinamen müssen exakt den Platzhaltern entsprechen (z. B. `kst1.pdf`).
+Beim Erzeugen der Formulare greift der Generator automatisch auf diese Vorlagen
+zurück, sofern sie vorhanden sind.
 
-**Hinweis:** Die fertigen PDF-Vordrucke `kst1.pdf`, `kst1f.pdf`, `anlage_gem.pdf`, `anlage_gk.pdf` und `anlage_sport.pdf` gehören ebenfalls in dieses Verzeichnis.
+**Hinweis:** Aus Lizenzgründen dürfen die Original-PDFs nicht ins Repository
+eingecheckt werden. Legen Sie die Dateien `kst1.pdf`, `kst1f.pdf`,
+`anlage_gem.pdf`, `anlage_gk.pdf` und `anlage_sport.pdf` daher manuell in
+`internal/pdf/templates/` ab und schließen Sie sie von einem Commit aus.
