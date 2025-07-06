@@ -1,7 +1,23 @@
-# Cloud Sync (Preview)
+# Cloud Sync
 
-Dieses Projekt wird zukünftig eine optionale Synchronisierung der SQLite-Datenbank über einen Cloud-Service unterstützen. 
-Aktuell existiert lediglich eine lokale Platzhalter-Implementierung, die Dateien in ein Unterverzeichnis `syncdata/` kopiert.
+Die Anwendung kann Daten über eine einfache REST-API sichern und wiederherstellen. 
+Im Konfigurationsfile werden dazu folgende Werte gesetzt:
 
-Zum Testen kann einfach `SyncUpload` bzw. `SyncDownload` über die Anwendung aufgerufen werden.
-Die eigentliche Integration einer REST-API oder eines anderen Dienstes folgt später.
+```json
+{
+  "cloudUploadURL": "https://example.com/upload",
+  "cloudDownloadURL": "https://example.com/download",
+  "cloudToken": "my-secret-token"
+}
+```
+
+* **cloudUploadURL** – Endpunkt für das Hochladen der SQLite-Datei.
+* **cloudDownloadURL** – Endpunkt für das Herunterladen der Datei.
+* **cloudToken** – Bearer-Token für die Authentifizierung.
+
+Beide Endpunkte erwarten/liefern die rohen Dateidaten. Bei Fehlern antwortet
+der Server mit `400` oder höher und einem JSON-Objekt `{"error": "nachricht"}`.
+Die Anwendung gibt diese Meldung direkt an den Benutzer weiter.
+
+Ohne gesetzte URLs fällt die Implementierung auf eine lokale Kopie im
+Verzeichnis `syncdata/` zurück.

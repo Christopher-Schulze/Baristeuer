@@ -2,6 +2,7 @@ package cloud
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log/slog"
@@ -52,7 +53,14 @@ func (c *Client) Upload(ctx context.Context, src string) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= http.StatusBadRequest {
+		var errResp struct {
+			Error string `json:"error"`
+		}
 		body, _ := io.ReadAll(resp.Body)
+		if json.Unmarshal(body, &errResp) == nil && errResp.Error != "" {
+			c.Logger.Error("upload failed", "status", resp.StatusCode, "error", errResp.Error)
+			return fmt.Errorf("upload failed: %s", errResp.Error)
+		}
 		c.Logger.Error("upload failed", "status", resp.StatusCode, "body", string(body))
 		return fmt.Errorf("upload failed: %s", string(body))
 	}
@@ -74,7 +82,14 @@ func (c *Client) Download(ctx context.Context, dest string) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= http.StatusBadRequest {
+		var errResp struct {
+			Error string `json:"error"`
+		}
 		body, _ := io.ReadAll(resp.Body)
+		if json.Unmarshal(body, &errResp) == nil && errResp.Error != "" {
+			c.Logger.Error("download failed", "status", resp.StatusCode, "error", errResp.Error)
+			return fmt.Errorf("download failed: %s", errResp.Error)
+		}
 		c.Logger.Error("download failed", "status", resp.StatusCode, "body", string(body))
 		return fmt.Errorf("download failed: %s", string(body))
 	}

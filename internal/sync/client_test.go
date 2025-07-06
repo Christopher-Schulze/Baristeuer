@@ -59,3 +59,27 @@ func TestRemoteClient_UploadDownload(t *testing.T) {
 		t.Fatalf("unexpected downloaded data: %s", data)
 	}
 }
+
+func TestRemoteClient_ErrorHandling(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, `{"error":"boom"}`)
+	}))
+	defer srv.Close()
+
+	f := "testfile"
+	os.WriteFile(f, []byte("test"), 0o644)
+	defer os.Remove(f)
+
+	cfg := &config.Config{CloudUploadURL: srv.URL, CloudDownloadURL: srv.URL, CloudToken: "token"}
+	c := NewRemoteClientFromConfig(cfg)
+	ctx := context.Background()
+	if err := c.Upload(ctx, f); err == nil || err.Error() != "upload failed: boom" {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if err := c.Download(ctx, "out"); err == nil || err.Error() != "download failed: boom" {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
