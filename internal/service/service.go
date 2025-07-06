@@ -26,7 +26,7 @@ func validateAmount(amount float64) error {
 
 func selectSyncClient(cfg *config.Config) syncsvc.Client {
 	if cfg != nil && cfg.CloudUploadURL != "" && cfg.CloudDownloadURL != "" {
-		return syncsvc.NewRemoteClient(cfg.CloudUploadURL, cfg.CloudDownloadURL, cfg.CloudToken)
+		return syncsvc.NewRemoteClientFromConfig(cfg)
 	}
 	return syncsvc.NewLocalClient("")
 }
