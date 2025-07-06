@@ -186,7 +186,7 @@ func TestDataService_CalculateProjectTaxes(t *testing.T) {
 }
 
 func TestDataService_GenerateStatistics(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
