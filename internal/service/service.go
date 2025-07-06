@@ -37,6 +37,7 @@ type DataService struct {
 	logger     *slog.Logger
 	logCloser  io.Closer
 	syncClient syncsvc.Client
+	cfg        *config.Config
 }
 
 // NewDataService creates a new service with the given datastore location.
@@ -48,8 +49,11 @@ func NewDataService(dsn string, logger *slog.Logger, closer io.Closer, cfg *conf
 	if logger == nil {
 		logger, closer = NewLogger("", "info", "text")
 	}
+	if cfg == nil {
+		cfg = &config.Config{}
+	}
 	client := selectSyncClient(cfg)
-	return &DataService{store: s, logger: logger, logCloser: closer, syncClient: client}, nil
+	return &DataService{store: s, logger: logger, logCloser: closer, syncClient: client, cfg: cfg}, nil
 }
 
 // NewDataServiceFromStore wraps an existing store.
@@ -57,8 +61,11 @@ func NewDataServiceFromStore(store *data.Store, logger *slog.Logger, closer io.C
 	if logger == nil {
 		logger, closer = NewLogger("", "info", "text")
 	}
+	if cfg == nil {
+		cfg = &config.Config{}
+	}
 	client := selectSyncClient(cfg)
-	return &DataService{store: store, logger: logger, logCloser: closer, syncClient: client}
+	return &DataService{store: store, logger: logger, logCloser: closer, syncClient: client, cfg: cfg}
 }
 
 // CreateProject creates a project by name.
@@ -403,6 +410,57 @@ func (ds *DataService) ExportProjectCSV(ctx context.Context, projectID int64, de
 	}
 	ds.logger.Info("exported csv", "project", projectID, "dest", dest)
 	return nil
+}
+
+// GetFormName returns the configured form name.
+func (ds *DataService) GetFormName() string { return ds.cfg.FormName }
+
+// SetFormName updates the configured form name.
+func (ds *DataService) SetFormName(name string) { ds.cfg.FormName = name }
+
+// GetFormTaxNumber returns the configured form tax number.
+func (ds *DataService) GetFormTaxNumber() string { return ds.cfg.FormTaxNumber }
+
+// SetFormTaxNumber updates the configured form tax number.
+func (ds *DataService) SetFormTaxNumber(num string) { ds.cfg.FormTaxNumber = num }
+
+// GetFormAddress returns the configured form address.
+func (ds *DataService) GetFormAddress() string { return ds.cfg.FormAddress }
+
+// SetFormAddress updates the configured form address.
+func (ds *DataService) SetFormAddress(addr string) { ds.cfg.FormAddress = addr }
+
+// GetTaxYear returns the current tax year.
+func (ds *DataService) GetTaxYear() int { return ds.cfg.TaxYear }
+
+// SetTaxYear updates the active tax year.
+func (ds *DataService) SetTaxYear(year int) { ds.cfg.TaxYear = year }
+
+// GetCloudUploadURL returns the configured cloud upload URL.
+func (ds *DataService) GetCloudUploadURL() string { return ds.cfg.CloudUploadURL }
+
+// SetCloudUploadURL updates the cloud upload URL and sync client.
+func (ds *DataService) SetCloudUploadURL(url string) {
+	ds.cfg.CloudUploadURL = url
+	ds.syncClient = selectSyncClient(ds.cfg)
+}
+
+// GetCloudDownloadURL returns the cloud download URL.
+func (ds *DataService) GetCloudDownloadURL() string { return ds.cfg.CloudDownloadURL }
+
+// SetCloudDownloadURL updates the cloud download URL and sync client.
+func (ds *DataService) SetCloudDownloadURL(url string) {
+	ds.cfg.CloudDownloadURL = url
+	ds.syncClient = selectSyncClient(ds.cfg)
+}
+
+// GetCloudToken returns the configured cloud token.
+func (ds *DataService) GetCloudToken() string { return ds.cfg.CloudToken }
+
+// SetCloudToken updates the cloud token and sync client.
+func (ds *DataService) SetCloudToken(tok string) {
+	ds.cfg.CloudToken = tok
+	ds.syncClient = selectSyncClient(ds.cfg)
 }
 
 // Close closes the underlying datastore.

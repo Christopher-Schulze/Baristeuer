@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   TextField,
@@ -15,8 +15,21 @@ import {
   SetLogLevel,
   SetLogFormat,
   ExportProjectCSV,
+  GetFormName,
+  SetFormName,
+  GetFormTaxNumber,
+  SetFormTaxNumber,
+  GetFormAddress,
+  SetFormAddress,
+  GetTaxYear,
+  SetTaxYear,
+  GetCloudUploadURL,
+  SetCloudUploadURL,
+  GetCloudDownloadURL,
+  SetCloudDownloadURL,
+  GetCloudToken,
+  SetCloudToken,
 } from "../wailsjs/go/service/DataService";
-import { SetTaxYear } from "../wailsjs/go/pdf/Generator";
 
 export default function SettingsPanel({ projectId }) {
   const { t } = useTranslation();
@@ -26,7 +39,27 @@ export default function SettingsPanel({ projectId }) {
   const [level, setLevel] = useState("info");
   const [format, setFormat] = useState("text");
   const [taxYear, setTaxYear] = useState(2025);
+  const [formName, setFormNameState] = useState("");
+  const [formTaxNumber, setFormTaxNumberState] = useState("");
+  const [formAddress, setFormAddressState] = useState("");
+  const [cloudUploadURL, setCloudUploadURLState] = useState("");
+  const [cloudDownloadURL, setCloudDownloadURLState] = useState("");
+  const [cloudToken, setCloudTokenState] = useState("");
   const [feedback, setFeedback] = useState({ type: "", text: "" });
+
+  useEffect(() => {
+    const load = async () => {
+      setFormNameState((await GetFormName()) || "");
+      setFormTaxNumberState((await GetFormTaxNumber()) || "");
+      setFormAddressState((await GetFormAddress()) || "");
+      const yr = await GetTaxYear();
+      if (yr) setTaxYear(yr);
+      setCloudUploadURLState((await GetCloudUploadURL()) || "");
+      setCloudDownloadURLState((await GetCloudDownloadURL()) || "");
+      setCloudTokenState((await GetCloudToken()) || "");
+    };
+    load();
+  }, []);
 
   const doExport = async () => {
     try {
@@ -67,6 +100,36 @@ export default function SettingsPanel({ projectId }) {
 
   const applyYear = () => {
     SetTaxYear(parseInt(taxYear));
+    setFeedback({ type: "success", text: t("settings.applied") });
+  };
+
+  const applyFormName = () => {
+    SetFormName(formName);
+    setFeedback({ type: "success", text: t("settings.applied") });
+  };
+
+  const applyFormTaxNumber = () => {
+    SetFormTaxNumber(formTaxNumber);
+    setFeedback({ type: "success", text: t("settings.applied") });
+  };
+
+  const applyFormAddress = () => {
+    SetFormAddress(formAddress);
+    setFeedback({ type: "success", text: t("settings.applied") });
+  };
+
+  const applyCloudUploadURL = () => {
+    SetCloudUploadURL(cloudUploadURL);
+    setFeedback({ type: "success", text: t("settings.applied") });
+  };
+
+  const applyCloudDownloadURL = () => {
+    SetCloudDownloadURL(cloudDownloadURL);
+    setFeedback({ type: "success", text: t("settings.applied") });
+  };
+
+  const applyCloudToken = () => {
+    SetCloudToken(cloudToken);
     setFeedback({ type: "success", text: t("settings.applied") });
   };
 
@@ -145,6 +208,72 @@ export default function SettingsPanel({ projectId }) {
           size="small"
         />
         <Button variant="outlined" onClick={applyYear}>
+          {t("settings.apply")}
+        </Button>
+      </Box>
+      <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <TextField
+          label={t("settings.form_name")}
+          value={formName}
+          onChange={(e) => setFormNameState(e.target.value)}
+          size="small"
+        />
+        <Button variant="outlined" onClick={applyFormName}>
+          {t("settings.apply")}
+        </Button>
+      </Box>
+      <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <TextField
+          label={t("settings.form_tax_number")}
+          value={formTaxNumber}
+          onChange={(e) => setFormTaxNumberState(e.target.value)}
+          size="small"
+        />
+        <Button variant="outlined" onClick={applyFormTaxNumber}>
+          {t("settings.apply")}
+        </Button>
+      </Box>
+      <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <TextField
+          label={t("settings.form_address")}
+          value={formAddress}
+          onChange={(e) => setFormAddressState(e.target.value)}
+          size="small"
+        />
+        <Button variant="outlined" onClick={applyFormAddress}>
+          {t("settings.apply")}
+        </Button>
+      </Box>
+      <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <TextField
+          label={t("settings.cloud_upload_url")}
+          value={cloudUploadURL}
+          onChange={(e) => setCloudUploadURLState(e.target.value)}
+          size="small"
+        />
+        <Button variant="outlined" onClick={applyCloudUploadURL}>
+          {t("settings.apply")}
+        </Button>
+      </Box>
+      <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <TextField
+          label={t("settings.cloud_download_url")}
+          value={cloudDownloadURL}
+          onChange={(e) => setCloudDownloadURLState(e.target.value)}
+          size="small"
+        />
+        <Button variant="outlined" onClick={applyCloudDownloadURL}>
+          {t("settings.apply")}
+        </Button>
+      </Box>
+      <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <TextField
+          label={t("settings.cloud_token")}
+          value={cloudToken}
+          onChange={(e) => setCloudTokenState(e.target.value)}
+          size="small"
+        />
+        <Button variant="outlined" onClick={applyCloudToken}>
           {t("settings.apply")}
         </Button>
       </Box>
