@@ -26,6 +26,9 @@
     "form_name": "Vereinsname",
     "form_tax_number": "Steuernummer",
     "form_address": "Adresse",
+    "form_city": "Ort",
+    "form_bank_account": "Bankverbindung",
+    "form_representative": "Vertretungsberechtigter",
     "cloud_upload_url": "Cloud Upload URL",
     "cloud_download_url": "Cloud Download URL",
     "cloud_token": "Cloud Token"

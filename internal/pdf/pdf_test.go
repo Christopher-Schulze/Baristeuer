@@ -132,7 +132,8 @@ func TestFormGeneration(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cfg := config.Config{TaxYear: 2026, FormName: "Testverein", FormTaxNumber: "11/111/11111", FormAddress: "Hauptstr. 1"}
+	cfg := config.Config{TaxYear: 2026, FormName: "Testverein", FormTaxNumber: "11/111/11111", FormAddress: "Hauptstr. 1",
+		FormCity: "Town", FormBankAccount: "DE123", FormRepresentative: "Alice"}
 	g := NewGenerator(dir, store, &cfg)
 
 	files := []struct {
@@ -254,5 +255,33 @@ func TestGenerateReportCombinations(t *testing.T) {
 				t.Fatalf("file still exists: %v", err)
 			}
 		})
+	}
+}
+
+func TestFormInfoValidate(t *testing.T) {
+	valid := FormInfo{
+		Name:           "Org",
+		TaxNumber:      "1",
+		Address:        "Street",
+		City:           "Town",
+		BankAccount:    "DE123",
+		Representative: "Alice",
+		FiscalYear:     "2025",
+	}
+	if err := valid.Validate(); err != nil {
+		t.Fatalf("valid info failed: %v", err)
+	}
+	cases := []FormInfo{
+		{TaxNumber: "1", Address: "Street", City: "Town", BankAccount: "DE123", Representative: "A"},
+		{Name: "n", Address: "Street", City: "Town", BankAccount: "DE123", Representative: "A"},
+		{Name: "n", TaxNumber: "1", City: "Town", BankAccount: "DE123", Representative: "A"},
+		{Name: "n", TaxNumber: "1", Address: "Street", BankAccount: "DE123", Representative: "A"},
+		{Name: "n", TaxNumber: "1", Address: "Street", City: "Town", Representative: "A"},
+		{Name: "n", TaxNumber: "1", Address: "Street", City: "Town", BankAccount: "DE123"},
+	}
+	for i, c := range cases {
+		if err := c.Validate(); err == nil {
+			t.Fatalf("case %d expected error", i)
+		}
 	}
 }

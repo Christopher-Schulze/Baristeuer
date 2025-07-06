@@ -26,6 +26,9 @@
     "form_name": "Organization Name",
     "form_tax_number": "Tax Number",
     "form_address": "Address",
+    "form_city": "City",
+    "form_bank_account": "Bank Account",
+    "form_representative": "Representative",
     "cloud_upload_url": "Cloud Upload URL",
     "cloud_download_url": "Cloud Download URL",
     "cloud_token": "Cloud Token"

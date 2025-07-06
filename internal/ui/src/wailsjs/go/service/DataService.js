@@ -122,6 +122,30 @@ export function SetFormAddress(arg1) {
   return window.go.service.DataService.SetFormAddress(arg1);
 }
 
+export function GetFormCity() {
+  return window.go.service.DataService.GetFormCity();
+}
+
+export function SetFormCity(arg1) {
+  return window.go.service.DataService.SetFormCity(arg1);
+}
+
+export function GetFormBankAccount() {
+  return window.go.service.DataService.GetFormBankAccount();
+}
+
+export function SetFormBankAccount(arg1) {
+  return window.go.service.DataService.SetFormBankAccount(arg1);
+}
+
+export function GetFormRepresentative() {
+  return window.go.service.DataService.GetFormRepresentative();
+}
+
+export function SetFormRepresentative(arg1) {
+  return window.go.service.DataService.SetFormRepresentative(arg1);
+}
+
 export function GetTaxYear() {
   return window.go.service.DataService.GetTaxYear();
 }

@@ -12,30 +12,36 @@ const DefaultPDFDir = "internal/data/reports"
 
 // Config holds application configuration values.
 type Config struct {
-	DBPath           string `json:"dbPath"`
-	PDFDir           string `json:"pdfDir"`
-	LogFile          string `json:"logFile"`
-	LogLevel         string `json:"logLevel"`
-	LogFormat        string `json:"logFormat"`
-	TaxYear          int    `json:"taxYear"`
-	FormName         string `json:"formName"`
-	FormTaxNumber    string `json:"formTaxNumber"`
-	FormAddress      string `json:"formAddress"`
-	CloudUploadURL   string `json:"cloudUploadURL"`
-	CloudDownloadURL string `json:"cloudDownloadURL"`
-	CloudToken       string `json:"cloudToken"`
+	DBPath             string `json:"dbPath"`
+	PDFDir             string `json:"pdfDir"`
+	LogFile            string `json:"logFile"`
+	LogLevel           string `json:"logLevel"`
+	LogFormat          string `json:"logFormat"`
+	TaxYear            int    `json:"taxYear"`
+	FormName           string `json:"formName"`
+	FormTaxNumber      string `json:"formTaxNumber"`
+	FormAddress        string `json:"formAddress"`
+	FormCity           string `json:"formCity"`
+	FormBankAccount    string `json:"formBankAccount"`
+	FormRepresentative string `json:"formRepresentative"`
+	CloudUploadURL     string `json:"cloudUploadURL"`
+	CloudDownloadURL   string `json:"cloudDownloadURL"`
+	CloudToken         string `json:"cloudToken"`
 }
 
 // DefaultConfig provides sensible defaults for a new configuration file.
 var DefaultConfig = Config{
-	DBPath:           "baristeuer.db",
-	PDFDir:           filepath.Join(".", DefaultPDFDir),
-	LogFile:          "baristeuer.log",
-	LogLevel:         "info",
-	LogFormat:        "text",
-	CloudUploadURL:   "",
-	CloudDownloadURL: "",
-	CloudToken:       "",
+	DBPath:             "baristeuer.db",
+	PDFDir:             filepath.Join(".", DefaultPDFDir),
+	LogFile:            "baristeuer.log",
+	LogLevel:           "info",
+	LogFormat:          "text",
+	FormCity:           "",
+	FormBankAccount:    "",
+	FormRepresentative: "",
+	CloudUploadURL:     "",
+	CloudDownloadURL:   "",
+	CloudToken:         "",
 }
 
 // Load reads configuration from the given file path. If the file does not exist,

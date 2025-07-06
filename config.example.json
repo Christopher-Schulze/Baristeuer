@@ -4,6 +4,9 @@
   "logFile": "baristeuer.log",
   "logLevel": "info",
   "logFormat": "text",
+  "formCity": "",
+  "formBankAccount": "",
+  "formRepresentative": "",
   "cloudUploadURL": "",
   "cloudDownloadURL": "",
   "cloudToken": ""

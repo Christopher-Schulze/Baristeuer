@@ -19,7 +19,10 @@ func TestLoadFromFile(t *testing.T) {
         "taxYear": 2026,
         "formName": "Club",
         "formTaxNumber": "11/111/11111",
-        "formAddress": "Street 1"
+        "formAddress": "Street 1",
+        "formCity": "Town",
+        "formBankAccount": "DE123",
+        "formRepresentative": "Alice"
     }`
 	if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
 		t.Fatal(err)
@@ -31,6 +34,7 @@ func TestLoadFromFile(t *testing.T) {
 	}
 	if cfg.DBPath != "db.sqlite" || cfg.PDFDir != "./pdfs" || cfg.LogFile != "app.log" || cfg.LogLevel != "debug" || cfg.LogFormat != "json" ||
 		cfg.TaxYear != 2026 || cfg.FormName != "Club" || cfg.FormTaxNumber != "11/111/11111" || cfg.FormAddress != "Street 1" ||
+		cfg.FormCity != "Town" || cfg.FormBankAccount != "DE123" || cfg.FormRepresentative != "Alice" ||
 		cfg.CloudUploadURL != "" || cfg.CloudDownloadURL != "" || cfg.CloudToken != "" {
 		t.Fatalf("unexpected config: %+v", cfg)
 	}
@@ -55,7 +59,9 @@ func TestLoadMissingFile(t *testing.T) {
 func TestSaveAndVerify(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "out.json")
-	expected := Config{DBPath: "db", PDFDir: "pdf", LogFile: "log", LogLevel: "info", LogFormat: "json", TaxYear: 2025, FormName: "Org", FormTaxNumber: "12/222/22222", FormAddress: "Main"}
+	expected := Config{DBPath: "db", PDFDir: "pdf", LogFile: "log", LogLevel: "info", LogFormat: "json", TaxYear: 2025,
+		FormName: "Org", FormTaxNumber: "12/222/22222", FormAddress: "Main",
+		FormCity: "City", FormBankAccount: "DE000", FormRepresentative: "Rep"}
 	expected.CloudUploadURL = ""
 	expected.CloudDownloadURL = ""
 	expected.CloudToken = ""

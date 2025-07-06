@@ -430,6 +430,24 @@ func (ds *DataService) GetFormAddress() string { return ds.cfg.FormAddress }
 // SetFormAddress updates the configured form address.
 func (ds *DataService) SetFormAddress(addr string) { ds.cfg.FormAddress = addr }
 
+// GetFormCity returns the configured form city.
+func (ds *DataService) GetFormCity() string { return ds.cfg.FormCity }
+
+// SetFormCity updates the configured form city.
+func (ds *DataService) SetFormCity(city string) { ds.cfg.FormCity = city }
+
+// GetFormBankAccount returns the configured bank account.
+func (ds *DataService) GetFormBankAccount() string { return ds.cfg.FormBankAccount }
+
+// SetFormBankAccount updates the bank account.
+func (ds *DataService) SetFormBankAccount(acc string) { ds.cfg.FormBankAccount = acc }
+
+// GetFormRepresentative returns the representative name.
+func (ds *DataService) GetFormRepresentative() string { return ds.cfg.FormRepresentative }
+
+// SetFormRepresentative updates the representative name.
+func (ds *DataService) SetFormRepresentative(rep string) { ds.cfg.FormRepresentative = rep }
+
 // GetTaxYear returns the current tax year.
 func (ds *DataService) GetTaxYear() int { return ds.cfg.TaxYear }
 

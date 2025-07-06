@@ -1,6 +1,7 @@
 package service
 
 import (
+	"baristeuer/internal/config"
 	"bytes"
 	"context"
 	"errors"
@@ -523,6 +524,26 @@ func TestDataService_ExportProjectCSV(t *testing.T) {
 	}
 	if !strings.Contains(string(data), "income") || !strings.Contains(string(data), "expense") {
 		t.Fatalf("csv content unexpected: %s", data)
+	}
+}
+
+func TestFormFieldGettersSetters(t *testing.T) {
+	ds, err := NewDataService(":memory:", nil, nil, &config.Config{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+	ds.SetFormCity("Town")
+	if ds.GetFormCity() != "Town" {
+		t.Fatalf("city getter/setter failed")
+	}
+	ds.SetFormBankAccount("DE123")
+	if ds.GetFormBankAccount() != "DE123" {
+		t.Fatalf("bank account getter/setter failed")
+	}
+	ds.SetFormRepresentative("Alice")
+	if ds.GetFormRepresentative() != "Alice" {
+		t.Fatalf("representative getter/setter failed")
 	}
 }
 

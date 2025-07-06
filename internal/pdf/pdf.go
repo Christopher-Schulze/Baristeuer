@@ -47,13 +47,14 @@ type Generator struct {
 
 // FormInfo contains data to fill the various tax forms.
 type FormInfo struct {
-	Name        string
-	TaxNumber   string
-	Address     string
-	City        string
-	BankAccount string
-	Activity    string
-	FiscalYear  string
+	Name           string
+	TaxNumber      string
+	Address        string
+	City           string
+	BankAccount    string
+	Representative string
+	Activity       string
+	FiscalYear     string
 }
 
 // Validate checks if the required fields are set and values are plausible.
@@ -66,6 +67,15 @@ func (f FormInfo) Validate() error {
 	}
 	if f.Address == "" {
 		return fmt.Errorf("address is required")
+	}
+	if f.City == "" {
+		return fmt.Errorf("city is required")
+	}
+	if f.BankAccount == "" {
+		return fmt.Errorf("bank account is required")
+	}
+	if f.Representative == "" {
+		return fmt.Errorf("representative is required")
 	}
 	if f.FiscalYear != "" {
 		year, err := strconv.Atoi(f.FiscalYear)
@@ -100,10 +110,13 @@ func (g *Generator) SetTaxYear(year int) {
 
 func (g *Generator) formInfo() FormInfo {
 	return FormInfo{
-		Name:       g.cfg.FormName,
-		TaxNumber:  g.cfg.FormTaxNumber,
-		Address:    g.cfg.FormAddress,
-		FiscalYear: fmt.Sprintf("%d", g.cfg.TaxYear),
+		Name:           g.cfg.FormName,
+		TaxNumber:      g.cfg.FormTaxNumber,
+		Address:        g.cfg.FormAddress,
+		City:           g.cfg.FormCity,
+		BankAccount:    g.cfg.FormBankAccount,
+		Representative: g.cfg.FormRepresentative,
+		FiscalYear:     fmt.Sprintf("%d", g.cfg.TaxYear),
 	}
 }
 
@@ -375,7 +388,7 @@ func (g *Generator) GenerateKSt1(ctx context.Context, projectID int64) (string, 
 	tableRow(pdf, widths, []string{"Straße, Hausnummer", info.Address})
 	tableRow(pdf, widths, []string{"PLZ, Ort", info.City})
 	tableRow(pdf, widths, []string{"Bankverbindung", info.BankAccount})
-	tableRow(pdf, widths, []string{"Vertreten durch", ""})
+	tableRow(pdf, widths, []string{"Vertreten durch", info.Representative})
 	tableRow(pdf, widths, []string{"Veranlagungszeitraum", info.FiscalYear})
 	pdf.Ln(6)
 
@@ -475,7 +488,7 @@ func (g *Generator) GenerateAnlageGem(ctx context.Context, projectID int64) (str
 	pdf.Ln(8)
 	tableHeader(pdf, widths, []string{"Angabe", "Wert"})
 	tableRow(pdf, widths, []string{"Steuerbeg\xC3\xBCnstigte Zwecke", ""})
-	tableRow(pdf, widths, []string{"Vertreten durch", ""})
+	tableRow(pdf, widths, []string{"Vertreten durch", info.Representative})
 	tableRow(pdf, widths, []string{"Verwendung der Mittel", ""})
 	tableRow(pdf, widths, []string{"Mitglieder", fmt.Sprintf("%d", memberCount)})
 	tableRow(pdf, widths, []string{"Einnahmen", fmt.Sprintf("%.2f EUR", revenue)})

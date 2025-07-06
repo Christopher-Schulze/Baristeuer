@@ -21,6 +21,12 @@ import {
   SetFormTaxNumber,
   GetFormAddress,
   SetFormAddress,
+  GetFormCity,
+  SetFormCity,
+  GetFormBankAccount,
+  SetFormBankAccount,
+  GetFormRepresentative,
+  SetFormRepresentative,
   GetTaxYear,
   SetTaxYear,
   GetCloudUploadURL,
@@ -42,6 +48,9 @@ export default function SettingsPanel({ projectId }) {
   const [formName, setFormNameState] = useState("");
   const [formTaxNumber, setFormTaxNumberState] = useState("");
   const [formAddress, setFormAddressState] = useState("");
+  const [formCity, setFormCityState] = useState("");
+  const [formBankAccount, setFormBankAccountState] = useState("");
+  const [formRepresentative, setFormRepresentativeState] = useState("");
   const [cloudUploadURL, setCloudUploadURLState] = useState("");
   const [cloudDownloadURL, setCloudDownloadURLState] = useState("");
   const [cloudToken, setCloudTokenState] = useState("");
@@ -52,6 +61,9 @@ export default function SettingsPanel({ projectId }) {
       setFormNameState((await GetFormName()) || "");
       setFormTaxNumberState((await GetFormTaxNumber()) || "");
       setFormAddressState((await GetFormAddress()) || "");
+      setFormCityState((await GetFormCity()) || "");
+      setFormBankAccountState((await GetFormBankAccount()) || "");
+      setFormRepresentativeState((await GetFormRepresentative()) || "");
       const yr = await GetTaxYear();
       if (yr) setTaxYear(yr);
       setCloudUploadURLState((await GetCloudUploadURL()) || "");
@@ -115,6 +127,21 @@ export default function SettingsPanel({ projectId }) {
 
   const applyFormAddress = () => {
     SetFormAddress(formAddress);
+    setFeedback({ type: "success", text: t("settings.applied") });
+  };
+
+  const applyFormCity = () => {
+    SetFormCity(formCity);
+    setFeedback({ type: "success", text: t("settings.applied") });
+  };
+
+  const applyFormBankAccount = () => {
+    SetFormBankAccount(formBankAccount);
+    setFeedback({ type: "success", text: t("settings.applied") });
+  };
+
+  const applyFormRepresentative = () => {
+    SetFormRepresentative(formRepresentative);
     setFeedback({ type: "success", text: t("settings.applied") });
   };
 
@@ -241,6 +268,39 @@ export default function SettingsPanel({ projectId }) {
           size="small"
         />
         <Button variant="outlined" onClick={applyFormAddress}>
+          {t("settings.apply")}
+        </Button>
+      </Box>
+      <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <TextField
+          label={t("settings.form_city")}
+          value={formCity}
+          onChange={(e) => setFormCityState(e.target.value)}
+          size="small"
+        />
+        <Button variant="outlined" onClick={applyFormCity}>
+          {t("settings.apply")}
+        </Button>
+      </Box>
+      <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <TextField
+          label={t("settings.form_bank_account")}
+          value={formBankAccount}
+          onChange={(e) => setFormBankAccountState(e.target.value)}
+          size="small"
+        />
+        <Button variant="outlined" onClick={applyFormBankAccount}>
+          {t("settings.apply")}
+        </Button>
+      </Box>
+      <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <TextField
+          label={t("settings.form_representative")}
+          value={formRepresentative}
+          onChange={(e) => setFormRepresentativeState(e.target.value)}
+          size="small"
+        />
+        <Button variant="outlined" onClick={applyFormRepresentative}>
           {t("settings.apply")}
         </Button>
       </Box>
