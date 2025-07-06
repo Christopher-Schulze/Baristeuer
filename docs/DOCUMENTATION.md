@@ -29,6 +29,40 @@ Baristeuer is a desktop application for generating tax reports for non-profit or
   - `ui/`: React frontend source code.
 - `scripts/`: Helper scripts for development.
 
+## Schnellstart
+
+1. Repository klonen und die Abh\xC3\xA4ngigkeiten installieren:
+
+```bash
+go work sync
+npm ci --prefix internal/ui
+```
+
+2. Die Benutzeroberfl\xC3\xA4che bauen und das Binary erzeugen:
+
+```bash
+npm run build --prefix internal/ui
+wails build -clean
+```
+
+3. Eine eigene Konfiguration anlegen:
+
+```bash
+cp config.example.json config.json
+```
+
+Pfade wie `dbPath` oder `pdfDir` k\xC3\xB6nnen in dieser Datei angepasst werden. Starten Sie die Anwendung anschlie\xC3\x9Fend mit:
+
+```bash
+./baristeuer -config config.json
+```
+
+4. Typische Abl\xC3\xA4ufe innerhalb der Anwendung:
+   - Einnahmen und Ausgaben erfassen
+   - Mitglieder verwalten
+   - \"Bericht erstellen\" w\xC3\xA4hlen, um PDF-Formulare zu generieren
+   - Optional CSV-Exporte oder Datenbank-Backups ausf\xC3\xBChren
+
 ## Installing Dependencies
 
 Install all Go modules and Node packages after cloning the repository:
