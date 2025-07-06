@@ -89,6 +89,18 @@ Follow the official documentation for platform specific details.
 
 See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for more details.
 
+## Plugins
+
+Build optional runtime extensions as Go plugins and place the resulting `.so`
+files in the `plugins/` directory next to the binary. The application loads all
+plugins on startup. A minimal build command looks like:
+
+```bash
+go build -tags=plugin -buildmode=plugin -o plugins/logging.so ./internal/plugins/logging/plugin
+```
+
+More details can be found in [docs/plugins.md](docs/plugins.md).
+
 ## Makefile
 
 Common development commands are collected in a small Makefile:
