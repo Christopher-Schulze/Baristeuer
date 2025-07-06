@@ -16,6 +16,7 @@ import FormsPanel from "./components/FormsPanel";
 import SettingsPanel from "./components/SettingsPanel";
 import ReportPanel from "./components/ReportPanel";
 import StatisticsChart from "./components/StatisticsChart";
+import PDFPreview from "./components/PDFPreview";
 
 export default function App() {
   const [incomes, setIncomes] = useState([]);
@@ -32,6 +33,7 @@ export default function App() {
   const [incomeError, setIncomeError] = useState("");
   const [expenseError, setExpenseError] = useState("");
   const [memberError, setMemberError] = useState("");
+  const [previewPath, setPreviewPath] = useState("");
   const handleError = (err, setter, key = 'errors.add') => {
     setter(err.message || t(key));
   };
@@ -214,7 +216,12 @@ export default function App() {
             </Paper>
           </>
         )}
-        {tab === 4 && <FormsPanel projectId={projectId} />}
+        {tab === 4 && (
+          <>
+            <FormsPanel projectId={projectId} onGenerated={setPreviewPath} />
+            <PDFPreview filePath={previewPath} />
+          </>
+        )}
         {tab === 5 && (
           <Paper sx={{ p: 3 }}>
             <TaxPanel projectId={projectId} />
@@ -222,8 +229,9 @@ export default function App() {
         )}
         {tab === 6 && (
           <Paper sx={{ p: 3 }}>
-            <ReportPanel projectId={projectId} />
+            <ReportPanel projectId={projectId} onGenerated={setPreviewPath} />
             <StatisticsChart projectId={projectId} />
+            <PDFPreview filePath={previewPath} />
           </Paper>
         )}
         {tab === 7 && (
