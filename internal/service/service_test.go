@@ -526,6 +526,39 @@ func TestDataService_ExportProjectCSV(t *testing.T) {
 	}
 }
 
+func TestDataService_ExportProjectCSV_Reopen(t *testing.T) {
+	tmpDir := t.TempDir()
+	dbPath := filepath.Join(tmpDir, "db.db")
+	ds, err := NewDataService(dbPath, slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ctx := context.Background()
+	proj, _ := ds.CreateProject(ctx, "CSV")
+	if _, err := ds.AddIncome(ctx, proj.ID, "donation", 10); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ds.AddExpense(ctx, proj.ID, "rent", 5); err != nil {
+		t.Fatal(err)
+	}
+
+	// close the service to simulate closed DB
+	ds.Close()
+
+	dest := filepath.Join(tmpDir, "reopen.csv")
+	if err := ds.ExportProjectCSV(ctx, proj.ID, dest); err != nil {
+		t.Fatalf("ExportProjectCSV reopen error: %v", err)
+	}
+	data, err := os.ReadFile(dest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(data), "income") {
+		t.Fatalf("csv content unexpected: %s", data)
+	}
+}
+
 func TestDataService_ContextCancellation(t *testing.T) {
 	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {

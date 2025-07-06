@@ -6,6 +6,7 @@ import (
 	"baristeuer/internal/pdf"
 	"baristeuer/internal/plugins"
 	"baristeuer/internal/service"
+	"context"
 	"flag"
 	"fmt"
 	"github.com/wailsapp/wails/v2"
@@ -14,6 +15,8 @@ import (
 	"os"
 	"path/filepath"
 	"plugin"
+	"strconv"
+	"strings"
 )
 
 // loadPlugins attempts to load all Go plugins from the given directory.
@@ -58,6 +61,7 @@ func main() {
 	logLevel := flag.String("loglevel", "", "log level")
 	exportPath := flag.String("exportdb", "", "export database to path and exit")
 	restorePath := flag.String("restoredb", "", "restore database from path and exit")
+	exportCSV := flag.String("exportcsv", "", "export project CSV as <id>:<file> and exit")
 	flag.Parse()
 
 	cfg, err := config.Load(*cfgPath)
@@ -104,6 +108,23 @@ func main() {
 	if *exportPath != "" {
 		if err := datasvc.ExportDatabase(*exportPath); err != nil {
 			fmt.Println("Error exporting database:", err)
+		}
+		return
+	}
+
+	if *exportCSV != "" {
+		parts := strings.SplitN(*exportCSV, ":", 2)
+		if len(parts) != 2 {
+			fmt.Println("invalid -exportcsv value, expected <projectID>:<file>")
+			return
+		}
+		id, err := strconv.ParseInt(parts[0], 10, 64)
+		if err != nil {
+			fmt.Println("invalid project id in -exportcsv:", err)
+			return
+		}
+		if err := datasvc.ExportProjectCSV(context.Background(), id, parts[1]); err != nil {
+			fmt.Println("Error exporting project:", err)
 		}
 		return
 	}
