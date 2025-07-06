@@ -1,6 +1,7 @@
 package pdf
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -254,5 +255,86 @@ func TestGenerateReportCombinations(t *testing.T) {
 				t.Fatalf("file still exists: %v", err)
 			}
 		})
+	}
+}
+
+func TestFormInfoValidate(t *testing.T) {
+	cases := []struct {
+		name string
+		info FormInfo
+		err  string
+	}{
+		{"missing name", FormInfo{TaxNumber: "12", Address: "A", FiscalYear: "2025"}, "name"},
+		{"missing tax", FormInfo{Name: "n", Address: "A", FiscalYear: "2025"}, "tax number"},
+		{"missing address", FormInfo{Name: "n", TaxNumber: "12", FiscalYear: "2025"}, "address"},
+		{"bad year", FormInfo{Name: "n", TaxNumber: "12", Address: "A", FiscalYear: "1800"}, "fiscal year"},
+	}
+	for _, c := range cases {
+		if err := c.info.Validate(); err == nil || !strings.Contains(err.Error(), c.err) {
+			t.Errorf("%s expected %s error, got %v", c.name, c.err, err)
+		}
+	}
+}
+
+func TestNegativeAmounts(t *testing.T) {
+	dir := t.TempDir()
+	store, err := data.NewStore(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Close()
+
+	ctx := context.Background()
+	proj := &data.Project{Name: "Neg"}
+	if err := store.CreateProject(ctx, proj); err != nil {
+		t.Fatal(err)
+	}
+	store.CreateIncome(ctx, &data.Income{ProjectID: proj.ID, Source: "refund", Amount: -50})
+	store.CreateExpense(ctx, &data.Expense{ProjectID: proj.ID, Category: "correction", Amount: -20})
+
+	g := NewGenerator(dir, store, &config.Config{})
+	path, err := g.GenerateReport(ctx, proj.ID)
+	if err != nil {
+		t.Fatalf("GenerateReport failed: %v", err)
+	}
+	dataBytes, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read %s failed: %v", path, err)
+	}
+	expect := []string{"-50.00 EUR", "-20.00 EUR", "-30.00 EUR"}
+	for _, e := range expect {
+		if !strings.Contains(string(dataBytes), e) {
+			t.Fatalf("missing %s in pdf", e)
+		}
+	}
+}
+
+func TestPlaceholderTemplate(t *testing.T) {
+	dir := t.TempDir()
+	store, err := data.NewStore(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Close()
+
+	ctx := context.Background()
+	wd, _ := os.Getwd()
+	os.Chdir("../..")
+	defer os.Chdir(wd)
+	proj := &data.Project{Name: "Ph"}
+	if err := store.CreateProject(ctx, proj); err != nil {
+		t.Fatal(err)
+	}
+	g := NewGenerator(dir, store, &config.Config{TaxYear: 2025, FormName: "Ph", FormTaxNumber: "11", FormAddress: "Street"})
+	path, err := g.GenerateKSt1(ctx, proj.ID)
+	if err != nil {
+		t.Fatalf("GenerateKSt1 failed: %v", err)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read %s failed: %v", path, err)
+	}
+	if !bytes.Contains(data, []byte("Placeholder for official KSt 1 form")) {
+		t.Fatalf("placeholder text missing in %s", string(data))
 	}
 }
