@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 )
@@ -14,6 +15,7 @@ type Client struct {
 	DownloadURL string
 	Token       string
 	HTTPClient  *http.Client
+	Logger      *slog.Logger
 }
 
 // NewClient creates a Client with the given endpoints and token.
@@ -23,6 +25,7 @@ func NewClient(uploadURL, downloadURL, token string) *Client {
 		DownloadURL: downloadURL,
 		Token:       token,
 		HTTPClient:  &http.Client{},
+		Logger:      slog.Default(),
 	}
 }
 
@@ -30,6 +33,7 @@ func NewClient(uploadURL, downloadURL, token string) *Client {
 func (c *Client) Upload(ctx context.Context, src string) error {
 	f, err := os.Open(src)
 	if err != nil {
+		c.Logger.Error("open file", "path", src, "error", err)
 		return err
 	}
 	defer f.Close()
@@ -43,11 +47,13 @@ func (c *Client) Upload(ctx context.Context, src string) error {
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
+		c.Logger.Error("upload request failed", "error", err)
 		return err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= http.StatusBadRequest {
 		body, _ := io.ReadAll(resp.Body)
+		c.Logger.Error("upload failed", "status", resp.StatusCode, "body", string(body))
 		return fmt.Errorf("upload failed: %s", string(body))
 	}
 	return nil
@@ -63,16 +69,19 @@ func (c *Client) Download(ctx context.Context, dest string) error {
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
+		c.Logger.Error("download request failed", "error", err)
 		return err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= http.StatusBadRequest {
 		body, _ := io.ReadAll(resp.Body)
+		c.Logger.Error("download failed", "status", resp.StatusCode, "body", string(body))
 		return fmt.Errorf("download failed: %s", string(body))
 	}
 
 	f, err := os.Create(dest)
 	if err != nil {
+		c.Logger.Error("create file", "path", dest, "error", err)
 		return err
 	}
 	defer f.Close()

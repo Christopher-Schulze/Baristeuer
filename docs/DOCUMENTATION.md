@@ -89,9 +89,15 @@ time. Example:
   "dbPath": "baristeuer.db",
   "pdfDir": "./reports",
   "logFile": "baristeuer.log",
-  "logLevel": "info"
+  "logLevel": "info",
+  "cloudUploadURL": "https://example.com/upload",
+  "cloudDownloadURL": "https://example.com/download",
+  "cloudToken": "my-secret-token"
 }
 ```
+
+Set `cloudUploadURL` and `cloudDownloadURL` to enable HTTP-based sync. The
+`cloudToken` value is sent as a bearer token for authentication.
 
 If `pdfDir` is omitted, generated PDFs are stored in `./internal/data/reports`.
 Alternatively the environment variable `BARISTEUER_PDFDIR` can override the output directory at runtime.

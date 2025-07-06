@@ -3,5 +3,8 @@
   "pdfDir": "./internal/data/reports",
   "logFile": "baristeuer.log",
   "logLevel": "info",
-  "logFormat": "text"
+  "logFormat": "text",
+  "cloudUploadURL": "",
+  "cloudDownloadURL": "",
+  "cloudToken": ""
 }
