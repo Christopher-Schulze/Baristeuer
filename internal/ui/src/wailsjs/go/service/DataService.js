@@ -97,3 +97,59 @@ export function ExportProjectCSV(arg1, arg2) {
 export function GenerateStatistics(arg1, arg2) {
   return window.go.service.DataService.GenerateStatistics(arg1, arg2);
 }
+
+export function GetFormName() {
+  return window.go.service.DataService.GetFormName();
+}
+
+export function SetFormName(arg1) {
+  return window.go.service.DataService.SetFormName(arg1);
+}
+
+export function GetFormTaxNumber() {
+  return window.go.service.DataService.GetFormTaxNumber();
+}
+
+export function SetFormTaxNumber(arg1) {
+  return window.go.service.DataService.SetFormTaxNumber(arg1);
+}
+
+export function GetFormAddress() {
+  return window.go.service.DataService.GetFormAddress();
+}
+
+export function SetFormAddress(arg1) {
+  return window.go.service.DataService.SetFormAddress(arg1);
+}
+
+export function GetTaxYear() {
+  return window.go.service.DataService.GetTaxYear();
+}
+
+export function SetTaxYear(arg1) {
+  return window.go.service.DataService.SetTaxYear(arg1);
+}
+
+export function GetCloudUploadURL() {
+  return window.go.service.DataService.GetCloudUploadURL();
+}
+
+export function SetCloudUploadURL(arg1) {
+  return window.go.service.DataService.SetCloudUploadURL(arg1);
+}
+
+export function GetCloudDownloadURL() {
+  return window.go.service.DataService.GetCloudDownloadURL();
+}
+
+export function SetCloudDownloadURL(arg1) {
+  return window.go.service.DataService.SetCloudDownloadURL(arg1);
+}
+
+export function GetCloudToken() {
+  return window.go.service.DataService.GetCloudToken();
+}
+
+export function SetCloudToken(arg1) {
+  return window.go.service.DataService.SetCloudToken(arg1);
+}
