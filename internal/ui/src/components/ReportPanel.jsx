@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import { Bar } from "react-chartjs-2";
 import {
   Chart,
@@ -11,13 +11,23 @@ import {
   Legend,
 } from "chart.js";
 import { GenerateStatistics } from "../wailsjs/go/service/DataService";
+import { GenerateDetailedReport } from "../wailsjs/go/pdf/Generator";
 import { useTranslation } from "react-i18next";
 
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export default function ReportPanel({ projectId }) {
+export default function ReportPanel({ projectId, onGenerated }) {
   const [stats, setStats] = useState(null);
   const { t } = useTranslation();
+
+  const handleGenerate = async () => {
+    try {
+      const p = await GenerateDetailedReport(projectId);
+      onGenerated && onGenerated(p);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -56,6 +66,9 @@ export default function ReportPanel({ projectId }) {
 
   return (
     <Box>
+      <Button variant="contained" sx={{ mb: 2 }} onClick={handleGenerate}>
+        {t('form.detailedReport')}
+      </Button>
       <Bar data={data} />
       <Typography sx={{ mt: 2 }}>
         {t("reports.trend", { value: stats.trend.toFixed(2) })}

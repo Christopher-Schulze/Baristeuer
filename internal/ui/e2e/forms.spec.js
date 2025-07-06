@@ -17,6 +17,8 @@ test("generate forms", async ({ page }) => {
   await page.getByRole("tab", { name: /Formulare/i }).click();
   await page.getByRole("button", { name: /Alle Formulare erstellen/i }).click();
 
+  await expect(page.getByTitle("PDF Preview")).toBeVisible();
+
   const calls = await page.evaluate(() => window.__pdfCalls);
   expect(calls.map((c) => c.name)).toContain("GenerateAllForms");
 });

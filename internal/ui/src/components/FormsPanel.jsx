@@ -19,13 +19,16 @@ import {
   GenerateKSt1F,
 } from "../wailsjs/go/pdf/Generator";
 
-export default function FormsPanel({ projectId }) {
+
+export default function FormsPanel({ projectId, onGenerated }) {
   const [error, setError] = useState("");
   const { t } = useTranslation();
 
   const handleGenerate = async (fn) => {
     try {
-      await fn(projectId);
+      const result = await fn(projectId);
+      const path = Array.isArray(result) ? result[result.length - 1] : result;
+      onGenerated && onGenerated(path);
     } catch (err) {
       setError(err.message || t('forms.error'));
     }

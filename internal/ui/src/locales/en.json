@@ -104,6 +104,10 @@
     "stdDev": "Std Dev",
     "trend": "Trend: {{value}}"
   },
+  "preview": {
+    "title": "PDF Preview",
+    "none": "No PDF generated"
+  },
   "language": "Language",
   "language_de": "German",
   "language_en": "English",

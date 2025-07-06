@@ -102,7 +102,11 @@
     "avgExpense": "Ø Ausgaben",
     "median": "Median",
     "stdDev": "Standardabweichung",
-    "trend": "Trend: {{value}}"
+  "trend": "Trend: {{value}}"
+  },
+  "preview": {
+    "title": "PDF Vorschau",
+    "none": "Noch kein PDF erzeugt"
   },
   "language": "Sprache",
   "language_de": "Deutsch",
