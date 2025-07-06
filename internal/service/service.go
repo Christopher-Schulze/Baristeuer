@@ -13,6 +13,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"strings"
 )
 
 var ErrInvalidAmount = errors.New("amount must be positive")
@@ -381,6 +382,17 @@ func (ds *DataService) SyncDownload(ctx context.Context) error {
 
 // ExportProjectCSV writes all incomes and expenses of a project into a CSV file.
 func (ds *DataService) ExportProjectCSV(ctx context.Context, projectID int64, dest string) error {
+	if err := ds.store.DB.PingContext(ctx); err != nil {
+		if strings.Contains(err.Error(), "closed") {
+			store, err2 := data.NewStore(ds.store.Path())
+			if err2 != nil {
+				return fmt.Errorf("reopen store: %w", err2)
+			}
+			ds.store = store
+		} else {
+			return fmt.Errorf("ping db: %w", err)
+		}
+	}
 	incomes, err := ds.store.ListIncomes(ctx, projectID)
 	if err != nil {
 		return fmt.Errorf("list incomes: %w", err)

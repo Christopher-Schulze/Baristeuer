@@ -153,7 +153,8 @@ The application starts in German. Use the dropdown in the top toolbar to switch 
 - **Member Tracking**: Manage club members with names, emails and join dates.
 - **Unit Tests**: Tests covering the tax calculation logic.
 - **Backup & Restore**: The `DataService` can export and restore the SQLite database for easy backups. Use `-exportdb <file>` to dump the database or `-restoredb <file>` to load it before the UI starts.
-- **CSV Export**: Use the `ExportProjectCSV` method to save all incomes and expenses of a project to a CSV file.
+- **CSV Export**: Use the `ExportProjectCSV` method or pass `-exportcsv <projectID>:<file>` when starting the application to save all incomes and expenses of a project. Example:
+`./baristeuer -exportcsv 1:report.csv`
 - **Docker-Unterstützung**: Ein `Dockerfile` ermöglicht den containerisierten Build des Projekts.
 
 ## Optional Plugins
