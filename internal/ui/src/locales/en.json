@@ -104,10 +104,13 @@
     "stdDev": "Std Dev",
     "trend": "Trend: {{value}}"
   },
-  "preview": {
-    "title": "PDF Preview",
-    "none": "No PDF generated"
-  },
+    "preview": {
+      "title": "PDF Preview",
+      "none": "No PDF generated",
+      "error": "Failed to load PDF",
+      "open": "Open",
+      "download": "Download"
+    },
   "language": "Language",
   "language_de": "German",
   "language_en": "English",

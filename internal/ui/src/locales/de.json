@@ -104,10 +104,13 @@
     "stdDev": "Standardabweichung",
   "trend": "Trend: {{value}}"
   },
-  "preview": {
-    "title": "PDF Vorschau",
-    "none": "Noch kein PDF erzeugt"
-  },
+    "preview": {
+      "title": "PDF Vorschau",
+      "none": "Noch kein PDF erzeugt",
+      "error": "PDF konnte nicht geladen werden",
+      "open": "Im neuen Fenster öffnen",
+      "download": "Herunterladen"
+    },
   "language": "Sprache",
   "language_de": "Deutsch",
   "language_en": "Englisch",
