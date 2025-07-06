@@ -12,3 +12,5 @@ So bleiben die Versionskontrolle und der Repository-Umfang schlank, während tro
 ## Offizielle Formulare einbinden
 
 Im Verzeichnis `internal/pdf/templates` befinden sich nur Platzhalterdateien. Um die amtlichen PDF-Formulare zu verwenden, kopieren Sie die Originale mit dem gleichen Dateinamen (z. B. `kst1.pdf`) in dieses Verzeichnis. Beim Erzeugen der Formulare greift der Generator automatisch auf diese Vorlagen zurück.
+
+**Hinweis:** Die fertigen PDF-Vordrucke `kst1.pdf`, `kst1f.pdf`, `anlage_gem.pdf`, `anlage_gk.pdf` und `anlage_sport.pdf` gehören ebenfalls in dieses Verzeichnis.
