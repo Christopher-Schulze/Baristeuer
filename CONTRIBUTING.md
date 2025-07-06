@@ -1,6 +1,7 @@
 # Contributing to Baristeuer
 
 Thank you for considering a contribution!
+**Note:** This project is currently maintained for internal use only and is not accepting external contributions.
 
 ## Branching Strategy
 - Create a new branch for each change based on `main`.
