@@ -11,10 +11,19 @@ So bleiben die Versionskontrolle und der Repository-Umfang schlank, während tro
 
 ## Offizielle Formulare einbinden
 
-Im Verzeichnis `internal/pdf/templates` befinden sich lediglich Platzhalterdateien. 
+Im Verzeichnis `internal/pdf/templates` befinden sich lediglich Platzhalterdateien.
 Laden Sie daher die amtlichen PDF-Formulare von der Finanzverwaltung oder aus ELSTER
 herunter und speichern Sie sie **lokal** unter dem gleichen Dateinamen in diesem
 Ordner. Die Dateinamen müssen exakt den Platzhaltern entsprechen (z. B. `kst1.pdf`).
+
+Gehen Sie dazu wie folgt vor:
+1. Öffnen Sie das [ELSTER-Portal](https://www.elster.de/eportal/formulare-leistungen/alleformulare) oder die Website Ihrer
+   Landesfinanzverwaltung.
+2. Suchen Sie nach den Formularen **KSt 1**, **KSt 1F**, **Anlage Gem**, **Anlage GK** und **Anlage Sport**.
+3. Laden Sie jede PDF-Datei herunter und benennen Sie sie genau
+   `kst1.pdf`, `kst1f.pdf`, `anlage_gem.pdf`, `anlage_gk.pdf` und `anlage_sport.pdf`.
+4. Speichern Sie diese Dateien anschließend im Ordner `internal/pdf/templates/`.
+
 Beim Erzeugen der Formulare greift der Generator automatisch auf diese Vorlagen
 zurück, sofern sie vorhanden sind.
 
