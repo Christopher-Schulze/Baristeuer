@@ -39,7 +39,17 @@ export default function ReportPanel({ projectId }) {
       {
         label: t("reports.average"),
         data: [stats.averageIncome, stats.averageExpense],
-        backgroundColor: ["#1976d2", "#9c27b0"],
+        backgroundColor: "#1976d2",
+      },
+      {
+        label: t("reports.median"),
+        data: [stats.medianIncome, stats.medianExpense],
+        backgroundColor: "#9c27b0",
+      },
+      {
+        label: t("reports.stdDev"),
+        data: [stats.stdDevIncome, stats.stdDevExpense],
+        backgroundColor: "#ff9800",
       },
     ],
   };

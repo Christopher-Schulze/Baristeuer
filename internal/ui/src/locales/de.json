@@ -94,6 +94,8 @@
     "average": "Durchschnitt",
     "avgIncome": "Ø Einnahmen",
     "avgExpense": "Ø Ausgaben",
+    "median": "Median",
+    "stdDev": "Standardabweichung",
     "trend": "Trend: {{value}}"
   },
   "language": "Sprache",
