@@ -62,6 +62,9 @@ Pfade wie `dbPath` oder `pdfDir` k\xC3\xB6nnen in dieser Datei angepasst werden.
    - Mitglieder verwalten
    - \"Bericht erstellen\" w\xC3\xA4hlen, um PDF-Formulare zu generieren
    - Optional CSV-Exporte oder Datenbank-Backups ausf\xC3\xBChren
+5. Die offiziellen Formularvorlagen separat herunterladen und in
+   `internal/pdf/templates/` ablegen. Ohne diese Dateien zeigt das Programm
+   einen Hinweis in den erzeugten PDFs.
 
 ## Installing Dependencies
 
