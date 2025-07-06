@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"baristeuer/internal/cloud"
+	"baristeuer/internal/config"
 )
 
 // Client defines upload and download operations for the database.
@@ -64,6 +65,15 @@ type RemoteClient struct{ c *cloud.Client }
 // NewRemoteClient constructs a RemoteClient for the given endpoints and token.
 func NewRemoteClient(uploadURL, downloadURL, token string) *RemoteClient {
 	return &RemoteClient{c: cloud.NewClient(uploadURL, downloadURL, token)}
+}
+
+// NewRemoteClientFromConfig constructs a RemoteClient using the cloud settings
+// defined in cfg. If cfg is nil, an empty client is returned.
+func NewRemoteClientFromConfig(cfg *config.Config) *RemoteClient {
+	if cfg == nil {
+		return NewRemoteClient("", "", "")
+	}
+	return NewRemoteClient(cfg.CloudUploadURL, cfg.CloudDownloadURL, cfg.CloudToken)
 }
 
 func (c *RemoteClient) Upload(ctx context.Context, src string) error {
