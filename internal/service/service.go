@@ -13,14 +13,36 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"regexp"
 	"strings"
+	"time"
 )
 
-var ErrInvalidAmount = errors.New("amount must be positive")
+var (
+	ErrInvalidAmount = errors.New("amount must be positive")
+	ErrInvalidEmail  = errors.New("invalid email address")
+	ErrInvalidDate   = errors.New("invalid date format")
+)
+
+var emailRegex = regexp.MustCompile(`^[^\s@]+@[^\s@]+\.[^\s@]+$`)
 
 func validateAmount(amount float64) error {
 	if amount <= 0 {
 		return fmt.Errorf("invalid amount: %w", ErrInvalidAmount)
+	}
+	return nil
+}
+
+func validateEmail(email string) error {
+	if !emailRegex.MatchString(email) {
+		return fmt.Errorf("invalid email: %w", ErrInvalidEmail)
+	}
+	return nil
+}
+
+func validateDate(date string) error {
+	if _, err := time.Parse("2006-01-02", date); err != nil {
+		return fmt.Errorf("invalid date: %w", ErrInvalidDate)
 	}
 	return nil
 }
@@ -209,6 +231,12 @@ func (ds *DataService) ListExpenses(ctx context.Context, projectID int64) ([]dat
 
 // AddMember creates a new member.
 func (ds *DataService) AddMember(ctx context.Context, name, email, joinDate string) (*data.Member, error) {
+	if err := validateEmail(email); err != nil {
+		return nil, err
+	}
+	if err := validateDate(joinDate); err != nil {
+		return nil, err
+	}
 	m := &data.Member{Name: name, Email: email, JoinDate: joinDate}
 	if err := ds.store.CreateMember(ctx, m); err != nil {
 		return nil, fmt.Errorf("create member: %w", err)
@@ -219,6 +247,12 @@ func (ds *DataService) AddMember(ctx context.Context, name, email, joinDate stri
 
 // UpdateMember updates an existing member.
 func (ds *DataService) UpdateMember(ctx context.Context, id int64, name, email, joinDate string) error {
+	if err := validateEmail(email); err != nil {
+		return err
+	}
+	if err := validateDate(joinDate); err != nil {
+		return err
+	}
 	m := &data.Member{ID: id, Name: name, Email: email, JoinDate: joinDate}
 	if err := ds.store.UpdateMember(ctx, m); err != nil {
 		return fmt.Errorf("update member: %w", err)

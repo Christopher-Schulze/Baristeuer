@@ -378,6 +378,35 @@ func TestValidateAmount(t *testing.T) {
 	}
 }
 
+func TestDataService_InvalidMemberValues(t *testing.T) {
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	ctx := context.Background()
+
+	if _, err := ds.AddMember(ctx, "Bob", "bad", "2024-01-02"); err == nil || !errors.Is(err, ErrInvalidEmail) {
+		t.Fatalf("expected invalid email error, got %v", err)
+	}
+	if _, err := ds.AddMember(ctx, "Bob", "bob@example.com", "01-02-2024"); err == nil || !errors.Is(err, ErrInvalidDate) {
+		t.Fatalf("expected invalid date error, got %v", err)
+	}
+
+	m, err := ds.AddMember(ctx, "Bob", "bob@example.com", "2024-01-10")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := ds.UpdateMember(ctx, m.ID, "Bob", "notanemail", "2024-01-10"); err == nil || !errors.Is(err, ErrInvalidEmail) {
+		t.Fatalf("expected invalid email error, got %v", err)
+	}
+	if err := ds.UpdateMember(ctx, m.ID, "Bob", "bob@example.com", "10-01-2024"); err == nil || !errors.Is(err, ErrInvalidDate) {
+		t.Fatalf("expected invalid date error, got %v", err)
+	}
+}
+
 func TestDataService_LoggerClosed(t *testing.T) {
 	tmpDir := t.TempDir()
 	logPath := filepath.Join(tmpDir, "app.log")
