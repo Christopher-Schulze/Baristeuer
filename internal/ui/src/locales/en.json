@@ -94,6 +94,8 @@
     "average": "Average",
     "avgIncome": "Avg Income",
     "avgExpense": "Avg Expense",
+    "median": "Median",
+    "stdDev": "Std Dev",
     "trend": "Trend: {{value}}"
   },
   "language": "Language",

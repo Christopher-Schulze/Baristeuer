@@ -186,7 +186,7 @@ func TestDataService_CalculateProjectTaxes(t *testing.T) {
 }
 
 func TestDataService_GenerateStatistics(t *testing.T) {
-	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	ds, err := NewDataService(":memory:", slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -203,7 +203,10 @@ func TestDataService_GenerateStatistics(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GenerateStatistics returned error: %v", err)
 	}
-	if stats.AverageIncome != 15 || stats.AverageExpense != 10 || stats.Trend != 5 || stats.Year != 2025 {
+	if stats.AverageIncome != 15 || stats.AverageExpense != 10 ||
+		stats.MedianIncome != 15 || stats.MedianExpense != 10 ||
+		stats.StdDevIncome != 5 || stats.StdDevExpense != 5 ||
+		stats.Trend != 5 || stats.Year != 2025 {
 		t.Fatalf("unexpected stats: %+v", stats)
 	}
 }
