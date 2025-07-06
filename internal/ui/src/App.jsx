@@ -15,6 +15,7 @@ import TaxPanel from "./components/TaxPanel";
 import FormsPanel from "./components/FormsPanel";
 import SettingsPanel from "./components/SettingsPanel";
 import ReportPanel from "./components/ReportPanel";
+import StatisticsChart from "./components/StatisticsChart";
 
 export default function App() {
   const [incomes, setIncomes] = useState([]);
@@ -222,6 +223,7 @@ export default function App() {
         {tab === 6 && (
           <Paper sx={{ p: 3 }}>
             <ReportPanel projectId={projectId} />
+            <StatisticsChart projectId={projectId} />
           </Paper>
         )}
         {tab === 7 && (
