@@ -1,17 +1,11 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import { configDefaults } from "vitest/config";
+import { defineConfig } from 'vite'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { configDefaults } from 'vitest/config'
 
-// https://vite.dev/config/
 export default defineConfig({
-  server: {
-    hmr: true,
-  },
-  css: {},
-  plugins: [react()],
+  plugins: [svelte()],
   test: {
-    environment: "jsdom",
-    globals: true,
-    exclude: [...configDefaults.exclude, "e2e/**"],
+    environment: 'jsdom',
+    exclude: [...configDefaults.exclude, 'e2e/**'],
   },
-});
+})
