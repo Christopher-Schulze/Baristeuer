@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { Backend } from './wailsjs/go/service/DataService';
   let dark = false;
   let incomes = [];
   let incomeSource = '';
@@ -9,16 +10,27 @@
   let expenseAmount = '';
   let showPDF = false;
 
-  function addIncome() {
+  let projectId = 0;
+
+  onMount(async () => {
+    const proj = await Backend.CreateProject('Default');
+    projectId = proj.id ?? proj.ID ?? proj.Id ?? 0;
+    incomes = await Backend.ListIncomes(projectId);
+    expenses = await Backend.ListExpenses(projectId);
+  });
+
+  async function addIncome() {
     if (!incomeSource || !incomeAmount) return;
-    incomes = [...incomes, { source: incomeSource, amount: +incomeAmount }];
+    await Backend.AddIncome(projectId, incomeSource, parseFloat(incomeAmount));
+    incomes = await Backend.ListIncomes(projectId);
     incomeSource = '';
     incomeAmount = '';
   }
 
-  function addExpense() {
+  async function addExpense() {
     if (!expenseDesc || !expenseAmount) return;
-    expenses = [...expenses, { desc: expenseDesc, amount: +expenseAmount }];
+    await Backend.AddExpense(projectId, expenseDesc, parseFloat(expenseAmount));
+    expenses = await Backend.ListExpenses(projectId);
     expenseDesc = '';
     expenseAmount = '';
   }
