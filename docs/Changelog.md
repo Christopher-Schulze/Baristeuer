@@ -4,7 +4,7 @@
 
 ### Changed
 
-- Replaced the React/Material UI interface with Svelte and DaisyUI.
+- Replaced the React/Material UI interface with Svelte and DaisyUI, completing the frontend migration.
 - Updated README and documentation to reflect the new stack.
 
 ## [6.7.2025] - Documentation Update
@@ -71,7 +71,7 @@
 ### Changed
 
 - **TODOs Finalized**: Updated `TODO123.md` to mark all development tasks as complete and revised descriptions to reflect the final project state.
-- **README Correction**: Corrected the frontend technology in `README.md` from "Svelte" to "React" to ensure consistency across all documentation.
+- **README Correction**: Temporarily corrected the frontend technology in `README.md` from "Svelte" to "React" to match the stack at the time. (This was later reverted when migrating to Svelte and DaisyUI.)
 
 ## [3.7.2025] - Wails Bindings
 
@@ -108,8 +108,8 @@
 ### Added
 
 - **Unit Tests**: Added comprehensive unit tests for the tax calculation logic in `internal/taxlogic/` to ensure correctness and reliability.
-- **Material UI Reinstated**: After experimenting with Tailwind CSS, the React frontend returned to Material UI components, which are now in use.
-- **Documentation Updates**: Updated `DOCUMENTATION.md` and `TODO123.md` to describe the then-current React/Tailwind stack (the project now uses Material UI).
+- **Material UI Reinstated**: After experimenting with Tailwind CSS, the React frontend returned to Material UI components. These were later replaced by Svelte and DaisyUI.
+- **Documentation Updates**: Updated `DOCUMENTATION.md` and `TODO123.md` to describe the then-current React/Tailwind stack. Documentation was revised again after the move to Svelte.
 
 ### Changed
 
