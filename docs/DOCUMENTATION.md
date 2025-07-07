@@ -233,7 +233,7 @@ The Baristeuer application is stable and covers the core features. The backend, 
 
 ### Production Readiness
 
-Offizielle Layouts und umfangreichere PDF-Berichte sind noch in Arbeit. Die CI/CD-Pipeline führt Tests aus, und der aktuelle Funktionsumfang gilt als produktionsreif.
+Die amtlichen Formularlayouts dürfen aus Lizenzgründen nicht im Repository liegen. Laden Sie die Vorlagen selbst herunter und speichern Sie sie im Ordner `internal/pdf/templates/` (siehe [docs/Todo-fuer-User.md](Todo-fuer-User.md)). Die CI/CD-Pipeline führt Tests aus und der aktuelle Funktionsumfang gilt als produktionsreif.
 
 ### Potential Next Steps
 
