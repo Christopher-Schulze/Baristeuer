@@ -143,8 +143,10 @@ time. Example:
 }
 ```
 
-Set `cloudUploadURL` and `cloudDownloadURL` to enable HTTP-based sync. The
-`cloudToken` value is sent as a bearer token for authentication.
+Set `cloudUploadURL` and `cloudDownloadURL` to enable the built-in
+HTTP-based cloud sync. The `cloudToken` value is sent as a bearer token for
+authentication. See [cloud-sync.md](cloud-sync.md) for detailed setup
+instructions.
 
 If `pdfDir` is omitted, generated PDFs are stored in `./internal/data/reports`.
 Alternatively the environment variable `BARISTEUER_PDFDIR` can override the output directory at runtime.
@@ -168,6 +170,9 @@ The application starts in German. Use the dropdown in the top toolbar to switch 
 - **Backup & Restore**: The `DataService` can export and restore the SQLite database for easy backups. Use `-exportdb <file>` to dump the database or `-restoredb <file>` to load it before the UI starts.
 - **CSV Export**: Use the `ExportProjectCSV` method or pass `-exportcsv <projectID>:<file>` when starting the application to save all incomes and expenses of a project. Example:
 `./baristeuer -exportcsv 1:report.csv`
+- **Cloud Sync**: Built-in synchronization via HTTP endpoints for backing up
+  and restoring the database. See [cloud-sync.md](cloud-sync.md) for
+  configuration details.
 - **Docker-Unterstützung**: Ein `Dockerfile` ermöglicht den containerisierten Build des Projekts.
 
 ## Optional Plugins
@@ -233,5 +238,5 @@ Offizielle Layouts und umfangreichere PDF-Berichte sind noch in Arbeit. Die CI/C
 While the application is complete, future enhancements could include:
 
 - **Advanced Reporting:** Adding more detailed analytics and customizable report templates.
-- **Cloud Sync:** Implementing an optional cloud synchronization feature for backing up and sharing data across devices.
+- **Cloud Sync Enhancements:** Expanding the existing synchronization with conflict handling or scheduled backups.
 - **Plugin System:** Developing a plugin architecture to allow for third-party extensions and integrations.
