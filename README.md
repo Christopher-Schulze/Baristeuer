@@ -13,6 +13,11 @@ Bari$teuer is a cross-platform desktop application that assists German non-profi
 - Generates PDF reports and CSV exports
 - Runs on macOS and Windows
 
+## Tests
+
+UI tests require Node.js dependencies located in `internal/ui`. Run `make deps`
+once to install them before executing `make ui-test` or `make test`.
+
 For installation and detailed usage instructions see [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md).
 
 ---
