@@ -64,7 +64,14 @@ Pfade wie `dbPath` oder `pdfDir` k\xC3\xB6nnen in dieser Datei angepasst werden.
    - Optional CSV-Exporte oder Datenbank-Backups ausf\xC3\xBChren
 5. Die offiziellen Formularvorlagen separat herunterladen und in
    `internal/pdf/templates/` ablegen. Ohne diese Dateien zeigt das Programm
-   einen Hinweis in den erzeugten PDFs.
+   einen Hinweis in den erzeugten PDFs. Lege die amtlichen PDFs exakt so ab,
+   wie es in `internal/pdf/templates/README.md` beschrieben ist: Benenne sie
+   wie die vorhandenen Platzhalterdateien (`kst1.txt`, `kst1f.txt`,
+   `anlage_gem.txt`, `anlage_gk.txt`, `anlage_sport.txt`) und ersetze die
+   Endung mit `.pdf`. Die Dateien müssen also `kst1.pdf`, `kst1f.pdf`,
+   `anlage_gem.pdf`, `anlage_gk.pdf` und `anlage_sport.pdf` heißen. Da die
+   Originalformulare urheberrechtlich geschützt sind, dürfen sie nicht ins
+   Repository eingecheckt werden.
 
 ## Installing Dependencies
 
