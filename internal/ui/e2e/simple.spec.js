@@ -1,5 +1,13 @@
 import { test, expect } from '@playwright/test'
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    window.backend = {
+      Generator: { GenerateReport: async () => 'test.pdf' },
+    }
+  })
+})
+
 test('basic interactions', async ({ page }) => {
   await page.goto('/')
 
@@ -17,5 +25,8 @@ test('basic interactions', async ({ page }) => {
 
   // open PDF preview
   await page.getByRole('button', { name: 'PDF Vorschau' }).click()
-  await expect(page.getByTitle('PDF Preview')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'PDF erzeugen' })).toBeVisible()
+
+  await page.getByRole('button', { name: 'PDF erzeugen' }).click()
+  await expect(page.getByText('Download')).toBeVisible()
 })
