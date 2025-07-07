@@ -4,6 +4,8 @@
 
 Baristeuer is a desktop application for generating tax reports for non-profit organizations in Germany. It uses Go for the backend and a Svelte frontend styled with DaisyUI. The application is bundled with Wails so it can run as a native program.
 
+Cloud sync via HTTP endpoints is now implemented to back up and restore the SQLite database. Configuration details can be found in [docs/cloud-sync.md](cloud-sync.md).
+
 ## Technology Stack
 
 ### Backend
@@ -238,5 +240,5 @@ Offizielle Layouts und umfangreichere PDF-Berichte sind noch in Arbeit. Die CI/C
 While the application is complete, future enhancements could include:
 
 - **Advanced Reporting:** Adding more detailed analytics and customizable report templates.
-- **Cloud Sync Enhancements:** Expanding the existing synchronization with conflict handling or scheduled backups.
+- **Cloud Sync Enhancements:** Improving the implemented synchronization with conflict handling or scheduled backups.
 - **Plugin System:** Developing a plugin architecture to allow for third-party extensions and integrations.
