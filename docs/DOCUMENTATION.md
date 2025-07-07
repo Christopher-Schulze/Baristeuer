@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Baristeuer is a desktop application for generating tax reports for non-profit organizations in Germany. It uses Go for the backend and a React frontend styled with Material UI. The application is bundled with Wails so it can run as a native program.
+Baristeuer is a desktop application for generating tax reports for non-profit organizations in Germany. It uses Go for the backend and a Svelte frontend styled with DaisyUI. The application is bundled with Wails so it can run as a native program.
 
 ## Technology Stack
 
@@ -14,8 +14,8 @@ Baristeuer is a desktop application for generating tax reports for non-profit or
 
 ### Frontend
 
-- **React**: UI library for building the interface.
-- **Material UI**: Component library for styling.
+- **Svelte**: UI library for building the interface.
+- **DaisyUI**: Component library for styling.
 - **Vite**: Development server and build tool.
 
 ## Directory Structure
@@ -26,7 +26,7 @@ Baristeuer is a desktop application for generating tax reports for non-profit or
   - `data/`: Data models and SQLite storage.
   - `pdf/`: PDF generation utilities.
   - `taxlogic/`: Business logic for tax calculations for German non-profits.
-  - `ui/`: React frontend source code.
+  - `ui/`: Svelte frontend source code.
 - `scripts/`: Helper scripts for development.
 
 ## Schnellstart
@@ -107,7 +107,7 @@ modules automatically.
 
 ### Frontend Tests
 
-To run the React unit tests you must install dependencies first:
+To run the Svelte unit tests you must install dependencies first:
 
 ```bash
 npm ci --prefix internal/ui
@@ -147,7 +147,7 @@ The application starts in German. Use the dropdown in the top toolbar to switch 
 
 ## Key Features
 
-- **React + Material UI Interface**: UI built with React components styled using Material UI.
+- **Svelte + DaisyUI Interface**: UI built with Svelte components styled using DaisyUI.
 - **Multi-language Support**: Interface available in German and English. Change the language via the toolbar dropdown.
 - **PDF Generation**: Creates detailed tax reports in PDF format for submission to the German tax office.
 - **Formularerstellung**: Erzeugt vereinfachte Ausgaben der Formblätter KSt 1, Anlage Gem/GK, KSt 1F und Anlage Sport als PDF.
@@ -212,7 +212,7 @@ tests. The CI ensures that code quality checks pass before changes are merged.
 
 ### Current State
 
-The Baristeuer application is stable and covers the core features. The backend, built with Go, provides robust tax calculation and data management logic. The React-based frontend, styled with Material UI, offers an intuitive and responsive user interface. Für Steuerformulare stehen inzwischen einfache PDF-Layouts für KSt 1, Anlage Gem/GK, KSt 1F und Anlage Sport bereit. Die Anwendung wurde auf macOS und Windows für Basisszenarien getestet.
+The Baristeuer application is stable and covers the core features. The backend, built with Go, provides robust tax calculation and data management logic. The Svelte-based frontend, styled with DaisyUI, offers an intuitive and responsive user interface. Für Steuerformulare stehen inzwischen einfache PDF-Layouts für KSt 1, Anlage Gem/GK, KSt 1F und Anlage Sport bereit. Die Anwendung wurde auf macOS und Windows für Basisszenarien getestet.
 
 ### Production Readiness
 

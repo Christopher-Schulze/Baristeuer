@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.7.2025] - Frontend Migration
+
+### Changed
+
+- Replaced the React/Material UI interface with Svelte and DaisyUI.
+- Updated README and documentation to reflect the new stack.
+
 ## [6.7.2025] - Documentation Update
 
 ### Changed

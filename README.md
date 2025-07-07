@@ -4,7 +4,7 @@
 
 # Bari$teuer
 
-Bari$teuer is a cross-platform desktop application that assists German non-profit associations with their tax reporting. A Go backend and a React/Material UI frontend are bundled together using Wails.
+Bari$teuer is a cross-platform desktop application that assists German non-profit associations with their tax reporting. A Go backend and a Svelte frontend styled with DaisyUI are bundled together using Wails.
 
 ## Highlights
 
