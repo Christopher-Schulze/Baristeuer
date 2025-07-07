@@ -10,7 +10,7 @@ Thank you for considering a contribution!
 
 ## Coding Conventions
 - Format Go code with `gofmt -w` before committing. The CI will fail if formatting changes are detected.
-- Keep JavaScript and React files formatted using Prettier.
+- Keep JavaScript and Svelte files formatted using Prettier.
 - Ensure the project builds without errors using `go build ./...` and `npm run build` for the UI.
 - Write tests for new functionality when possible.
 
