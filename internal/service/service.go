@@ -13,6 +13,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -515,4 +516,50 @@ func (ds *DataService) Close() error {
 		ds.logCloser.Close()
 	}
 	return ds.store.Close()
+}
+
+// PluginInfo describes an available runtime plugin.
+type PluginInfo struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Enabled     bool   `json:"enabled"`
+}
+
+// ListPlugins returns information about plugins found in the plugins directory.
+func (ds *DataService) ListPlugins() ([]PluginInfo, error) {
+	entries, err := os.ReadDir("plugins")
+	if err != nil {
+		return []PluginInfo{}, nil
+	}
+	infos := []PluginInfo{}
+	for _, e := range entries {
+		if e.IsDir() || filepath.Ext(e.Name()) != ".so" {
+			continue
+		}
+		name := strings.TrimSuffix(e.Name(), filepath.Ext(e.Name()))
+		desc := name
+		meta := filepath.Join("plugins", name+".txt")
+		if b, err := os.ReadFile(meta); err == nil {
+			lines := strings.SplitN(string(b), "\n", 2)
+			if strings.TrimSpace(lines[0]) != "" {
+				desc = strings.TrimSpace(lines[0])
+			}
+		}
+		enabled := true
+		if ds.cfg.Plugins != nil {
+			if en, ok := ds.cfg.Plugins[name]; ok {
+				enabled = en
+			}
+		}
+		infos = append(infos, PluginInfo{Name: name, Description: desc, Enabled: enabled})
+	}
+	return infos, nil
+}
+
+// SetPluginEnabled updates the enabled state of a plugin in the configuration.
+func (ds *DataService) SetPluginEnabled(name string, enable bool) {
+	if ds.cfg.Plugins == nil {
+		ds.cfg.Plugins = map[string]bool{}
+	}
+	ds.cfg.Plugins[name] = enable
 }

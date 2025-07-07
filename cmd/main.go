@@ -22,13 +22,17 @@ import (
 // loadPlugins attempts to load all Go plugins from the given directory.
 // Each plugin must export a `New` function returning a plugins.Plugin
 // implementation. Any errors are printed but do not stop startup.
-func loadPlugins(dir string, svc *service.DataService) {
+func loadPlugins(dir string, svc *service.DataService, enabled map[string]bool) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return
 	}
 	for _, e := range entries {
 		if e.IsDir() || filepath.Ext(e.Name()) != ".so" {
+			continue
+		}
+		base := strings.TrimSuffix(e.Name(), filepath.Ext(e.Name()))
+		if en, ok := enabled[base]; ok && !en {
 			continue
 		}
 		p, err := plugin.Open(filepath.Join(dir, e.Name()))
@@ -103,7 +107,7 @@ func main() {
 	defer datasvc.Close()
 
 	// Load optional runtime plugins from ./plugins if available.
-	loadPlugins("plugins", datasvc)
+	loadPlugins("plugins", datasvc, cfg.Plugins)
 
 	if *exportPath != "" {
 		if err := datasvc.ExportDatabase(*exportPath); err != nil {

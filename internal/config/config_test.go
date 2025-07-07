@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 )
 
@@ -44,7 +45,7 @@ func TestLoadMissingFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Load returned error: %v", err)
 	}
-	if cfg != DefaultConfig {
+	if !reflect.DeepEqual(cfg, DefaultConfig) {
 		t.Fatalf("expected default config, got %+v", cfg)
 	}
 	if _, err := os.Stat(path); err != nil {
@@ -73,7 +74,7 @@ func TestSaveAndVerify(t *testing.T) {
 	if err := json.Unmarshal(data, &got); err != nil {
 		t.Fatalf("unmarshal failed: %v", err)
 	}
-	if got != expected {
+	if !reflect.DeepEqual(got, expected) {
 		t.Fatalf("written config mismatch: %+v vs %+v", got, expected)
 	}
 }

@@ -12,18 +12,19 @@ const DefaultPDFDir = "internal/data/reports"
 
 // Config holds application configuration values.
 type Config struct {
-	DBPath           string `json:"dbPath"`
-	PDFDir           string `json:"pdfDir"`
-	LogFile          string `json:"logFile"`
-	LogLevel         string `json:"logLevel"`
-	LogFormat        string `json:"logFormat"`
-	TaxYear          int    `json:"taxYear"`
-	FormName         string `json:"formName"`
-	FormTaxNumber    string `json:"formTaxNumber"`
-	FormAddress      string `json:"formAddress"`
-	CloudUploadURL   string `json:"cloudUploadURL"`
-	CloudDownloadURL string `json:"cloudDownloadURL"`
-	CloudToken       string `json:"cloudToken"`
+	DBPath           string          `json:"dbPath"`
+	PDFDir           string          `json:"pdfDir"`
+	LogFile          string          `json:"logFile"`
+	LogLevel         string          `json:"logLevel"`
+	LogFormat        string          `json:"logFormat"`
+	TaxYear          int             `json:"taxYear"`
+	FormName         string          `json:"formName"`
+	FormTaxNumber    string          `json:"formTaxNumber"`
+	FormAddress      string          `json:"formAddress"`
+	CloudUploadURL   string          `json:"cloudUploadURL"`
+	CloudDownloadURL string          `json:"cloudDownloadURL"`
+	CloudToken       string          `json:"cloudToken"`
+	Plugins          map[string]bool `json:"plugins"`
 }
 
 // DefaultConfig provides sensible defaults for a new configuration file.
@@ -36,6 +37,7 @@ var DefaultConfig = Config{
 	CloudUploadURL:   "",
 	CloudDownloadURL: "",
 	CloudToken:       "",
+	Plugins:          map[string]bool{},
 }
 
 // Load reads configuration from the given file path. If the file does not exist,

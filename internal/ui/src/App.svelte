@@ -11,6 +11,11 @@
   let showPDF = false;
   let pdfPath = '';
   let errorMsg = '';
+  let plugins = [];
+
+  async function loadPlugins() {
+    plugins = await Backend.ListPlugins();
+  }
 
   async function generatePdf() {
     errorMsg = '';
@@ -33,6 +38,7 @@
     projectId = proj.id ?? proj.ID ?? proj.Id ?? 0;
     incomes = await Backend.ListIncomes(projectId);
     expenses = await Backend.ListExpenses(projectId);
+    await loadPlugins();
   });
 
   async function addIncome() {
@@ -49,6 +55,11 @@
     expenses = await Backend.ListExpenses(projectId);
     expenseDesc = '';
     expenseAmount = '';
+  }
+
+  function togglePlugin(plg) {
+    plg.enabled = !plg.enabled;
+    Backend.SetPluginEnabled(plg.name, plg.enabled);
   }
 </script>
 
@@ -102,7 +113,7 @@
   <div class="mt-6">
     <button class="btn" on:click={() => showPDF = !showPDF}>PDF Vorschau</button>
     {#if showPDF}
-      <div class="mt-2 border p-2 flex flex-col gap-2">
+      <div class="mt-2 border p-2 flex flex-col gap-2" title="PDF Preview">
         <button class="btn btn-primary w-fit" on:click={generatePdf}>PDF erzeugen</button>
         {#if errorMsg}
           <p class="text-red-600">{errorMsg}</p>
@@ -112,5 +123,16 @@
         {/if}
       </div>
     {/if}
+  </div>
+  <div class="mt-6">
+    <h2 class="font-semibold mb-2">Plugins</h2>
+    <ul class="list-disc ml-6">
+      {#each plugins as plg}
+        <li class="flex items-center gap-2">
+          <input type="checkbox" bind:checked={plg.enabled} on:change={() => togglePlugin(plg)} />
+          <span>{plg.description}</span>
+        </li>
+      {/each}
+    </ul>
   </div>
 </main>

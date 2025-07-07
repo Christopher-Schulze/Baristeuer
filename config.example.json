@@ -6,5 +6,6 @@
   "logFormat": "text",
   "cloudUploadURL": "",
   "cloudDownloadURL": "",
-  "cloudToken": ""
+  "cloudToken": "",
+  "plugins": {}
 }
