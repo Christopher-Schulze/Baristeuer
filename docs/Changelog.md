@@ -4,7 +4,7 @@
 
 ### Changed
 
-- Replaced the React/Material UI interface with Svelte and DaisyUI, completing the frontend migration.
+- Completed the migration to Svelte with DaisyUI, fully replacing the old React and Material UI interface.
 - Updated README and documentation to reflect the new stack.
 
 ## [6.7.2025] - Documentation Update
@@ -40,7 +40,7 @@
 ### Added
 
 - **Cleanup Wails Bindings**: Removed outdated bindings from `cmd/internal/ui/wailsjs`.
-- **Input Validation**: Added positive amount checks in `App.jsx`.
+- **Input Validation**: Added positive amount checks in the React `App.jsx` component (later migrated to Svelte).
 - **PDF Form Fields**: Extended placeholder forms with fill-in lines.
 - **Service Logging**: Introduced a basic logger in `internal/service`.
 
@@ -84,12 +84,12 @@
 ### Added
 
 - **In-Memory Data Service**: Implemented a new Go service (`internal/data/service.go`) with `AddExpense` and `ListExpenses` methods using an in-memory slice for data storage.
-- **UI for Data Entry**: Updated `App.jsx` to include a form for adding income (description and amount) and a table to display the list of expenses.
+- **UI for Data Entry**: Added a React `App.jsx` form for income and expenses, later ported to Svelte.
 
 ### Changed
 
 - **Service Binding**: Updated `cmd/main.go` to bind the new `DataService`, making it available to the frontend.
-- **Frontend Logic**: Refactored `App.jsx` to use the new data service methods, removing the previous project-based data handling.
+- **Frontend Logic**: Refactored the React `App.jsx` to use the new data service methods. This logic was subsequently rewritten in Svelte.
 
 ## [3.7.2025] - Documentation
 
@@ -108,7 +108,7 @@
 ### Added
 
 - **Unit Tests**: Added comprehensive unit tests for the tax calculation logic in `internal/taxlogic/` to ensure correctness and reliability.
-- **Material UI Reinstated**: After experimenting with Tailwind CSS, the React frontend returned to Material UI components. These were later replaced by Svelte and DaisyUI.
+- **Material UI Reinstated (Temporary)**: After experimenting with Tailwind CSS, the React frontend briefly returned to Material UI components. This setup was replaced entirely by Svelte and DaisyUI in the final migration.
 - **Documentation Updates**: Updated `DOCUMENTATION.md` and `TODO123.md` to describe the then-current React/Tailwind stack. Documentation was revised again after the move to Svelte.
 
 ### Changed
@@ -133,7 +133,7 @@
 - **Core Application Logic**: Implemented the core tax calculation and reporting features.
   - **Tax Logic**: Developed the tax calculation engine for German non-profits for the year 2025 in `internal/taxlogic/tax_logic.go`.
   - **PDF Generation**: Enhanced the PDF report in `internal/pdf/pdf.go` to use the new tax logic and formatted it for submission to the German tax office (Finanzamt).
-  - **Frontend**: Updated the `App.jsx` component to accept user input for revenue and expenses and generate reports via the backend.
+  - **Frontend**: Initially implemented a React `App.jsx` component for collecting revenue and expenses. This was later rewritten in Svelte.
 
 ### Changed
 
