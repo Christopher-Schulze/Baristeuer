@@ -8,6 +8,22 @@
   let expenseDesc = '';
   let expenseAmount = '';
   let showPDF = false;
+  let pdfPath = '';
+  let errorMsg = '';
+
+  async function generatePdf() {
+    errorMsg = '';
+    pdfPath = '';
+    try {
+      // Currently uses project ID 1; adapt as needed once projects are selectable
+      pdfPath = await window.backend.Generator.GenerateReport(1);
+      if (pdfPath) {
+        window.open(`file://${pdfPath}`, '_blank');
+      }
+    } catch (err) {
+      errorMsg = err?.message ?? String(err);
+    }
+  }
 
   function addIncome() {
     if (!incomeSource || !incomeAmount) return;
@@ -74,7 +90,15 @@
   <div class="mt-6">
     <button class="btn" on:click={() => showPDF = !showPDF}>PDF Vorschau</button>
     {#if showPDF}
-      <div class="mt-2 border p-2" title="PDF Preview">PDF PREVIEW</div>
+      <div class="mt-2 border p-2 flex flex-col gap-2">
+        <button class="btn btn-primary w-fit" on:click={generatePdf}>PDF erzeugen</button>
+        {#if errorMsg}
+          <p class="text-red-600">{errorMsg}</p>
+        {/if}
+        {#if pdfPath}
+          <a class="link link-primary" href={`file://${pdfPath}`} download>Download</a>
+        {/if}
+      </div>
     {/if}
   </div>
 </main>
