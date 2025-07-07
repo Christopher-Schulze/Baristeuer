@@ -4,11 +4,24 @@ import '@testing-library/jest-dom'
 import App from './App.svelte'
 
 vi.mock('./wailsjs/go/service/DataService', () => {
+  const projects = []
+  let nextProjectId = 1
   const incomes = []
   const expenses = []
+
   return {
     Backend: {
-      CreateProject: vi.fn().mockResolvedValue({ id: 1 }),
+      ListProjects: vi.fn(() => Promise.resolve(projects)),
+      CreateProject: vi.fn(name => {
+        const p = { id: nextProjectId++, name }
+        projects.push(p)
+        return Promise.resolve(p)
+      }),
+      DeleteProject: vi.fn(id => {
+        const idx = projects.findIndex(p => p.id === id)
+        if (idx !== -1) projects.splice(idx, 1)
+        return Promise.resolve()
+      }),
       ListIncomes: vi.fn(() => Promise.resolve(incomes)),
       ListExpenses: vi.fn(() => Promise.resolve(expenses)),
       AddIncome: vi.fn((_p, source, amount) => {
