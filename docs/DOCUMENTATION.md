@@ -120,6 +120,9 @@ To run the Svelte unit tests you must install dependencies first:
 npm ci --prefix internal/ui
 npm test --prefix internal/ui
 ```
+The `npm` command and the Playwright browsers must be available in your
+environment. The Makefile target `make ui-test` also expects these
+dependencies to be installed.
 
 ## Configuration
 
