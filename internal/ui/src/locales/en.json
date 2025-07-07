@@ -1,0 +1,18 @@
+{
+  "appTitle": "Bari$teuer",
+  "dark": "Dark",
+  "tab.forms": "Forms",
+  "tab.settings": "Settings",
+  "tab.pdf": "PDF",
+  "income.title": "Income",
+  "income.source": "Source",
+  "income.amount": "Amount",
+  "income.add": "Add",
+  "expenses.title": "Expenses",
+  "expenses.desc": "Description",
+  "expenses.amount": "Amount",
+  "expenses.add": "Add",
+  "pdf.preview": "PDF Preview",
+  "pdf.generate": "Generate PDF",
+  "download": "Download"
+}

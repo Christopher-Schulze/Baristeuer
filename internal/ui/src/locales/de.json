@@ -1,0 +1,18 @@
+{
+  "appTitle": "Bari$teuer",
+  "dark": "Dark",
+  "tab.forms": "Formulare",
+  "tab.settings": "Einstellungen",
+  "tab.pdf": "PDF",
+  "income.title": "Einnahmen",
+  "income.source": "Quelle",
+  "income.amount": "Betrag",
+  "income.add": "Hinzufügen",
+  "expenses.title": "Ausgaben",
+  "expenses.desc": "Beschreibung",
+  "expenses.amount": "Betrag",
+  "expenses.add": "Hinzufügen",
+  "pdf.preview": "PDF Vorschau",
+  "pdf.generate": "PDF erzeugen",
+  "download": "Download"
+}

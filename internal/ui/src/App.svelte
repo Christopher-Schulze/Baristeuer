@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { Backend } from './wailsjs/go/service/DataService';
+  import { locale, _ } from './i18n';
   let dark = false;
   let incomes = [];
   let incomeSource = '';
@@ -54,27 +55,33 @@
 
 <main class="p-4" data-theme={dark ? 'dark' : 'light'}>
   <div class="flex justify-between mb-4">
-    <h1 class="text-2xl font-bold">Bari$teuer</h1>
-    <label class="flex items-center gap-2">
-      <span>Dark</span>
-      <input type="checkbox" bind:checked={dark} class="toggle" />
-    </label>
+    <h1 class="text-2xl font-bold">{$_('appTitle')}</h1>
+    <div class="flex items-center gap-4">
+      <label class="flex items-center gap-2">
+        <span>{$_('dark')}</span>
+        <input type="checkbox" bind:checked={dark} class="toggle" />
+      </label>
+      <select class="select select-bordered select-sm" bind:value={$locale}>
+        <option value="de">DE</option>
+        <option value="en">EN</option>
+      </select>
+    </div>
   </div>
   <div class="tabs tabs-boxed mb-4">
-    <a class="tab tab-active">Formulare</a>
-    <a class="tab">Einstellungen</a>
-    <a class="tab">PDF</a>
+    <a class="tab tab-active">{$_('tab.forms')}</a>
+    <a class="tab">{$_('tab.settings')}</a>
+    <a class="tab">{$_('tab.pdf')}</a>
   </div>
   <div class="grid md:grid-cols-2 gap-4">
     <div>
-      <h2 class="font-semibold mb-2">Einnahmen</h2>
+      <h2 class="font-semibold mb-2">{$_('income.title')}</h2>
       <div class="flex gap-2 mb-2">
-        <input class="input input-bordered flex-1" placeholder="Quelle" bind:value={incomeSource} />
-        <input class="input input-bordered w-24" type="number" placeholder="Betrag" bind:value={incomeAmount} />
-        <button class="btn btn-primary" on:click={addIncome}>Hinzufügen</button>
+        <input class="input input-bordered flex-1" placeholder={$_('income.source')} bind:value={incomeSource} />
+        <input class="input input-bordered w-24" type="number" placeholder={$_('income.amount')} bind:value={incomeAmount} />
+        <button class="btn btn-primary" on:click={addIncome}>{$_('income.add')}</button>
       </div>
       <table class="table w-full">
-        <thead><tr><th>Quelle</th><th>Betrag</th></tr></thead>
+        <thead><tr><th>{$_('income.source')}</th><th>{$_('income.amount')}</th></tr></thead>
         <tbody>
           {#each incomes as inc}
           <tr><td>{inc.source}</td><td>{inc.amount.toFixed(2)}</td></tr>
@@ -83,14 +90,14 @@
       </table>
     </div>
     <div>
-      <h2 class="font-semibold mb-2">Ausgaben</h2>
+      <h2 class="font-semibold mb-2">{$_('expenses.title')}</h2>
       <div class="flex gap-2 mb-2">
-        <input class="input input-bordered flex-1" placeholder="Beschreibung" bind:value={expenseDesc} />
-        <input class="input input-bordered w-24" type="number" placeholder="Betrag" bind:value={expenseAmount} />
-        <button class="btn btn-primary" on:click={addExpense}>Hinzufügen</button>
+        <input class="input input-bordered flex-1" placeholder={$_('expenses.desc')} bind:value={expenseDesc} />
+        <input class="input input-bordered w-24" type="number" placeholder={$_('expenses.amount')} bind:value={expenseAmount} />
+        <button class="btn btn-primary" on:click={addExpense}>{$_('expenses.add')}</button>
       </div>
       <table class="table w-full">
-        <thead><tr><th>Beschreibung</th><th>Betrag</th></tr></thead>
+        <thead><tr><th>{$_('expenses.desc')}</th><th>{$_('expenses.amount')}</th></tr></thead>
         <tbody>
           {#each expenses as ex}
           <tr><td>{ex.desc}</td><td>{ex.amount.toFixed(2)}</td></tr>
@@ -100,15 +107,15 @@
     </div>
   </div>
   <div class="mt-6">
-    <button class="btn" on:click={() => showPDF = !showPDF}>PDF Vorschau</button>
+    <button class="btn" on:click={() => showPDF = !showPDF}>{$_('pdf.preview')}</button>
     {#if showPDF}
-      <div class="mt-2 border p-2 flex flex-col gap-2">
-        <button class="btn btn-primary w-fit" on:click={generatePdf}>PDF erzeugen</button>
+      <div class="mt-2 border p-2 flex flex-col gap-2" title={$_('pdf.preview')}>
+        <button class="btn btn-primary w-fit" on:click={generatePdf}>{$_('pdf.generate')}</button>
         {#if errorMsg}
           <p class="text-red-600">{errorMsg}</p>
         {/if}
         {#if pdfPath}
-          <a class="link link-primary" href={`file://${pdfPath}`} download>Download</a>
+          <a class="link link-primary" href={`file://${pdfPath}`} download>{$_('download')}</a>
         {/if}
       </div>
     {/if}

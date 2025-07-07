@@ -26,5 +26,8 @@
     "tailwindcss-cli": "^0.1.2",
     "vite": "^6.3.5",
     "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "svelte-i18n": "^4.0.1"
   }
 }

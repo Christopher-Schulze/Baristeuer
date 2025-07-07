@@ -8,19 +8,19 @@ describe('App component', () => {
     const { getByText, getByPlaceholderText, getAllByPlaceholderText, getAllByText, getByTitle } = render(App)
 
     // income
-    await fireEvent.input(getByPlaceholderText('Quelle'), { target: { value: 'Job' } })
-    await fireEvent.input(getAllByPlaceholderText('Betrag')[0], { target: { value: '100' } })
-    await fireEvent.click(getAllByText('Hinzufügen')[0])
+    await fireEvent.input(getByPlaceholderText('Source'), { target: { value: 'Job' } })
+    await fireEvent.input(getAllByPlaceholderText('Amount')[0], { target: { value: '100' } })
+    await fireEvent.click(getAllByText('Add')[0])
     expect(getByText('Job')).toBeInTheDocument()
 
     // expense
-    await fireEvent.input(getByPlaceholderText('Beschreibung'), { target: { value: 'Food' } })
-    await fireEvent.input(getAllByPlaceholderText('Betrag')[1], { target: { value: '50' } })
-    await fireEvent.click(getAllByText('Hinzufügen')[1])
+    await fireEvent.input(getByPlaceholderText('Description'), { target: { value: 'Food' } })
+    await fireEvent.input(getAllByPlaceholderText('Amount')[1], { target: { value: '50' } })
+    await fireEvent.click(getAllByText('Add')[1])
     expect(getByText('Food')).toBeInTheDocument()
 
     // PDF preview toggle
-    await fireEvent.click(getByText('PDF Vorschau'))
+    await fireEvent.click(getByText('PDF Preview'))
     expect(getByTitle('PDF Preview')).toBeInTheDocument()
   })
 })
