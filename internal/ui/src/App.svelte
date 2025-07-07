@@ -72,9 +72,9 @@
     </label>
   </div>
   <div class="tabs tabs-boxed mb-4">
-    <a class="tab tab-active">Formulare</a>
-    <a class="tab">Einstellungen</a>
-    <a class="tab">PDF</a>
+    <button class="tab tab-active">Formulare</button>
+    <button class="tab">Einstellungen</button>
+    <button class="tab">PDF</button>
   </div>
   <ProjectSelector on:select={handleSelect} />
   <div class="grid md:grid-cols-2 gap-4">
