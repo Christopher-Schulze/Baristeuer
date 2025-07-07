@@ -20,7 +20,8 @@ describe('App component', () => {
     expect(getByText('Food')).toBeInTheDocument()
 
     // PDF preview toggle
+    await fireEvent.click(getByText('PDF'))
     await fireEvent.click(getByText('PDF Vorschau'))
-    expect(getByTitle('PDF Preview')).toBeInTheDocument()
+    expect(getByText('PDF erzeugen')).toBeInTheDocument()
   })
 })

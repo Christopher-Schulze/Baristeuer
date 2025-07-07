@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { Backend } from './wailsjs/go/service/DataService';
+  import Members from './Members.svelte';
   let dark = false;
   let incomes = [];
   let incomeSource = '';
@@ -11,6 +12,7 @@
   let showPDF = false;
   let pdfPath = '';
   let errorMsg = '';
+  let tab = 'form';
 
   async function generatePdf() {
     errorMsg = '';
@@ -61,10 +63,12 @@
     </label>
   </div>
   <div class="tabs tabs-boxed mb-4">
-    <a class="tab tab-active">Formulare</a>
-    <a class="tab">Einstellungen</a>
-    <a class="tab">PDF</a>
+    <a class="tab {tab === 'form' ? 'tab-active' : ''}" on:click={() => tab = 'form'}>Formulare</a>
+    <a class="tab {tab === 'members' ? 'tab-active' : ''}" on:click={() => tab = 'members'}>Mitglieder</a>
+    <a class="tab {tab === 'settings' ? 'tab-active' : ''}" on:click={() => tab = 'settings'}>Einstellungen</a>
+    <a class="tab {tab === 'pdf' ? 'tab-active' : ''}" on:click={() => tab = 'pdf'}>PDF</a>
   </div>
+  {#if tab === 'form'}
   <div class="grid md:grid-cols-2 gap-4">
     <div>
       <h2 class="font-semibold mb-2">Einnahmen</h2>
@@ -99,6 +103,11 @@
       </table>
     </div>
   </div>
+  {/if}
+  {#if tab === 'members'}
+    <Members />
+  {/if}
+  {#if tab === 'pdf'}
   <div class="mt-6">
     <button class="btn" on:click={() => showPDF = !showPDF}>PDF Vorschau</button>
     {#if showPDF}
@@ -113,4 +122,5 @@
       </div>
     {/if}
   </div>
+  {/if}
 </main>
