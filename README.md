@@ -19,6 +19,7 @@ UI tests require Node.js dependencies located in `internal/ui`. Run `make deps`
 once to install them before executing `make ui-test` or `make test`.
 
 For installation and detailed usage instructions see [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md).
+Place the official PDF forms in `internal/pdf/templates/` as described in [docs/Todo-fuer-User.md](docs/Todo-fuer-User.md).
 
 ---
 
