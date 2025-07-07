@@ -7,6 +7,10 @@ describe('App component', () => {
   it('allows basic interactions', async () => {
     const { getByText, getByPlaceholderText, getAllByPlaceholderText, getAllByText, getByTitle } = render(App)
 
+    // create project
+    await fireEvent.input(getByPlaceholderText('Projektname'), { target: { value: 'Test' } })
+    await fireEvent.click(getByText('Anlegen'))
+
     // income
     await fireEvent.input(getByPlaceholderText('Quelle'), { target: { value: 'Job' } })
     await fireEvent.input(getAllByPlaceholderText('Betrag')[0], { target: { value: '100' } })
