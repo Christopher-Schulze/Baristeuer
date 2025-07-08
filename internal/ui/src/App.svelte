@@ -8,7 +8,7 @@
   let incomeSource = '';
   let incomeAmount = '';
   let expenses = [];
-  let expenseDesc = '';
+  let expenseCategory = '';
   let expenseAmount = '';
   let showPDF = false;
   let pdfPath = '';
@@ -55,10 +55,10 @@
   }
 
   async function addExpense() {
-    if (!expenseDesc || !expenseAmount) return;
-    await Backend.AddExpense(projectId, expenseDesc, parseFloat(expenseAmount));
+    if (!expenseCategory || !expenseAmount) return;
+    await Backend.AddExpense(projectId, expenseCategory, parseFloat(expenseAmount));
     expenses = await Backend.ListExpenses(projectId);
-    expenseDesc = '';
+    expenseCategory = '';
     expenseAmount = '';
   }
 </script>
@@ -97,15 +97,15 @@
     <div>
       <h2 class="font-semibold mb-2">Ausgaben</h2>
       <div class="flex gap-2 mb-2">
-        <input class="input input-bordered flex-1" placeholder="Beschreibung" bind:value={expenseDesc} />
+        <input class="input input-bordered flex-1" placeholder="Kategorie" bind:value={expenseCategory} />
         <input class="input input-bordered w-24" type="number" placeholder="Betrag" bind:value={expenseAmount} />
         <button class="btn btn-primary" on:click={addExpense}>Hinzufügen</button>
       </div>
       <table class="table w-full">
-        <thead><tr><th>Beschreibung</th><th>Betrag</th></tr></thead>
+        <thead><tr><th>Kategorie</th><th>Betrag</th></tr></thead>
         <tbody>
           {#each expenses as ex}
-          <tr><td>{ex.desc}</td><td>{ex.amount.toFixed(2)}</td></tr>
+          <tr><td>{ex.category}</td><td>{ex.amount.toFixed(2)}</td></tr>
           {/each}
         </tbody>
       </table>

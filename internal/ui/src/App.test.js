@@ -28,9 +28,9 @@ vi.mock('./wailsjs/go/service/DataService', () => {
         incomes.push({ source, amount })
         return Promise.resolve()
       }),
-      AddExpense: vi.fn((_p, desc, amount) => {
-        expenses.push({ desc, amount })
-        return Promise.resolve()
+      AddExpense: vi.fn((_p, category, amount) => {
+        expenses.push({ category, amount })
+      return Promise.resolve()
       }),
     },
     Generator: {
@@ -60,7 +60,7 @@ describe('App component', () => {
     expect(getByText('Job')).toBeInTheDocument()
 
     // expense
-    await fireEvent.input(getByPlaceholderText('Beschreibung'), { target: { value: 'Food' } })
+    await fireEvent.input(getByPlaceholderText('Kategorie'), { target: { value: 'Food' } })
     await fireEvent.input(getAllByPlaceholderText('Betrag')[1], { target: { value: '50' } })
     await fireEvent.click(getAllByText('Hinzufügen')[1])
     await Promise.resolve()

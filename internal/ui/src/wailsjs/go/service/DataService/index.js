@@ -8,8 +8,8 @@ export const Backend = {
   async AddIncome(_projectId, source, amount) {
     incomes.push({ source, amount })
   },
-  async AddExpense(_projectId, desc, amount) {
-    expenses.push({ desc, amount })
+  async AddExpense(_projectId, category, amount) {
+    expenses.push({ category, amount })
   },
 };
 export const Generator = {

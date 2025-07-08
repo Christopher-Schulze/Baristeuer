@@ -32,8 +32,8 @@ export const Backend = {
   async ListIncomes(projectId) {
     return incomes.filter(i => i.projectId === projectId);
   },
-  async AddExpense(projectId, desc, amount) {
-    const rec = { id: nextExpenseId++, projectId, desc, amount: parseFloat(amount) };
+  async AddExpense(projectId, category, amount) {
+    const rec = { id: nextExpenseId++, projectId, category, amount: parseFloat(amount) };
     expenses.push(rec);
     return rec;
   },
