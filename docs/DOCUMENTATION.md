@@ -40,11 +40,10 @@ go work sync
 npm ci --prefix internal/ui
 ```
 
-2. Die Benutzeroberfl\xC3\xA4che bauen und das Binary erzeugen:
+2. Die Anwendung bauen:
 
 ```bash
-npm run build --prefix internal/ui
-wails build -clean
+wails build
 ```
 
 3. Eine eigene Konfiguration anlegen:
@@ -60,7 +59,7 @@ Pfade wie `dbPath` oder `pdfDir` k\xC3\xB6nnen in dieser Datei angepasst werden.
 ```
 
 4. Typische Abl\xC3\xA4ufe innerhalb der Anwendung:
-   - Einnahmen und Ausgaben erfassen
+   - Einnahmen und Ausgaben erfassen, inklusive Feld "Kategorie" für Ausgaben
    - Mitglieder verwalten
    - \"Bericht erstellen\" w\xC3\xA4hlen, um PDF-Formulare zu generieren
    - Optional CSV-Exporte oder Datenbank-Backups ausf\xC3\xBChren
