@@ -1,243 +1,194 @@
-# Documentation
+# Baristeuer Documentation
 
 ## Project Overview
 
-Baristeuer is a desktop application for generating tax reports for non-profit organizations in Germany. It uses Go for the backend and a Svelte frontend styled with DaisyUI. The application is bundled with Wails so it can run as a native program.
+Baristeuer is a professional tax declaration software designed for clubs and non-profit organizations in Germany. It simplifies the complex process of creating and managing tax declarations by providing an intuitive step-by-step interview process that guides users through all required information for different tax areas.
 
-Cloud sync via HTTP endpoints is now implemented to back up and restore the SQLite database. Configuration details can be found in [docs/cloud-sync.md](cloud-sync.md).
+## Architecture
 
-## Technology Stack
+The application is built using the modern T3-Stack with additional enhancements:
 
-### Backend
+### Core Technologies
+- **Next.js 15.3.5**: React framework with App Router, Turbopack, and static export capabilities
+- **TypeScript 5.3.3**: Full type safety across the entire application
+- **Bun**: Modern JavaScript runtime and package manager for improved performance
+- **tRPC 11.4.3**: End-to-end typesafe API layer with React Query integration
+- **Prisma 6.11.1**: Type-safe database ORM with SQLite backend
+- **NextAuth.js 4.24.11**: Comprehensive authentication solution
+- **Tailwind CSS 4.1.11**: Utility-first CSS framework with JIT compilation
+- **HeroUI 2.7.11**: Modern React component library for consistent UI
+- **Tauri 2.0.0-rc**: Cross-platform desktop application framework
 
-- **Go**: Language for all backend logic.
-- **Wails**: Framework for building the desktop application.
-- **SQLite**: Lightweight database used through `database/sql`.
+### State Management & Data Flow
+- **Jotai 2.12.5**: Atomic state management for form data
+- **Zod 3.25.76**: Runtime type validation and schema definition
+- **React Query**: Server state management and caching
+- **Superjson**: Enhanced JSON serialization for tRPC
 
-### Frontend
-
-- **Svelte**: UI library for building the interface.
-- **DaisyUI**: Component library for styling.
-- **Vite**: Development server and build tool.
-
-## Directory Structure
-
-- `cmd/`: Application entry point and Wails setup.
-- `docs/`: Documentation files (`Changelog.md`, `DOCUMENTATION.md`).
-- `internal/`: Core application logic.
-  - `data/`: Data models and SQLite storage.
-  - `pdf/`: PDF generation utilities.
-  - `taxlogic/`: Business logic for tax calculations for German non-profits.
-  - `ui/`: Svelte frontend source code.
-- `scripts/`: Helper scripts for development.
-
-## Schnellstart
-
-1. Repository klonen und die Abh\xC3\xA4ngigkeiten installieren:
-
-```bash
-go work sync
-npm ci --prefix internal/ui
-```
-
-2. Die Anwendung bauen:
-
-```bash
-wails build
-```
-
-3. Eine eigene Konfiguration anlegen:
-
-```bash
-cp config.example.json config.json
-```
-
-Pfade wie `dbPath` oder `pdfDir` k\xC3\xB6nnen in dieser Datei angepasst werden. Starten Sie die Anwendung anschlie\xC3\x9Fend mit:
-
-```bash
-./baristeuer -config config.json
-```
-
-4. Typische Abl\xC3\xA4ufe innerhalb der Anwendung:
-   - Einnahmen und Ausgaben erfassen, inklusive Feld "Kategorie" für Ausgaben
-   - Mitglieder verwalten
-   - \"Bericht erstellen\" w\xC3\xA4hlen, um PDF-Formulare zu generieren
-   - Optional CSV-Exporte oder Datenbank-Backups ausf\xC3\xBChren
-5. Die offiziellen Formularvorlagen separat herunterladen und in
-   `internal/pdf/templates/` ablegen. Ohne diese Dateien zeigt das Programm
-   einen Hinweis in den erzeugten PDFs. Lege die amtlichen PDFs exakt so ab,
-   wie es in `internal/pdf/templates/README.md` beschrieben ist: Benenne sie
-   wie die vorhandenen Platzhalterdateien (`kst1.txt`, `kst1f.txt`,
-   `anlage_gem.txt`, `anlage_gk.txt`, `anlage_sport.txt`) und ersetze die
-   Endung mit `.pdf`. Die Dateien müssen also `kst1.pdf`, `kst1f.pdf`,
-   `anlage_gem.pdf`, `anlage_gk.pdf` und `anlage_sport.pdf` heißen. Da die
-   Originalformulare urheberrechtlich geschützt sind, dürfen sie nicht ins
-   Repository eingecheckt werden.
-
-## Installing Dependencies
-
-Install all Go modules and Node packages after cloning the repository:
-
-```bash
-go work sync
-npm ci --prefix internal/ui
-```
-
-These commands set up the workspace modules and fetch the UI dependencies.
-Run `make vet` and `make test` afterward to verify everything works locally.
-
-## Workspace Setup and Running Tests
-
-The repository uses a Go **workspace** (`go.work`) to manage multiple modules.
-These modules are referenced by their paths:
-
-- `baristeuer` (located in `cmd/`)
-- `baristeuer/internal`
-- `baristeuer/internal/pdf`
-
-Before running any tests, make sure the workspace modules are synchronized so
-dependencies are resolved correctly:
-
-```bash
-go work sync
-```
-
-Once the workspace is synced, run the test suite from the repository root:
-
-```bash
-go test ./cmd/... ./internal/... ./internal/pdf/...
-```
-
-Run this command from the repository root after executing `go work sync`. It
-ensures all workspace modules are included and prevents missing dependency
-errors. Future Go releases may support running `go test ./...` across workspace
-modules automatically.
-
-### Frontend Tests
-
-To run the Svelte unit tests you must install dependencies first:
-
-```bash
-npm ci --prefix internal/ui
-npm test --prefix internal/ui
-```
-The `npm` command and the Playwright browsers must be available in your
-environment. The Makefile target `make ui-test` also expects these
-dependencies to be installed.
-
-## Configuration
-
-Runtime options can be provided via a JSON configuration file. By default the
-application looks for `config.json` in the working directory. Copy
-`config.example.json` to `config.json` when running the application for the first
-time. Example:
-
-```json
-{
-  "dbPath": "baristeuer.db",
-  "pdfDir": "./reports",
-  "logFile": "baristeuer.log",
-  "logLevel": "info",
-  "cloudUploadURL": "https://example.com/upload",
-  "cloudDownloadURL": "https://example.com/download",
-  "cloudToken": "my-secret-token"
-}
-```
-
-Set `cloudUploadURL` and `cloudDownloadURL` to enable the built-in
-HTTP-based cloud sync. The `cloudToken` value is sent as a bearer token for
-authentication. See [cloud-sync.md](cloud-sync.md) for detailed setup
-instructions.
-
-If `pdfDir` is omitted, generated PDFs are stored in `./internal/data/reports`.
-Alternatively the environment variable `BARISTEUER_PDFDIR` can override the output directory at runtime.
-
-Command line flags override values from the file. The log level can also be adjusted at runtime via the `SetLogLevel` method exposed by the `DataService`.
-
-### Language Selection
-
-The application starts in German. Use the dropdown in the top toolbar to switch between German and English at any time.
+### Development & Testing
+- **Vitest 3.2.4**: Fast unit testing framework
+- **ESLint & TypeScript ESLint**: Code quality and consistency
+- **PostCSS**: CSS processing and optimization
 
 ## Key Features
 
-- **Svelte + DaisyUI Interface**: UI built with Svelte components styled using DaisyUI.
-- **Multi-language Support**: Interface available in German and English. Change the language via the toolbar dropdown.
-- **PDF Generation**: Creates detailed tax reports in PDF format for submission to the German tax office.
-- **Formularerstellung**: Erzeugt vereinfachte Ausgaben der Formblätter KSt 1, Anlage Gem/GK, KSt 1F und Anlage Sport als PDF.
-- **Konfigurierbares PDF-Verzeichnis**: Das Ausgabeziel lässt sich über `pdfDir` in der Konfiguration oder die Umgebungsvariable `BARISTEUER_PDFDIR` steuern.
-- **SQLite Storage**: Simple persistence layer to store project data.
-- **Member Tracking**: Manage club members with names, emails and join dates.
-- **Unit Tests**: Tests covering the tax calculation logic.
-- **Backup & Restore**: The `DataService` can export and restore the SQLite database for easy backups. Use `-exportdb <file>` to dump the database or `-restoredb <file>` to load it before the UI starts.
-- **CSV Export**: Use the `ExportProjectCSV` method or pass `-exportcsv <projectID>:<file>` when starting the application to save all incomes and expenses of a project. Example:
-`./baristeuer -exportcsv 1:report.csv`
-- **Cloud Sync**: Built-in synchronization via HTTP endpoints for backing up
-  and restoring the database. See [cloud-sync.md](cloud-sync.md) for
-  configuration details.
-- **Docker-Unterstützung**: Ein `Dockerfile` ermöglicht den containerisierten Build des Projekts.
+### Tax Declaration Management
+- **Multi-Step Interview Process**: Five comprehensive steps covering all tax areas:
+  1. **Grunddaten (Basic Data)**: Organization details, address, tax number
+  2. **Ideeller Bereich (Ideal Sector)**: Non-profit activities and related finances
+  3. **Vermögensverwaltung (Asset Management)**: Investment income and expenses
+  4. **Zweckbetrieb (Purpose-Related Business)**: Mission-related commercial activities
+  5. **Wirtschaftlicher Geschäftsbetrieb (Commercial Business)**: Taxable commercial activities
 
-## Optional Plugins
+### Advanced Functionality
+- **Dynamic Form Validation**: Real-time validation with detailed error messages
+- **Automatic Tax Calculations**: Built-in tax engine with German tax law compliance
+- **PDF Generation**: Professional tax declaration documents using pdf-lib
+- **Data Persistence**: Automatic saving with optimistic updates
+- **Responsive Design**: Mobile-first approach with dark mode support
 
-At startup the application scans the `plugins/` directory in the working
-directory. All files with the `.so` extension are loaded as Go plugins. Each
-plugin must export a `New` function returning a value that implements the
-following interface:
+### Technical Features
+- **Type-Safe API**: Full TypeScript coverage from database to UI
+- **Real-time Updates**: Optimistic UI updates with error handling
+- **Cross-Platform Desktop App**: Native performance with web technologies
+- **Offline Capability**: Local SQLite database for offline functionality
+- **Security**: Secure authentication with session management
 
-```go
-type Plugin interface {
-    Init(*service.DataService) error
-}
+## Project Structure
+
+```
+src/
+├── app/                          # Next.js App Router
+│   ├── globals.css              # Global styles
+│   ├── layout.tsx               # Root layout with providers
+│   ├── page.tsx                 # Landing page
+│   └── steuererklaerung/
+│       └── neu/                 # New tax declaration page
+├── components/
+│   ├── providers/               # React context providers
+│   ├── steuer/                  # Tax-related components
+│   │   ├── SteuerFormular.tsx   # Main form component
+│   │   └── interview-steps/     # Step-by-step interview components
+│   └── ui/                      # Reusable UI components
+├── lib/
+│   ├── auth/                    # Authentication configuration
+│   ├── pdf/                     # PDF generation utilities
+│   ├── steuer/                  # Tax calculation engine
+│   │   ├── engine.ts            # Core tax calculation logic
+│   │   ├── formState.ts         # Jotai atoms for form state
+│   │   └── steuerService.ts     # Tax service layer
+│   ├── trpc/                    # tRPC client and server setup
+│   ├── prisma.ts                # Database client
+│   └── utils.ts                 # Utility functions
+├── server/
+│   ├── context.ts               # tRPC context creation
+│   ├── routers/                 # API route handlers
+│   └── trpc.ts                  # tRPC server configuration
+├── types/                       # TypeScript type definitions
+├── validations/                 # Zod schemas
+└── __tests__/                   # Test files
+
+src-tauri/                       # Tauri desktop app configuration
+├── src/                         # Rust source code
+├── icons/                       # Application icons
+├── Cargo.toml                   # Rust dependencies
+└── tauri.conf.json             # Tauri configuration
+
+prisma/
+├── schema.prisma               # Database schema
+└── migrations/                 # Database migrations
+
+docs/                           # Project documentation
+├── DOCUMENTATION.md            # This file
+├── CHANGELOG.md               # Version history
+└── LICENSE                    # MIT License
 ```
 
-`Init` is called after the `DataService` is initialized, allowing the plugin to
-register additional functionality. If the `plugins/` directory does not exist,
-the application starts normally without loading any extensions.
+## Database Schema
 
-## Cross-Platform Compatibility
+The application uses SQLite with Prisma ORM. Key models include:
 
-Die Anwendung wurde erfolgreich unter **macOS** und **Windows** getestet. Alle Funktionen stehen auf beiden Plattformen ohne Einschränkungen zur Verfügung.
+### User Management
+- **User**: User accounts with authentication data
+- **Account**: OAuth provider accounts
+- **Session**: User sessions
+- **VerificationToken**: Email verification tokens
 
-## Release Workflow
+### Tax Data
+- **Verein**: Organization/club information
+  - Basic details (name, address, tax number)
+  - Tax settings (Hebesatz, Kleinunternehmerregelung)
+  - Financial office address
+- **steuererklaerung**: Tax declarations
+  - Year-specific tax data
+  - Four tax areas as JSON fields:
+    - `ideellerBereich`: Non-profit activities
+    - `vermoegensverwaltung`: Asset management
+    - `zweckbetrieb`: Purpose-related business
+    - `wirtschaftlicherGeschaeftsbetrieb`: Commercial business
 
-The creation of a new release is automated through GitHub Actions. When a tag is
-pushed, `.github/workflows/release.yml` builds the application, signs the
-checksums and publishes a GitHub release. The workflow performs the following
-steps:
+## Tax Calculation Engine
 
-1. Checkout the repository with submodules and set up Go and Node.js.
-2. Install the Wails CLI and all dependencies.
-3. Execute `scripts/package.sh <tag>` to build binaries for macOS, Windows and
-   Linux.
-4. Archive the packages and generate a `SHA256SUMS` file.
-5. Import the GPG private key from the `GPG_PRIVATE_KEY` secret and sign the
-   checksums.
-6. Create the GitHub release and upload all artifacts.
+The `SteuerEngine` class implements German tax law calculations:
 
-To run the packaging step locally or inspect its behaviour, execute
-`./scripts/package.sh` from the repository root. The script mirrors the build
-logic used in the release workflow.
+### Core Calculations
+- **Income Tax (Einkommensteuer)**: Progressive tax rates
+- **Trade Tax (Gewerbesteuer)**: Municipal business tax with exemptions
+- **Solidarity Surcharge (Solidaritätszuschlag)**: Additional federal tax
+- **Church Tax (Kirchensteuer)**: Optional religious tax
 
-## Continuous Integration
+### Tax Constants (2024)
+- Income tax exemption: €11,604
+- Trade tax exemption: €5,000
+- Solidarity surcharge rate: 5.5%
+- Standard municipal multiplier: 400%
 
-Every push and pull request triggers a CI workflow defined in
-`.github/workflows/ci.yml`. This workflow installs all dependencies, runs the
-frontend linter and test suite, and executes `go vet` as well as all Go unit
-tests. The CI ensures that code quality checks pass before changes are merged.
+## Development Guidelines
 
-## Final Project Assessment
+### Code Quality
+- **TypeScript**: Strict mode enabled, no `any` types
+- **ESLint**: Enforced code style and best practices
+- **Testing**: Unit tests for business logic with Vitest
+- **Validation**: Zod schemas for all data structures
 
-### Current State
+### State Management
+- **Form State**: Jotai atoms for reactive form data
+- **Server State**: React Query for API data caching
+- **Validation**: Real-time validation with error states
 
-The Baristeuer application is stable and covers the core features. The backend, built with Go, provides robust tax calculation and data management logic. The Svelte-based frontend, styled with DaisyUI, offers an intuitive and responsive user interface. Für Steuerformulare stehen inzwischen einfache PDF-Layouts für KSt 1, Anlage Gem/GK, KSt 1F und Anlage Sport bereit. Die Anwendung wurde auf macOS und Windows für Basisszenarien getestet.
+### Performance
+- **Turbopack**: Fast development builds
+- **Static Export**: Optimized production builds
+- **Code Splitting**: Automatic route-based splitting
+- **Optimistic Updates**: Immediate UI feedback
 
-### Production Readiness
+## Build and Deployment
 
-Die amtlichen Formularlayouts dürfen aus Lizenzgründen nicht im Repository liegen. Laden Sie die Vorlagen selbst herunter und speichern Sie sie im Ordner `internal/pdf/templates/` (siehe [docs/Todo-fuer-User.md](Todo-fuer-User.md)). Die CI/CD-Pipeline führt Tests aus und der aktuelle Funktionsumfang gilt als produktionsreif.
+### Development
+```bash
+bun install                    # Install dependencies
+bun run dev                   # Start development server
+bun run prisma:migrate        # Run database migrations
+bun run test                  # Run unit tests
+```
 
-### Potential Next Steps
+### Production
+```bash
+bun run build                 # Build Next.js application
+bun run tauri:build          # Build desktop application
+```
 
-While the application is complete, future enhancements could include:
+### Desktop Application
+The Tauri build creates native installers for:
+- **macOS**: `.dmg` installer
+- **Windows**: `.msi` installer
+- **Linux**: `.deb` and `.rpm` packages
 
-- **Advanced Reporting:** Adding more detailed analytics and customizable report templates.
-- **Cloud Sync Enhancements:** Improving the implemented synchronization with conflict handling or scheduled backups.
-- **Plugin System:** Developing a plugin architecture to allow for third-party extensions and integrations.
+## Security Considerations
+
+- **Authentication**: Secure session management with NextAuth.js
+- **Data Validation**: Server-side validation with Zod schemas
+- **SQL Injection**: Protected by Prisma ORM
+- **XSS Protection**: React's built-in XSS protection
+- **CSRF Protection**: Built into NextAuth.js
+- **Local Data**: SQLite database for sensitive tax data
