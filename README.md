@@ -1,7 +1,4 @@
-> ⚠️ **IMPORTANT NOTICE**
-> 
-> This project is currently **under active development** and **not yet functional**. 
-> We're working hard to implement all features. Check back soon for updates!
+> ⚠️ This project is currently **under active development** and **not yet functional**. 
 > 
 > ---
 
